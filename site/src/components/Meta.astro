@@ -9,10 +9,15 @@ interface Props {
 }
 
 const { date, readingTime, tags, status, stack, links } = Astro.props;
+
+function formatDate(iso: string): string {
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
 ---
 
 <div class="font-mono text-[var(--text-meta)] leading-[var(--leading-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] flex flex-wrap items-center gap-x-4 gap-y-1">
-  {date && <time datetime={date}>{date}</time>}
+  {date && <time datetime={date}>{formatDate(date)}</time>}
   {readingTime && <span>{readingTime}</span>}
   {status && <span>{status}</span>}
   {tags && tags.length > 0 && (
