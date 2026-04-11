@@ -44,7 +44,7 @@ Remarque projects should feel like a modern technical publication — not a gene
 - **Component primitives:** shadcn/ui (when reusable components are needed)
 - **Markup:** Semantic HTML with ARIA landmarks
 - **Theming:** Light and dark mode via `[data-theme]` attribute (system preference + manual toggle)
-- **Accessibility:** Keyboard navigation, skip-to-content link, ARIA labels, WCAG AA contrast compliance
+- **Accessibility:** USWDS-informed. Keyboard navigation, skip-to-content link, ARIA labels, WCAG AA contrast compliance, 44px touch targets, 14px minimum small text
 - **Tokens:** Centralized CSS custom properties as the single source of truth
 - **Fonts:** Self-hosted woff2 (no CDN dependency). Preloaded via `<link rel="preload">`
 - **Package:** Installable via npm (`remarque-tokens`) or copy `tokens.css` + `tailwind.config.js`
@@ -132,6 +132,40 @@ Motion in Remarque is nearly invisible. The only permitted motion:
 - Staggered load sequences
 - Parallax effects
 - Any animation on non-interactive elements
+
+---
+
+## USWDS Accessibility Compliance
+
+Remarque adopts typography and accessibility standards from the US Web Design System (USWDS) and WCAG 2.1:
+
+### Font Size Floors
+
+| Token | Value | USWDS Rationale |
+|-------|-------|-----------------|
+| `--text-body` | 17px (1.0625rem) | Exceeds USWDS 16px minimum. Non-negotiable floor. |
+| `--text-meta` | 14px (0.875rem) | USWDS minimum for small text. Used sparingly for metadata, labels, captions. |
+| `--text-micro` | 13px (0.8125rem) | USWDS floor for timestamps and fine print only. Never for body content. |
+
+### Contrast Ratios (WCAG 2.1 AA)
+
+| Pairing | Requirement | Notes |
+|---------|-------------|-------|
+| Normal text on background | 4.5:1 minimum | All text below 24px regular / 18.5px bold |
+| Large text on background | 3:1 minimum | Display and title text (24px+) |
+| Non-text elements (borders, icons) | 3:1 minimum | WCAG 1.4.11 |
+
+### Touch Targets
+
+All interactive elements (links, buttons, inputs) must have a minimum touch target of **44x44px** (WCAG 2.5.5 AAA). This applies to nav links, theme toggles, footer links, chips, and any clickable element.
+
+### Line Height
+
+| Context | Minimum | Remarque Value |
+|---------|---------|----------------|
+| Body text (running copy) | 1.5 | 1.75 |
+| Meta/caption text | 1.35 | 1.5 |
+| Display/heading text | 1.0 | 1.05-1.2 |
 
 ---
 

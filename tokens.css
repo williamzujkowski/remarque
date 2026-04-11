@@ -29,15 +29,15 @@
   --text-section: clamp(1.375rem, 2.25vw, 2rem);
   --text-body-lg: 1.1875rem;    /* 19px — for lead paragraphs */
   --text-body: 1.0625rem;       /* 17px — minimum body size, non-negotiable */
-  --text-meta: 0.8125rem;       /* 13px — metadata, labels, captions */
-  --text-micro: 0.75rem;        /* 12px — timestamps, fine print only */
+  --text-meta: 0.875rem;        /* 14px — USWDS minimum for small text */
+  --text-micro: 0.8125rem;      /* 13px — USWDS floor for timestamps only */
 
   /* Line heights — matched to their type roles */
   --leading-display: 1.05;
   --leading-title: 1.15;
   --leading-section: 1.2;
   --leading-body: 1.75;         /* generous — this is what makes prose readable */
-  --leading-meta: 1.4;
+  --leading-meta: 1.5;          /* USWDS minimum for short text */
 
   /* Letter spacing */
   --tracking-display: -0.02em;
