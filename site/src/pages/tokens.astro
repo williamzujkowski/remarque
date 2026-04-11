@@ -1,0 +1,167 @@
+---
+/**
+ * Token Reference — Visual reference for all Remarque design tokens.
+ * Shows colors, spacing, widths, radii, and motion values.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+
+const lightColors = [
+  { name: '--color-bg', value: 'oklch(0.975 0.005 80)', desc: 'Page background' },
+  { name: '--color-bg-subtle', value: 'oklch(0.955 0.005 80)', desc: 'Alternating sections' },
+  { name: '--color-fg', value: 'oklch(0.18 0.01 80)', desc: 'Primary text' },
+  { name: '--color-fg-muted', value: 'oklch(0.45 0.015 80)', desc: 'Secondary text' },
+  { name: '--color-muted', value: 'oklch(0.55 0.01 80)', desc: 'Tertiary text' },
+  { name: '--color-border', value: 'oklch(0.88 0.005 80)', desc: 'Quiet borders' },
+  { name: '--color-border-bold', value: 'oklch(0.78 0.01 80)', desc: 'Emphasized borders' },
+  { name: '--color-surface', value: 'oklch(0.965 0.005 80)', desc: 'Card surfaces' },
+  { name: '--color-accent', value: 'oklch(0.50 0.14 250)', desc: 'Links, one interactive' },
+  { name: '--color-accent-hover', value: 'oklch(0.42 0.14 250)', desc: 'Accent hover' },
+  { name: '--color-code-bg', value: 'oklch(0.945 0.005 80)', desc: 'Inline code background' },
+];
+
+const darkColors = [
+  { name: '--color-bg', value: 'oklch(0.16 0.01 80)', desc: 'Page background' },
+  { name: '--color-fg', value: 'oklch(0.90 0.005 80)', desc: 'Primary text' },
+  { name: '--color-accent', value: 'oklch(0.68 0.12 250)', desc: 'Links (brighter)' },
+  { name: '--color-border', value: 'oklch(0.25 0.005 80)', desc: 'Quiet borders' },
+  { name: '--color-code-bg', value: 'oklch(0.20 0.005 80)', desc: 'Inline code background' },
+];
+
+const spacing = [
+  { name: '--space-1', value: '0.25rem', px: '4px' },
+  { name: '--space-2', value: '0.5rem', px: '8px' },
+  { name: '--space-3', value: '0.75rem', px: '12px' },
+  { name: '--space-4', value: '1rem', px: '16px' },
+  { name: '--space-5', value: '1.5rem', px: '24px' },
+  { name: '--space-6', value: '2rem', px: '32px' },
+  { name: '--space-7', value: '3rem', px: '48px' },
+  { name: '--space-8', value: '4rem', px: '64px' },
+  { name: '--space-9', value: '6rem', px: '96px' },
+  { name: '--space-10', value: '8rem', px: '128px' },
+];
+---
+
+<BaseLayout title="Tokens" description="Visual reference for all Remarque design tokens — colors, spacing, content widths, and motion.">
+  <div class="pt-[var(--space-9)]">
+    <h1 class="text-display font-display text-[var(--color-fg)]">Design Tokens</h1>
+    <p class="mt-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
+      The single source of truth for all visual decisions. Defined in tokens.css.
+    </p>
+  </div>
+
+  <!-- Colors: Light -->
+  <section class="mt-12 max-w-standard">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">Colors — Light Theme</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {lightColors.map((c) => (
+        <div class="border border-[var(--color-border)] rounded-[var(--radius-md)] overflow-hidden">
+          <div class="h-16" style={`background: ${c.value};`}></div>
+          <div class="p-3">
+            <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg)]">{c.name}</p>
+            <p class="font-mono text-[var(--text-micro)] text-[var(--color-muted)] mt-1">{c.value}</p>
+            <p class="text-[var(--text-meta)] text-[var(--color-fg-muted)] mt-1">{c.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Colors: Dark -->
+  <section class="mt-12 max-w-standard">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">Colors — Dark Theme (key differences)</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {darkColors.map((c) => (
+        <div class="border border-[var(--color-border)] rounded-[var(--radius-md)] overflow-hidden">
+          <div class="h-16" style={`background: ${c.value};`}></div>
+          <div class="p-3">
+            <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg)]">{c.name}</p>
+            <p class="font-mono text-[var(--text-micro)] text-[var(--color-muted)] mt-1">{c.value}</p>
+            <p class="text-[var(--text-meta)] text-[var(--color-fg-muted)] mt-1">{c.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Spacing Scale -->
+  <section class="mt-12 max-w-standard">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">Spacing Scale</h2>
+    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">Deliberately generous. The upper values (--space-9 through --space-12) provide the breathing room that distinguishes editorial layouts from dashboard UIs.</p>
+    <div class="border-t border-[var(--color-border)]">
+      {spacing.map((s) => (
+        <div class="py-3 border-b border-[var(--color-border)] flex items-center gap-4">
+          <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] w-28 shrink-0">{s.name}</div>
+          <div class="font-mono text-[var(--text-meta)] text-[var(--color-fg-muted)] w-20 shrink-0">{s.px}</div>
+          <div class="flex-1">
+            <div class="h-3 rounded-[var(--radius-sm)] bg-[var(--color-accent)]" style={`width: ${s.value}; max-width: 100%;`}></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Content Widths -->
+  <section class="mt-12 max-w-standard">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">Content Widths</h2>
+    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">The three content widths are the most critical layout tokens. Prose is always constrained to the reading width.</p>
+    <div class="space-y-4">
+      <div>
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">--content-reading: 46rem (~740px) — prose, essays, articles</div>
+        <div class="h-4 rounded-[var(--radius-sm)] bg-[var(--color-accent)] opacity-40" style="max-width: 46rem;"></div>
+      </div>
+      <div>
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">--content-standard: 72rem (~1152px) — project pages, wider layouts</div>
+        <div class="h-4 rounded-[var(--radius-sm)] bg-[var(--color-accent)] opacity-60" style="max-width: 72rem;"></div>
+      </div>
+      <div>
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">--content-wide: 88rem (~1408px) — outer container, navigation context</div>
+        <div class="h-4 rounded-[var(--radius-sm)] bg-[var(--color-accent)] opacity-80" style="max-width: 88rem;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Border Radius & Motion -->
+  <section class="mt-12 max-w-standard mb-12">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">Borders, Radius & Motion</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+      <div>
+        <h3 class="font-body text-[var(--text-body)] font-semibold text-[var(--color-fg)] mb-4">Border Radius</h3>
+        <div class="flex items-end gap-6">
+          <div class="text-center">
+            <div class="w-16 h-16 border border-[var(--color-border-bold)] rounded-[var(--radius-sm)]"></div>
+            <p class="font-mono text-[var(--text-micro)] text-[var(--color-muted)] mt-2">--radius-sm<br/>0.25rem</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 border border-[var(--color-border-bold)] rounded-[var(--radius-md)]"></div>
+            <p class="font-mono text-[var(--text-micro)] text-[var(--color-muted)] mt-2">--radius-md<br/>0.5rem (max)</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 border border-[var(--color-border-bold)]"></div>
+            <p class="font-mono text-[var(--text-micro)] text-[var(--color-muted)] mt-2">--radius-none<br/>0</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="font-body text-[var(--text-body)] font-semibold text-[var(--color-fg)] mb-4">Motion</h3>
+        <div class="space-y-3">
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-[var(--text-meta)] text-[var(--color-muted)] w-32">--motion-fast</span>
+            <span class="font-mono text-[var(--text-meta)] text-[var(--color-fg)]">120ms</span>
+            <span class="text-[var(--text-meta)] text-[var(--color-fg-muted)]">hover, focus</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-[var(--text-meta)] text-[var(--color-muted)] w-32">--motion-normal</span>
+            <span class="font-mono text-[var(--text-meta)] text-[var(--color-fg)]">180ms</span>
+            <span class="text-[var(--text-meta)] text-[var(--color-fg-muted)]">theme transitions</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-[var(--text-meta)] text-[var(--color-muted)] w-32">--motion-easing</span>
+            <span class="font-mono text-[var(--text-meta)] text-[var(--color-fg)]">ease-out</span>
+            <span class="text-[var(--text-meta)] text-[var(--color-fg-muted)]">all transitions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

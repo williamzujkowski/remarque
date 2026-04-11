@@ -4,10 +4,13 @@ import '../styles/globals.css';
 interface Props {
   title: string;
   description?: string;
+  ogImage?: string;
 }
 
-const { title, description = "A typography-first design system for editorial, technical, and personal web projects." } = Astro.props;
+const { title, description = "A typography-first design system for editorial, technical, and personal web projects.", ogImage } = Astro.props;
 const base = import.meta.env.BASE_URL;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const fullTitle = title === "Home" ? "Remarque — A typography-first design system" : `${title} — Remarque`;
 ---
 
 <!doctype html>
@@ -16,7 +19,29 @@ const base = import.meta.env.BASE_URL;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <title>{title} — Remarque</title>
+    <title>{fullTitle}</title>
+
+    <!-- Canonical & SEO -->
+    <link rel="canonical" href={canonicalURL.href} />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:site_name" content="Remarque" />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Favicon -->
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -27,19 +52,27 @@ const base = import.meta.env.BASE_URL;
   <body
     class="min-h-screen bg-[var(--color-bg)] text-[var(--color-fg)] font-body text-[1.0625rem] leading-[1.75] antialiased"
   >
+    <!-- Skip to content -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-fg)] focus:text-[var(--color-bg)] focus:rounded-[var(--radius-sm)] focus:text-[var(--text-meta)] focus:no-underline focus:outline-none"
+    >
+      Skip to content
+    </a>
+
     <div class="max-w-wide mx-auto px-5 sm:px-8">
       <header class="pt-8 pb-6">
-        <nav class="flex items-center justify-between">
+        <nav class="flex items-center justify-between" aria-label="Main navigation">
           <a
             href={base}
             class="font-display text-[1.375rem] leading-[1.2] tracking-[-0.015em] text-[var(--color-fg)] no-underline transition-colors duration-[var(--motion-fast)]"
           >
             Remarque
           </a>
-          <div class="flex items-center gap-8">
-            <a href={`${base}writing`} class="font-body text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)]">Writing</a>
-            <a href={`${base}projects`} class="font-body text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)]">Projects</a>
-            <a href={`${base}notes`} class="font-body text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)]">Notes</a>
+          <div class="flex items-center gap-4 sm:gap-8">
+            <a href={`${base}writing`} class="font-body text-[var(--text-meta)] sm:text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)]">Writing</a>
+            <a href={`${base}projects`} class="font-body text-[var(--text-meta)] sm:text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)]">Projects</a>
+            <a href={`${base}notes`} class="font-body text-[var(--text-meta)] sm:text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg-muted)] no-underline hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)]">Notes</a>
             <button
               id="theme-toggle"
               type="button"
@@ -65,14 +98,21 @@ const base = import.meta.env.BASE_URL;
         </nav>
       </header>
 
-      <main>
+      <main id="main-content">
         <slot />
       </main>
 
       <footer class="mt-16 py-8 border-t border-[var(--color-border)]">
-        <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
-          Built with the Remarque design system
-        </p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
+            Built with the Remarque design system
+          </p>
+          <div class="flex gap-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)]">
+            <a href="https://github.com/williamzujkowski/remarque" class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] no-underline">GitHub</a>
+            <a href={`${base}specimen`} class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] no-underline">Specimen</a>
+            <a href={`${base}tokens`} class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] no-underline">Tokens</a>
+          </div>
+        </div>
       </footer>
     </div>
 

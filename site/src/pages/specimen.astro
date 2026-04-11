@@ -1,0 +1,165 @@
+---
+/**
+ * Type Specimen — The product demo for a typography-first design system.
+ * Shows every step of the type scale rendered live with token names and computed values.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="Type Specimen" description="Live type specimen showing Remarque's three-font system and full type scale.">
+  <div class="pt-[var(--space-9)]">
+    <h1 class="text-display font-display text-[var(--color-fg)]">Type Specimen</h1>
+    <p class="mt-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
+      The three-font system, rendered at every scale step.
+    </p>
+  </div>
+
+  <!-- Three-Font System -->
+  <section class="mt-12 max-w-standard">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">The Three Fonts</h2>
+    <div class="border-t border-[var(--color-border)]">
+
+      <div class="py-8 border-b border-[var(--color-border)]">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-3">
+          Display — Newsreader — Page titles, hero headings, article titles
+        </div>
+        <p class="font-display text-[clamp(2rem,4vw,3.5rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-fg)]">
+          The quick brown fox jumps over the lazy dog
+        </p>
+        <p class="font-display text-[clamp(2rem,4vw,3.5rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-fg)] italic mt-2">
+          The quick brown fox jumps over the lazy dog
+        </p>
+      </div>
+
+      <div class="py-8 border-b border-[var(--color-border)]">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-3">
+          Body — Inter — Body text, UI labels, navigation, buttons
+        </div>
+        <p class="font-body text-[var(--text-body)] leading-[var(--leading-body)] text-[var(--color-fg)]">
+          The quick brown fox jumps over the lazy dog. Typography is the visual medium of language — not decoration applied to language. A well-set page communicates competence, intention, and care before a single word is read.
+        </p>
+      </div>
+
+      <div class="py-8 border-b border-[var(--color-border)]">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-3">
+          Mono — JetBrains Mono — Metadata, code, labels, timestamps, technical accents
+        </div>
+        <p class="font-mono text-[var(--text-body)] leading-[var(--leading-body)] text-[var(--color-fg)]">
+          2026-04-11 &middot; 8 min read &middot; typography design craft
+        </p>
+        <pre class="font-mono text-[var(--text-meta)] leading-[1.6] mt-3 text-[var(--color-fg-muted)]"><code>--font-display: "Newsreader", Georgia, serif;
+--font-body: "Inter", system-ui, sans-serif;
+--font-mono: "JetBrains Mono", monospace;</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Type Scale -->
+  <section class="mt-12 max-w-standard">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">Type Scale</h2>
+    <div class="border-t border-[var(--color-border)]">
+
+      <div class="py-6 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] sm:w-48 shrink-0">
+          --text-display<br/>clamp(2.75rem, 5.5vw, 5rem)
+        </div>
+        <p class="text-display font-display text-[var(--color-fg)]">Display</p>
+      </div>
+
+      <div class="py-6 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] sm:w-48 shrink-0">
+          --text-title<br/>clamp(1.875rem, 3.5vw, 3rem)
+        </div>
+        <p class="text-title font-display text-[var(--color-fg)]">Title heading</p>
+      </div>
+
+      <div class="py-6 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] sm:w-48 shrink-0">
+          --text-section<br/>clamp(1.375rem, 2.25vw, 2rem)
+        </div>
+        <p class="text-section font-display text-[var(--color-fg)]">Section heading</p>
+      </div>
+
+      <div class="py-6 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] sm:w-48 shrink-0">
+          --text-body-lg<br/>1.1875rem (19px)
+        </div>
+        <p class="text-body-lg font-body text-[var(--color-fg)]">Lead paragraph text for opening lines</p>
+      </div>
+
+      <div class="py-6 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] sm:w-48 shrink-0">
+          --text-body<br/>1.0625rem (17px)
+        </div>
+        <p class="text-body font-body text-[var(--color-fg)]">Body text — the minimum size, non-negotiable. This is the workhorse.</p>
+      </div>
+
+      <div class="py-6 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] sm:w-48 shrink-0">
+          --text-meta<br/>0.8125rem (13px)
+        </div>
+        <p class="text-meta">Metadata, labels, captions, timestamps</p>
+      </div>
+
+      <div class="py-6 border-b border-[var(--color-border)] flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-8">
+        <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] sm:w-48 shrink-0">
+          --text-micro<br/>0.75rem (12px)
+        </div>
+        <p class="font-mono text-[var(--text-micro)] leading-[var(--leading-meta)] text-[var(--color-muted)]">Timestamps, fine print only</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- In Context -->
+  <section class="mt-12 max-w-reading">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">In Context</h2>
+    <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-6">
+      All three fonts in their designated roles, rendered at their specified sizes.
+    </p>
+
+    <article class="border border-[var(--color-border)] rounded-[var(--radius-md)] p-6 sm:p-8">
+      <h3 class="text-title font-display text-[var(--color-fg)]">The Value of Restraint</h3>
+      <div class="mt-3 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] flex gap-4">
+        <time>2026-04-11</time>
+        <span>4 min read</span>
+        <span>design</span>
+      </div>
+      <div class="mt-6 remarque-prose">
+        <p>
+          Good design is as little design as possible. This principle, articulated by Dieter Rams, applies with particular force to typography. The best typographic decisions are the ones you don't notice — the comfortable line length, the breathing room between paragraphs, the hierarchy that guides without shouting.
+        </p>
+        <p>
+          Consider the difference between a page set at <code>14px</code> with <code>1.4</code> line height and one set at <code>17px</code> with <code>1.75</code>. The numbers are close. The experience is worlds apart. The first feels cramped and anxious. The second feels calm and authoritative.
+        </p>
+      </div>
+    </article>
+  </section>
+
+  <!-- Line Heights -->
+  <section class="mt-12 max-w-standard mb-12">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">Line Heights</h2>
+    <div class="border-t border-[var(--color-border)]">
+      <div class="py-4 border-b border-[var(--color-border)] grid grid-cols-[1fr_auto] gap-4 items-center">
+        <span class="font-body text-[var(--text-body)] text-[var(--color-fg)]">--leading-display</span>
+        <span class="font-mono text-[var(--text-meta)] text-[var(--color-muted)]">1.05</span>
+      </div>
+      <div class="py-4 border-b border-[var(--color-border)] grid grid-cols-[1fr_auto] gap-4 items-center">
+        <span class="font-body text-[var(--text-body)] text-[var(--color-fg)]">--leading-title</span>
+        <span class="font-mono text-[var(--text-meta)] text-[var(--color-muted)]">1.15</span>
+      </div>
+      <div class="py-4 border-b border-[var(--color-border)] grid grid-cols-[1fr_auto] gap-4 items-center">
+        <span class="font-body text-[var(--text-body)] text-[var(--color-fg)]">--leading-section</span>
+        <span class="font-mono text-[var(--text-meta)] text-[var(--color-muted)]">1.2</span>
+      </div>
+      <div class="py-4 border-b border-[var(--color-border)] grid grid-cols-[1fr_auto] gap-4 items-center">
+        <span class="font-body text-[var(--text-body)] text-[var(--color-fg)]">--leading-body</span>
+        <span class="font-mono text-[var(--text-meta)] text-[var(--color-muted)]">1.75 — this is what makes prose readable</span>
+      </div>
+      <div class="py-4 border-b border-[var(--color-border)] grid grid-cols-[1fr_auto] gap-4 items-center">
+        <span class="font-body text-[var(--text-body)] text-[var(--color-fg)]">--leading-meta</span>
+        <span class="font-mono text-[var(--text-meta)] text-[var(--color-muted)]">1.4</span>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

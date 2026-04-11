@@ -283,14 +283,18 @@ html {
   margin-top: var(--space-5);
 }
 
+.remarque-prose > :first-child {
+  margin-top: 0;
+}
+
 .remarque-prose h2 {
   font-family: var(--font-display);
   font-size: var(--text-section);
   line-height: var(--leading-section);
   letter-spacing: var(--tracking-title);
   font-weight: var(--weight-medium);
-  margin-top: var(--space-8);
-  margin-bottom: var(--space-4);
+  margin-top: var(--space-7);
+  margin-bottom: var(--space-3);
   color: var(--color-fg);
 }
 
@@ -299,8 +303,8 @@ html {
   font-size: var(--text-body-lg);
   line-height: var(--leading-title);
   font-weight: var(--weight-semibold);
-  margin-top: var(--space-7);
-  margin-bottom: var(--space-3);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-2);
   color: var(--color-fg);
 }
 
