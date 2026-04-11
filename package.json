@@ -1,0 +1,26 @@
+{
+  "name": "remarque-tokens",
+  "version": "0.1.0",
+  "description": "Typography-first design tokens for editorial, technical, and personal web projects",
+  "keywords": ["design-system", "typography", "css", "tailwind", "design-tokens", "oklch"],
+  "author": "William Zujkowski",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/williamzujkowski/remarque"
+  },
+  "homepage": "https://williamzujkowski.github.io/remarque/",
+  "main": "tokens.css",
+  "exports": {
+    ".": "./tokens.css",
+    "./tokens": "./tokens.css",
+    "./tailwind": "./tailwind.config.js"
+  },
+  "files": [
+    "tokens.css",
+    "tailwind.config.js",
+    "REMARQUE.md",
+    "AGENT_RULES.md",
+    "LICENSE"
+  ]
+}

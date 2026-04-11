@@ -8,6 +8,40 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
+/* ─── Self-hosted Fonts ────────────────────────────────── */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 300 600;
+  font-display: swap;
+  src: url("/remarque/fonts/inter-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 300 600;
+  font-display: swap;
+  src: url("/remarque/fonts/newsreader-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 300 600;
+  font-display: swap;
+  src: url("/remarque/fonts/newsreader-italic-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 300 500;
+  font-display: swap;
+  src: url("/remarque/fonts/jetbrains-mono-latin.woff2") format("woff2");
+}
+
 /* ─── Tailwind v4 Theme ─────────────────────────────────── */
 
 @theme {
@@ -81,4 +115,45 @@
   --color-accent-subtle: oklch(0.22 0.04 250);
   --color-code-bg: oklch(0.20 0.005 80);
   --color-code-fg: oklch(0.88 0.005 80);
+}
+
+/* ─── Nav Link ─────────────────────────────────────────── */
+
+.nav-link {
+  font-family: var(--font-body);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--motion-easing);
+  padding: 0.25rem 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-link:hover {
+  color: var(--color-fg);
+}
+
+/* ─── Copy Button ──────────────────────────────────────── */
+
+.copy-btn {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: color var(--motion-fast) var(--motion-easing), border-color var(--motion-fast) var(--motion-easing);
+}
+
+.copy-btn:hover {
+  color: var(--color-fg);
+  border-color: var(--color-border-bold);
 }

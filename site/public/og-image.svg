@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1f1c19"/>
+  <text x="80" y="260" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="400" fill="#f0ede8" font-style="italic">Remarque</text>
+  <text x="80" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#a09888">A typography-first design system</text>
+  <text x="80" y="380" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#a09888">for editorial, technical, and personal web projects.</text>
+  <line x1="80" y1="430" x2="400" y2="430" stroke="#3a3530" stroke-width="1"/>
+  <text x="80" y="470" font-family="monospace" font-size="16" fill="#706860" letter-spacing="1.5">NEWSREADER  /  INTER  /  JETBRAINS MONO</text>
+  <text x="80" y="560" font-family="monospace" font-size="14" fill="#504840">github.com/williamzujkowski/remarque</text>
+</svg>
