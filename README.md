@@ -1,59 +1,89 @@
 # Remarque
 
-A typography-first design system for editorial, technical, and personal web projects.
+**A typography-first design system for editorial, technical, and personal web projects.**
+
+[Live Demo](https://williamzujkowski.github.io/remarque/) | [Type Specimen](https://williamzujkowski.github.io/remarque/specimen/) | [Design Tokens](https://williamzujkowski.github.io/remarque/tokens/) | [Get Started](https://williamzujkowski.github.io/remarque/start/)
 
 ---
 
-## What is this?
+## Why Remarque?
 
-Remarque is an opinionated design system built for personal websites, blogs, project pages, and technical writing. It prioritizes reading comfort, typographic hierarchy, and visual consistency over component variety or decorative flourish.
+Most developer sites inherit the visual language of SaaS dashboards or component-library defaults. Remarque is the antidote: a system rooted in book typography, editorial design, and the quiet confidence of a well-made publication.
 
-It is designed to be consumed by both human developers and AI agents (Claude Code, Cursor, Copilot, etc.) with minimal drift from the intended aesthetic.
+**What makes it different:**
 
-## Files
+- **Typography is the interface** — not color, not illustration, not animation. Three fonts (Newsreader, Inter, JetBrains Mono), each with a strict role.
+- **17px minimum body text** — one pixel above the industry default. The difference in reading comfort is immediate.
+- **46rem reading column** — derived from the typographic standard of 45-75 characters per line.
+- **OKLCH color space** — perceptually uniform. A lightness of 0.50 actually looks mid-brightness.
+- **Self-hosted fonts** — no Google CDN dependency. Strict CSP. GDPR-compliant.
+- **AI-native** — designed to be consumed by Claude Code, Cursor, Copilot, and other AI coding tools with zero aesthetic drift.
 
-| File | Purpose |
-|------|---------|
-| `REMARQUE.md` | Full system specification — philosophy, rules, archetypes, acceptance criteria |
-| `AGENT_RULES.md` | Implementation contract for agents — build order, non-negotiables, checklists |
-| `tokens.css` | Design tokens as CSS custom properties + base typography classes + prose styling |
-| `tailwind.config.js` | Tailwind CSS configuration that maps tokens to utility classes |
+## Install
 
-## Quick Start
+```bash
+npm install remarque-tokens
+```
 
-1. Copy `tokens.css` and `tailwind.config.js` into your project
-2. Import `tokens.css` before your other styles
-3. Update `tailwind.config.js` content paths to match your project structure
-4. Use the typography classes (`text-display`, `text-title`, `text-meta`, etc.) and content width utilities (`max-w-reading`, `max-w-standard`)
-5. Wrap article content in `.remarque-prose` for automatic prose styling
+Then import in your CSS:
+
+```css
+@import 'remarque-tokens';
+```
+
+Or copy `tokens.css` and `tailwind.config.js` directly into your project.
 
 ## For AI Agents
 
-When prompting an agent to build with Remarque:
+Remarque includes a machine-readable implementation contract. When prompting any AI coding tool:
 
 ```
 Build this page using the Remarque design system.
 See: REMARQUE.md for specification, AGENT_RULES.md for implementation contract, tokens.css for design tokens.
 ```
 
-Agents should load all three files before beginning work.
+The agent rules define build order, non-negotiable rules, disallowed patterns, and a quality checklist. Every decision is specified — agents don't need to guess.
 
-## Font Stack
+## Files
+
+| File | Purpose |
+|------|---------|
+| `REMARQUE.md` | Full system specification — philosophy, visual rules, page archetypes, acceptance criteria |
+| `AGENT_RULES.md` | Implementation contract — build order, non-negotiables, pitfalls, quality checklist |
+| `tokens.css` | Design tokens as CSS custom properties + base typography classes + prose styling |
+| `tailwind.config.js` | Tailwind CSS v3/v4 configuration extending tokens into utility classes |
+| `package.json` | npm package manifest for `remarque-tokens` |
+
+## Three-Font System
 
 | Role | Font | Usage |
 |------|------|-------|
-| Display | Newsreader | Page titles, hero headings |
-| Body | Inter | Body text, UI, navigation |
-| Mono | JetBrains Mono | Metadata, code, labels, timestamps |
+| **Display** | Newsreader | Page titles, hero headings, article titles. Never for body copy. |
+| **Body** | Inter | Body text, UI labels, navigation, buttons. The workhorse. |
+| **Mono** | JetBrains Mono | Metadata, code, timestamps, labels. Never for headings. |
 
 ## Page Archetypes
 
-Every page must conform to one of four archetypes:
+Every page conforms to one of four archetypes:
 
-- **Essay** — long-form writing with narrow reading column
-- **Project Dossier** — structured project page with metadata and architecture
-- **Notebook** — short-form notes, links, observations
-- **Landing** — homepage with clear identity statement and navigation
+- **Essay** — long-form writing with serif title, mono metadata, narrow reading column
+- **Project Dossier** — structured project page with metadata block and architecture section
+- **Notebook** — short-form notes with mono timestamps, no cards
+- **Landing** — identity statement, content navigation, generous whitespace
+
+See the [live demo](https://williamzujkowski.github.io/remarque/) for all four archetypes in action.
+
+## Design Decisions
+
+| Decision | Value | Why |
+|----------|-------|-----|
+| Body size | 17px | Measurably improves reading comfort over 16px default |
+| Line height | 1.75 | Generous — this is what makes prose readable |
+| Reading width | 46rem | ~70 chars/line at 17px Inter. Upper end of comfortable range for technical content |
+| Color space | OKLCH | Perceptual uniformity. Consistent across hues without manual tuning |
+| Top padding | 6rem min | The breathing room that says "this is editorial, not a dashboard" |
+| Border radius | 0.5rem max | Restrained. No "friendly SaaS" over-rounding |
+| Motion | 120ms/180ms | Hover and theme transitions only. No scroll-triggered, entrance, or staggered animations |
 
 ## Named For
 

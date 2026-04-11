@@ -40,12 +40,18 @@ Remarque projects should feel like a modern technical publication — not a gene
 
 ## Technology Stack
 
-- **CSS framework:** Tailwind CSS
+- **CSS framework:** Tailwind CSS v4 (with `@theme` directive for token mapping)
 - **Component primitives:** shadcn/ui (when reusable components are needed)
-- **Markup:** Semantic HTML
-- **Theming:** Light and dark mode support (system preference + manual toggle)
-- **Accessibility:** Keyboard navigation, ARIA, contrast compliance by default
+- **Markup:** Semantic HTML with ARIA landmarks
+- **Theming:** Light and dark mode via `[data-theme]` attribute (system preference + manual toggle)
+- **Accessibility:** Keyboard navigation, skip-to-content link, ARIA labels, WCAG AA contrast compliance
 - **Tokens:** Centralized CSS custom properties as the single source of truth
+- **Fonts:** Self-hosted woff2 (no CDN dependency). Preloaded via `<link rel="preload">`
+- **Package:** Installable via npm (`remarque-tokens`) or copy `tokens.css` + `tailwind.config.js`
+
+### Tailwind v4 Integration Note
+
+When using Tailwind v4's `@theme` directive to map Remarque tokens, **do not override Tailwind's default spacing keys** (`--spacing-9` through `--spacing-12`). Remarque's spacing scale uses larger values than Tailwind defaults (e.g., `--space-9` = 6rem vs Tailwind's `--spacing-9` = 2.25rem). Use the `var(--space-N)` CSS variables directly in style attributes for intentional large spacings, and Tailwind's default spacing utilities (`mt-12` = 3rem) for standard layout gaps.
 
 ---
 

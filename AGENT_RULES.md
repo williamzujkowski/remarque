@@ -123,24 +123,38 @@ Do not introduce any of the following unless the project owner explicitly reques
 
 ```
 project/
-├── tokens.css                # Remarque design tokens
-├── tailwind.config.js        # Tailwind configuration extending tokens
+├── tokens.css                # Remarque design tokens (import first)
+├── tailwind.config.js        # Tailwind v3 configuration extending tokens
+├── public/
+│   └── fonts/                # Self-hosted woff2 fonts (Inter, Newsreader, JetBrains Mono)
 ├── styles/
-│   ├── globals.css           # Global styles, font imports, base resets
-│   ├── prose.css             # Article/essay body text styling
+│   ├── globals.css           # @import "tailwindcss"; @import "./tokens.css"; @font-face declarations
+│   ├── prose.css             # Article/essay body text styling (or use .remarque-prose from tokens.css)
 │   └── components.css        # Component-specific styles (minimal)
 ├── components/
-│   ├── Layout.{jsx,astro}    # Layout shell (header + content + footer)
-│   ├── Nav.{jsx,astro}       # Navigation
+│   ├── Layout.{jsx,astro}    # Layout shell (header + content + footer + skip-link + theme toggle)
+│   ├── Nav.{jsx,astro}       # Navigation (content pages + design system docs)
 │   ├── Footer.{jsx,astro}    # Footer
 │   ├── Meta.{jsx,astro}      # Metadata row component
-│   └── Prose.{jsx,astro}     # Prose wrapper
+│   └── Prose.{jsx,astro}     # Prose wrapper (<div class="remarque-prose content-reading">)
 └── pages/
     ├── index                 # Landing archetype
     ├── writing/[slug]        # Essay archetype
     ├── projects/[slug]       # Project Dossier archetype
     └── notes                 # Notebook archetype
 ```
+
+### Implementation Pitfalls (learned from reference implementation)
+
+1. **Tailwind v4 spacing collision:** Do NOT define `--spacing-9` through `--spacing-12` in `@theme` — this overrides Tailwind's defaults and makes `mt-12` produce 192px instead of 48px. Use `var(--space-N)` CSS variables for Remarque's large spacings.
+
+2. **Prose alignment:** The essay header and prose body must BOTH use centered max-width (`max-w-reading mx-auto`) to prevent misalignment. The `.content-reading` class auto-centers; match headers with `mx-auto`.
+
+3. **Dark mode specificity:** Define `[data-theme="light"]` and `[data-theme="dark"]` overrides in addition to the `:root` defaults. Without an explicit light override, users with `prefers-color-scheme: dark` cannot toggle to light mode.
+
+4. **Self-hosted fonts:** Replace the Google Fonts CDN link with self-hosted woff2 files + `@font-face` declarations. Use `font-display: swap` and `<link rel="preload">` for performance.
+
+5. **GitHub Pages base path:** When deploying to a subpath (e.g., `/remarque/`), all internal links must use a base URL helper (Astro: `import.meta.env.BASE_URL`). Set `base` in your framework config.
 
 ---
 
@@ -149,10 +163,13 @@ project/
 Before considering any implementation complete, verify:
 
 - [ ] Fonts load: Newsreader for display, Inter for body, JetBrains Mono for meta
+- [ ] Fonts are self-hosted (no Google CDN requests in network tab)
 - [ ] Body text is ≥17px on all viewports
 - [ ] Prose column is ≤46rem on desktop
+- [ ] Prose header and body are aligned (both centered with `mx-auto` or both left-aligned)
 - [ ] Line height for body text is 1.75
 - [ ] Dark mode is readable and independently tuned (not just inverted)
+- [ ] Theme toggle works in both directions (light→dark AND dark→light)
 - [ ] No page has more than 3 content sections above the fold
 - [ ] Top padding before main heading is ≥6rem
 - [ ] Accent color appears in ≤2 roles per viewport
@@ -160,8 +177,13 @@ Before considering any implementation complete, verify:
 - [ ] Every image has a 1px border and mono caption
 - [ ] Every page maps to an archetype (Essay, Dossier, Notebook, Landing)
 - [ ] Mobile version is roomy — not a compressed desktop layout
+- [ ] Mobile nav links have ≥44px touch targets
 - [ ] No pure white or pure black backgrounds
+- [ ] Skip-to-content link present and functional
+- [ ] OG meta tags present (og:title, og:description, og:image)
+- [ ] `<html lang="en">` attribute set
 - [ ] The site looks more like a book than a web app
+- [ ] Tailwind spacing utilities (`mt-12`, `pt-8`) produce expected values (not overridden by `@theme`)
 
 ---
 
