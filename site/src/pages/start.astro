@@ -8,7 +8,7 @@ const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Getting Started" description="Quick start guide and copy-paste HTML templates for every Remarque page archetype.">
-  <div class="pt-[var(--space-9)]">
+  <div class="pt-[var(--space-9)] max-w-standard">
     <h1 class="text-display font-display text-[var(--color-fg)]">Getting Started</h1>
     <p class="mt-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
       Three files. One import. Start building.
@@ -16,14 +16,17 @@ const base = import.meta.env.BASE_URL;
   </div>
 
   <!-- Quick Start -->
-  <section class="mt-12 max-w-reading">
+  <section class="mt-12 content-reading">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-4">Install</h2>
     <div class="remarque-prose">
-      <p>Copy <code>tokens.css</code> and <code>tailwind.config.js</code> into your project. Import <code>tokens.css</code> before your other styles.</p>
+      <p>Copy <code>tokens.css</code> and <code>tailwind.config.js</code> into your project, or install via npm:</p>
+
+      <pre><code>npm install remarque-tokens</code></pre>
+
+      <p>Then import the tokens before your other styles:</p>
 
       <h3>Plain HTML</h3>
-      <pre><code>&lt;link rel="stylesheet" href="tokens.css"&gt;
-&lt;!-- tokens.css imports Google Fonts and sets all CSS variables --&gt;</code></pre>
+      <pre><code>&lt;link rel="stylesheet" href="tokens.css"&gt;</code></pre>
 
       <h3>Astro</h3>
       <pre><code>---
@@ -32,26 +35,27 @@ import '../styles/tokens.css';
 
       <h3>Next.js</h3>
       <pre><code>// app/layout.tsx
-import './tokens.css';
-// tokens.css handles fonts, variables, base resets, and prose styling</code></pre>
+import './tokens.css';</code></pre>
 
-      <p>Then use the typography classes (<code>.text-display</code>, <code>.text-title</code>, <code>.text-meta</code>), content width utilities (<code>.content-reading</code>, <code>.content-standard</code>), and the <code>.remarque-prose</code> wrapper for article content.</p>
+      <p>Use the typography classes (<code>.text-display</code>, <code>.text-title</code>, <code>.text-meta</code>), content width utilities (<code>.content-reading</code>, <code>.content-standard</code>), and the <code>.remarque-prose</code> wrapper for article content.</p>
     </div>
   </section>
 
   <!-- Archetype Templates -->
   <section class="mt-12 max-w-standard">
-    <h2 class="text-section font-display text-[var(--color-fg)] mb-4">Page Archetypes</h2>
-    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-8 max-w-reading">
-      Every page built with Remarque must conform to one of these four archetypes. Copy the HTML, adjust the content, and you're done.
-    </p>
+    <div class="content-reading mb-8">
+      <h2 class="text-section font-display text-[var(--color-fg)] mb-4">Page Archetypes</h2>
+      <p class="text-[var(--text-body)] text-[var(--color-fg-muted)]">
+        Every page built with Remarque must conform to one of these four archetypes. Copy the HTML, adjust the content.
+      </p>
+    </div>
 
     <!-- Essay Template -->
-    <div class="mb-12 border-t border-[var(--color-border)] pt-8">
-      <h3 class="font-body text-[var(--text-body-lg)] font-semibold text-[var(--color-fg)] mb-2">Essay</h3>
+    <div class="content-reading mb-10 border-t border-[var(--color-border)] pt-6">
+      <h3 class="font-body text-[var(--text-body-lg)] font-semibold text-[var(--color-fg)] mb-1">Essay</h3>
       <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-4">Long-form writing. The core content type.</p>
       <pre class="font-mono text-[var(--text-meta)] leading-[1.6] bg-[var(--color-code-bg)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-5 overflow-x-auto"><code>&lt;article class="pt-24"&gt;
-  &lt;header class="max-w-[46rem] mx-auto mb-8"&gt;
+  &lt;header class="content-reading mb-8"&gt;
     &lt;h1 class="text-display font-display"&gt;Your Title&lt;/h1&gt;
     &lt;div class="mt-4 font-mono text-meta text-muted"&gt;
       2026-04-11 &middot; 8 min read &middot; topic
@@ -66,22 +70,20 @@ import './tokens.css';
     </div>
 
     <!-- Project Dossier Template -->
-    <div class="mb-12 border-t border-[var(--color-border)] pt-8">
-      <h3 class="font-body text-[var(--text-body-lg)] font-semibold text-[var(--color-fg)] mb-2">Project Dossier</h3>
+    <div class="content-reading mb-10 border-t border-[var(--color-border)] pt-6">
+      <h3 class="font-body text-[var(--text-body-lg)] font-semibold text-[var(--color-fg)] mb-1">Project Dossier</h3>
       <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-4">Technical, structured, informative.</p>
       <pre class="font-mono text-[var(--text-meta)] leading-[1.6] bg-[var(--color-code-bg)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-5 overflow-x-auto"><code>&lt;article class="pt-24"&gt;
-  &lt;header class="max-w-[72rem] mx-auto mb-8"&gt;
+  &lt;header class="content-standard mb-8"&gt;
     &lt;h1 class="text-display font-display"&gt;Project Name&lt;/h1&gt;
-    &lt;p class="mt-4 text-body-lg text-fg-muted max-w-[46rem]"&gt;
+    &lt;p class="mt-4 text-body-lg text-fg-muted max-w-reading"&gt;
       One-paragraph summary.
     &lt;/p&gt;
   &lt;/header&gt;
-  &lt;div class="max-w-[72rem] mx-auto mb-12 p-6 border rounded-md"&gt;
+  &lt;div class="content-standard mb-12 p-6 border rounded-md"&gt;
     &lt;dl class="grid grid-cols-[auto_1fr] gap-x-8 gap-y-2 font-mono text-meta"&gt;
       &lt;dt class="text-muted"&gt;Status&lt;/dt&gt;
       &lt;dd&gt;Active&lt;/dd&gt;
-      &lt;dt class="text-muted"&gt;Stack&lt;/dt&gt;
-      &lt;dd&gt;CSS, Tailwind, Astro&lt;/dd&gt;
     &lt;/dl&gt;
   &lt;/div&gt;
   &lt;div class="remarque-prose content-reading"&gt;
@@ -92,12 +94,12 @@ import './tokens.css';
     </div>
 
     <!-- Notebook Template -->
-    <div class="mb-12 border-t border-[var(--color-border)] pt-8">
-      <h3 class="font-body text-[var(--text-body-lg)] font-semibold text-[var(--color-fg)] mb-2">Notebook</h3>
+    <div class="content-reading mb-10 border-t border-[var(--color-border)] pt-6">
+      <h3 class="font-body text-[var(--text-body-lg)] font-semibold text-[var(--color-fg)] mb-1">Notebook</h3>
       <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-4">Short-form notes, bookmarks, observations.</p>
       <pre class="font-mono text-[var(--text-meta)] leading-[1.6] bg-[var(--color-code-bg)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-5 overflow-x-auto"><code>&lt;div class="pt-24"&gt;
   &lt;h1 class="text-display font-display"&gt;Notes&lt;/h1&gt;
-  &lt;div class="mt-12 max-w-[46rem]"&gt;
+  &lt;div class="mt-12 content-reading"&gt;
     &lt;article class="py-6 border-b"&gt;
       &lt;div class="font-mono text-meta text-muted mb-2"&gt;
         2026-04-11 &middot; topic
@@ -109,19 +111,19 @@ import './tokens.css';
     </div>
 
     <!-- Landing Template -->
-    <div class="mb-12 border-t border-[var(--color-border)] pt-8">
-      <h3 class="font-body text-[var(--text-body-lg)] font-semibold text-[var(--color-fg)] mb-2">Landing</h3>
+    <div class="content-reading mb-10 border-t border-[var(--color-border)] pt-6">
+      <h3 class="font-body text-[var(--text-body-lg)] font-semibold text-[var(--color-fg)] mb-1">Landing</h3>
       <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-4">Homepage. Clear identity statement and navigation.</p>
       <pre class="font-mono text-[var(--text-meta)] leading-[1.6] bg-[var(--color-code-bg)] border border-[var(--color-border)] rounded-[var(--radius-md)] p-5 overflow-x-auto"><code>&lt;div class="pt-32 pb-24"&gt;
   &lt;h1 class="text-display font-display max-w-[20ch]"&gt;
     Your identity statement.
   &lt;/h1&gt;
-  &lt;p class="mt-6 text-body-lg text-fg-muted max-w-[46rem]"&gt;
+  &lt;p class="mt-6 text-body-lg text-fg-muted content-reading"&gt;
     One paragraph of context.
   &lt;/p&gt;
 &lt;/div&gt;
 &lt;div class="border-t pt-8"&gt;
-  &lt;div class="grid grid-cols-3 gap-8"&gt;
+  &lt;div class="grid grid-cols-3 gap-8 content-standard"&gt;
     &lt;a href="/section"&gt;
       &lt;h2 class="text-section font-display"&gt;Section&lt;/h2&gt;
       &lt;p class="mt-2 text-body text-fg-muted"&gt;Description.&lt;/p&gt;
