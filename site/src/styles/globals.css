@@ -21,11 +21,11 @@
   --max-width-standard: 72rem;
   --max-width-wide: 88rem;
 
-  /* Spacing extensions */
-  --spacing-9: 6rem;
-  --spacing-10: 8rem;
-  --spacing-11: 10rem;
-  --spacing-12: 12rem;
+  /* Spacing extensions — use remarque-* prefix to avoid colliding with Tailwind defaults */
+  --spacing-remarque-9: 6rem;
+  --spacing-remarque-10: 8rem;
+  --spacing-remarque-11: 10rem;
+  --spacing-remarque-12: 12rem;
 
   /* Colors — light theme defaults */
   --color-bg: oklch(0.975 0.005 80);
