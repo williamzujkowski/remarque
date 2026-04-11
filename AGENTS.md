@@ -50,9 +50,10 @@ These are not guidelines. Agents must follow them literally.
 - No page shows more than 3 content sections above the fold
 - The first screen contains only: title, metadata, and the start of content
 - Top padding before the main heading is at least `--space-9` (6rem)
-- Content containers use `.content-reading` for prose and `.content-standard` for wider layouts
-- **Always use `.content-reading`** (the CSS class) instead of Tailwind's `max-w-reading` utility — the CSS class includes `margin-inline: auto` for centering, while the Tailwind utility only sets `max-width` and will left-align content
-- Code blocks (`<pre>`) inside page sections should be wrapped in a `.content-reading` container to prevent them from stretching full-width
+- The site uses a **single centered column** layout: BaseLayout constrains all content to `content-standard` (72rem) centered. Individual pages do NOT set their own outer width constraints.
+- Within the centered column, use `.content-reading` for prose-width sections (46rem, auto-centered within the 72rem column)
+- Do NOT use Tailwind's `max-w-reading` or `max-w-standard` on page sections — these only set max-width without centering. Use the CSS classes `.content-reading` / `.content-standard` instead, which include `margin-inline: auto`
+- Code blocks (`<pre>`) inherit the width of their parent container — no special wrapping needed when the parent is already constrained
 
 ### Color
 

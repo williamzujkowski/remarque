@@ -30,7 +30,7 @@ const base = import.meta.env.BASE_URL;
   <!-- Design System Docs -->
   <div class="border-t border-[var(--color-border)] pt-8 pb-8">
     <h3 class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-caps)] uppercase text-[var(--color-muted)] mb-6">System</h3>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-standard">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
       <a href={`${base}specimen`} class="group block no-underline">
         <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Specimen</h2>
         <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">The three-font system rendered at every scale step.</p>
@@ -49,7 +49,7 @@ const base = import.meta.env.BASE_URL;
   <!-- Content Sections -->
   <div class="border-t border-[var(--color-border)] pt-8 pb-8">
     <h3 class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-caps)] uppercase text-[var(--color-muted)] mb-6">Content</h3>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-standard">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
       <a href={`${base}writing`} class="group block no-underline">
         <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Writing</h2>
         <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">Long-form essays on design, typography, and craft.</p>
@@ -68,7 +68,7 @@ const base = import.meta.env.BASE_URL;
   <!-- Recent -->
   <div class="border-t border-[var(--color-border)] pt-8">
     <h3 class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-caps)] uppercase text-[var(--color-muted)] mb-6">Recent</h3>
-    <ul class="space-y-4 max-w-reading list-none p-0">
+    <ul class="space-y-4 list-none p-0">
       <li>
         <a href={`${base}writing/typography-as-interface`} class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] no-underline">Typography as Interface</a>
         <span class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] ml-3">2026-04-08</span>
