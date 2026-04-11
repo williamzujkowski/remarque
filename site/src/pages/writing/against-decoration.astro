@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Meta from '../../components/Meta.astro';
+import Prose from '../../components/Prose.astro';
+---
+
+<BaseLayout title="Against Decoration" description="The modern web is drowning in visual noise. What if the antidote is restraint?">
+  <article class="pt-[var(--space-9)]">
+    <header class="max-w-reading mb-8">
+      <h1 class="text-display font-display text-[var(--color-fg)]">Against Decoration</h1>
+      <div class="mt-4">
+        <Meta date="2026-03-29" readingTime="6 min read" tags={["design", "minimalism"]} />
+      </div>
+    </header>
+
+    <Prose>
+      <p class="text-[var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg-muted)]">
+        The modern web is drowning in visual noise. Every landing page has a gradient. Every SaaS product has glassmorphism. Every portfolio site has scroll-triggered animations. What if the antidote is not more innovation, but deliberate restraint?
+      </p>
+
+      <h2>The Decoration Arms Race</h2>
+
+      <p>
+        There was a time when a frosted-glass card felt fresh. When a staggered entrance animation felt delightful. When a full-bleed hero image felt bold. These techniques were powerful precisely because they were rare. Now they are defaults — applied without thought, without intention, without regard for whether they serve the content.
+      </p>
+
+      <p>
+        The result is a web where everything looks the same. Not because designers lack creativity, but because the toolkit of decorative elements has become so standardized that applying them is easier than questioning them.
+      </p>
+
+      <h2>What Decoration Costs</h2>
+
+      <p>
+        Every decorative element has a cost, and it is not just performance. It is attention. A gradient behind a heading competes with the heading. An entrance animation delays comprehension. A card shadow adds visual weight that must be balanced elsewhere.
+      </p>
+
+      <p>
+        These costs are invisible to the builder and cumulative for the reader. A single animated element is fine. Twelve of them — staggered, parallaxed, and glassmorphed — produce a page that is exhausting to look at, even if each individual element is "well-designed."
+      </p>
+
+      <h2>The Case for Quiet</h2>
+
+      <p>
+        The alternative is not brutalism. It is not a rejection of beauty. It is a different kind of beauty — the beauty of a well-set book page, where the craft is in the spacing, the proportion, the typeface selection, and the discipline of leaving things out.
+      </p>
+
+      <p>
+        A quiet design says: the content is enough. The typography is enough. The whitespace is enough. You do not need to be entertained while you read.
+      </p>
+
+      <blockquote>
+        <p>Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.</p>
+      </blockquote>
+
+      <p>
+        Antoine de Saint-Exupery was talking about aircraft. But the principle applies to every page on the web. The best designs are the ones where you cannot point to a single element and say "this is decorative."
+      </p>
+
+      <hr />
+
+      <p>
+        Decoration is not evil. It is just overused. When every tool in your toolbox is a gradient, every problem looks like it needs more color. When your primary tool is typography, problems look different — and the solutions are quieter, more durable, and more respectful of the reader's attention.
+      </p>
+    </Prose>
+
+    <nav class="max-w-reading mt-12 pt-8 border-t border-[var(--color-border)] flex justify-between">
+      <span></span>
+      <a href="/writing/typography-as-interface" class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] text-[var(--text-body)]">Typography as Interface &rarr;</a>
+    </nav>
+  </article>
+</BaseLayout>

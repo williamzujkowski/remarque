@@ -1,0 +1,82 @@
+---
+/**
+ * Project Dossier — Page Archetype
+ *
+ * A project page. Technical, structured, informative.
+ * Always includes: serif title + summary, mono metadata block, architecture section, decisions/notes.
+ * Never includes: marketing language, CTAs, feature comparison grids, testimonials.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Meta from '../../components/Meta.astro';
+import Prose from '../../components/Prose.astro';
+---
+
+<BaseLayout title="Remarque" description="A typography-first design system for editorial, technical, and personal web projects.">
+  <article class="pt-[var(--space-9)]">
+    <header class="max-w-standard mb-8">
+      <h1 class="text-display font-display text-[var(--color-fg)]">Remarque</h1>
+      <p class="mt-4 text-[var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg-muted)] max-w-reading">
+        A typography-first design system for editorial, technical, and personal web projects. Named for the small sketches printmakers draw in the margins of proof editions — the mark that says this was made by someone specific, with intention.
+      </p>
+    </header>
+
+    <div class="max-w-standard mb-12 p-6 border border-[var(--color-border)] rounded-[var(--radius-md)] bg-[var(--color-surface)]">
+      <h2 class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-caps)] uppercase text-[var(--color-muted)] mb-4">Metadata</h2>
+      <dl class="grid grid-cols-[auto_1fr] gap-x-8 gap-y-2 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)]">
+        <dt class="text-[var(--color-muted)]">Status</dt>
+        <dd class="text-[var(--color-fg)]">Active</dd>
+        <dt class="text-[var(--color-muted)]">Stack</dt>
+        <dd class="text-[var(--color-fg)]">CSS Custom Properties, Tailwind CSS, Astro</dd>
+        <dt class="text-[var(--color-muted)]">Started</dt>
+        <dd class="text-[var(--color-fg)]">2026-04-01</dd>
+        <dt class="text-[var(--color-muted)]">License</dt>
+        <dd class="text-[var(--color-fg)]">MIT</dd>
+        <dt class="text-[var(--color-muted)]">Source</dt>
+        <dd><a href="https://github.com/williamzujkowski/remarque" class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)]">github.com/williamzujkowski/remarque</a></dd>
+      </dl>
+    </div>
+
+    <Prose>
+      <h2>Architecture</h2>
+
+      <p>
+        Remarque is built on three layers, each with a specific responsibility:
+      </p>
+
+      <ul>
+        <li><strong>Design Tokens</strong> (<code>tokens.css</code>) — CSS custom properties as the single source of truth for all visual decisions. Colors use OKLCH for perceptual uniformity. Typography uses a fluid type scale.</li>
+        <li><strong>Tailwind Configuration</strong> (<code>tailwind.config.js</code>) — Maps tokens into Tailwind utility classes. Extends (does not replace) Tailwind defaults with Remarque-specific values.</li>
+        <li><strong>Prose Styling</strong> — The <code>.remarque-prose</code> class handles all long-form reading typography. Applied once, it handles headings, links, code blocks, blockquotes, and images.</li>
+      </ul>
+
+      <h2>Design Decisions</h2>
+
+      <h3>Three-Font System</h3>
+      <p>
+        Newsreader for display, Inter for body, JetBrains Mono for metadata and code. Each font has a defined role and never crosses into another role's territory. Three fonts is enough for clear hierarchy without confusion.
+      </p>
+
+      <h3>17px Minimum Body Text</h3>
+      <p>
+        Most systems default to 16px or smaller. The single-pixel increase to 17px measurably improves reading comfort on screens, especially for extended reading sessions.
+      </p>
+
+      <h3>46rem Reading Column</h3>
+      <p>
+        Derived from the typographic standard of 45-75 characters per line. At 17px Inter, 46rem produces approximately 70 characters per line — near the upper end of the comfortable range, optimized for technical content that includes code snippets and longer words.
+      </p>
+
+      <h3>OKLCH Color Space</h3>
+      <p>
+        Colors are defined in OKLCH for perceptual uniformity. A lightness of 0.50 in OKLCH actually looks mid-brightness, unlike HSL where perceived brightness varies wildly by hue. This makes the palette internally consistent without manual tuning.
+      </p>
+
+      <h2>Changelog</h2>
+
+      <ul>
+        <li><strong>2026-04-06</strong> — Initial release with specification, tokens, Tailwind config, and agent rules.</li>
+        <li><strong>2026-04-08</strong> — Demo site built with Astro. All four page archetypes implemented.</li>
+      </ul>
+    </Prose>
+  </article>
+</BaseLayout>

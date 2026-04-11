@@ -1,0 +1,112 @@
+---
+/**
+ * Essay — Page Archetype
+ *
+ * Long-form writing. The core content type.
+ * Always includes: serif title, mono metadata row, narrow reading column, strong prose styling, footer nav.
+ * Never includes: sidebar content in reading column, more than one accent color, inline images wider than reading column.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Meta from '../../components/Meta.astro';
+import Prose from '../../components/Prose.astro';
+---
+
+<BaseLayout title="Typography as Interface" description="When typography is the primary visual system, every decision about type is a decision about interface.">
+  <article class="pt-[var(--space-9)]">
+    <header class="max-w-reading mb-8">
+      <h1 class="text-display font-display text-[var(--color-fg)]">Typography as Interface</h1>
+      <div class="mt-4">
+        <Meta date="2026-04-08" readingTime="8 min read" tags={["typography", "design", "craft"]} />
+      </div>
+    </header>
+
+    <Prose>
+      <p class="text-[var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg-muted)]">
+        There is a persistent myth in web design that typography is a subset of design — one tool among many, alongside color, illustration, motion, and layout. This essay argues that typography <em>is</em> the interface. Everything else is furniture.
+      </p>
+
+      <h2>The Hierarchy of Attention</h2>
+
+      <p>
+        When a reader arrives at a page, they make a decision in under three seconds: is this worth reading? That decision is made almost entirely on typographic signals. The size of the headline. The density of the body text. The whitespace around it. The font itself.
+      </p>
+
+      <p>
+        Color can support this decision. Motion can distract from it. But typography <em>is</em> the decision. A well-set page communicates competence, intention, and care before a single word is read.
+      </p>
+
+      <h2>What We Mean by "Typography-First"</h2>
+
+      <p>
+        Typography-first design does not mean "only text." It means that every visual decision is evaluated through the lens of reading comfort and typographic hierarchy. A button's border radius matters because it sits next to body text. A card's padding matters because it frames a headline. A page's maximum width matters because it determines line length.
+      </p>
+
+      <p>
+        Consider the most basic design token: body font size. Most component libraries default to <code>16px</code> or even <code>14px</code>. Remarque's non-negotiable minimum is <code>17px</code>. This single decision — one pixel — changes the feeling of every page built with the system. It says: we prioritize your comfort.
+      </p>
+
+      <blockquote>
+        <p>The details are not the details. They make the design.</p>
+      </blockquote>
+
+      <p>
+        Charles Eames said this about furniture. It applies equally to type. The difference between a comfortable reading experience and an adequate one is found in line height, letter spacing, and paragraph spacing. Not in the presence of a gradient or the curvature of a card corner.
+      </p>
+
+      <h2>The Three-Font Discipline</h2>
+
+      <p>
+        Remarque uses exactly three fonts, each with a defined role that never overlaps:
+      </p>
+
+      <ul>
+        <li><strong>Newsreader</strong> — Display text only. Page titles, article titles, section headings at or above <code>--text-section</code> size. Never for body copy.</li>
+        <li><strong>Inter</strong> — The workhorse. Body text, UI labels, navigation, buttons, everything that isn't a display heading or a technical label.</li>
+        <li><strong>JetBrains Mono</strong> — Metadata, code, timestamps, labels, technical accents. Never for headings or body text.</li>
+      </ul>
+
+      <p>
+        This constraint is intentional. Three fonts is enough to create clear hierarchy. Four creates confusion. Two can work but often sacrifices either the editorial quality of a serif display face or the technical precision of a monospace.
+      </p>
+
+      <h2>Against the Component-First Approach</h2>
+
+      <p>
+        Most design systems start with components: buttons, cards, modals, dropdowns. Typography is added later, as a "theme" layer that gets configured once and forgotten. The result is predictable — the components look fine in isolation, but the assembled page feels generic. The typography was never the protagonist.
+      </p>
+
+      <p>
+        Remarque inverts this. The build order in <code>AGENT_RULES.md</code> is explicit: tokens first, then typography, then the layout shell, then prose styling. Components come last, and only the ones you actually need. This is not accidental. It ensures that every component is designed <em>around</em> the typography, not the other way around.
+      </p>
+
+      <h2>Readability Is Not Optional</h2>
+
+      <p>
+        The web has a readability crisis. Dense dashboard layouts. Full-width text on 27-inch monitors. Body text at <code>14px</code> with <code>1.4</code> line height. These are not design choices — they are defaults that nobody questioned.
+      </p>
+
+      <p>
+        Remarque questions all of them. The reading column is constrained to <code>46rem</code> (~740px). Line height is <code>1.75</code>. Top padding before the main heading is at least <code>6rem</code>. These numbers are not arbitrary — they come from centuries of book typography, adapted for screens.
+      </p>
+
+      <p>
+        A site built with Remarque should be comfortable to read for an extended period. If it isn't, the implementation has failed, regardless of how polished the components look.
+      </p>
+
+      <hr />
+
+      <p>
+        Typography as interface is not a new idea. It is the oldest idea in design, predating screens by five centuries. What is new is the need to defend it against the relentless pressure of SaaS aesthetics, component libraries, and the assumption that more visual elements equals better design.
+      </p>
+
+      <p>
+        Sometimes the best interface is just well-set text.
+      </p>
+    </Prose>
+
+    <nav class="max-w-reading mt-12 pt-8 border-t border-[var(--color-border)] flex justify-between">
+      <a href="/writing/against-decoration" class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] text-[var(--text-body)]">&larr; Against Decoration</a>
+      <span></span>
+    </nav>
+  </article>
+</BaseLayout>

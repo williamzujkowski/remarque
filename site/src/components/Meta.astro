@@ -1,0 +1,39 @@
+---
+interface Props {
+  date?: string;
+  readingTime?: string;
+  tags?: string[];
+  status?: string;
+  stack?: string[];
+  links?: { label: string; href: string }[];
+}
+
+const { date, readingTime, tags, status, stack, links } = Astro.props;
+---
+
+<div class="font-mono text-[var(--text-meta)] leading-[var(--leading-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] flex flex-wrap items-center gap-x-4 gap-y-1">
+  {date && <time datetime={date}>{date}</time>}
+  {readingTime && <span>{readingTime}</span>}
+  {status && <span>{status}</span>}
+  {tags && tags.length > 0 && (
+    <span class="flex gap-2">
+      {tags.map((tag) => (
+        <span>{tag}</span>
+      ))}
+    </span>
+  )}
+  {stack && stack.length > 0 && (
+    <span class="flex gap-2">
+      {stack.map((item) => (
+        <span>{item}</span>
+      ))}
+    </span>
+  )}
+  {links && links.length > 0 && (
+    <span class="flex gap-3">
+      {links.map((link) => (
+        <a href={link.href} class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)]">{link.label}</a>
+      ))}
+    </span>
+  )}
+</div>

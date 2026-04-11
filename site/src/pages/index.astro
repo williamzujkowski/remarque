@@ -1,0 +1,56 @@
+---
+/**
+ * Landing — Page Archetype
+ *
+ * The homepage. Sets the tone.
+ * Always includes: clear identity statement (serif, large), navigation to content types, generous whitespace.
+ * Never includes: hero images, multiple CTAs, feature grids, testimonials, newsletter signups above fold.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Home">
+  <div class="pt-[var(--space-10)] pb-[var(--space-9)]">
+    <h1 class="text-display font-display text-[var(--color-fg)] max-w-[20ch]">
+      A typography-first design system for the web.
+    </h1>
+    <p class="mt-6 text-[var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg-muted)] max-w-reading">
+      Remarque is an opinionated design system built for personal websites, blogs, project pages, and technical writing. It prioritizes reading comfort, typographic hierarchy, and visual consistency over component variety or decorative flourish.
+    </p>
+  </div>
+
+  <div class="border-t border-[var(--color-border)] pt-8 pb-12">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-standard">
+      <a href="/writing" class="group block no-underline">
+        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Writing</h2>
+        <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">Long-form essays on design, technology, and craft.</p>
+      </a>
+      <a href="/projects" class="group block no-underline">
+        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Projects</h2>
+        <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">Technical work, architecture, and open source.</p>
+      </a>
+      <a href="/notes" class="group block no-underline">
+        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Notes</h2>
+        <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">Short observations, bookmarks, and references.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="border-t border-[var(--color-border)] pt-8">
+    <h3 class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-6">Recent</h3>
+    <ul class="space-y-4 max-w-reading list-none p-0">
+      <li>
+        <a href="/writing/typography-as-interface" class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] no-underline">Typography as Interface</a>
+        <span class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] ml-3">2026-04-08</span>
+      </li>
+      <li>
+        <a href="/projects/remarque" class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] no-underline">Remarque Design System</a>
+        <span class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] ml-3">2026-04-06</span>
+      </li>
+      <li>
+        <a href="/writing/against-decoration" class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] no-underline">Against Decoration</a>
+        <span class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] ml-3">2026-03-29</span>
+      </li>
+    </ul>
+  </div>
+</BaseLayout>

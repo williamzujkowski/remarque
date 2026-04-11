@@ -1,0 +1,71 @@
+---
+/**
+ * Notebook — Page Archetype
+ *
+ * Short-form notes, bookmarks, links, observations. The informal content type.
+ * Always includes: compact entries with mono timestamps, minimal chrome, consistent entry structure.
+ * Never includes: card-based layouts, masonry grids, thumbnail images.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Notes" description="Short observations, bookmarks, and references.">
+  <div class="pt-[var(--space-9)]">
+    <h1 class="text-display font-display text-[var(--color-fg)]">Notes</h1>
+    <p class="mt-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
+      Short observations, bookmarks, and references.
+    </p>
+  </div>
+
+  <div class="mt-12 max-w-reading space-y-0">
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-04-10">2026-04-10</time>
+        <span class="ml-3">typography</span>
+      </div>
+      <p class="text-[var(--text-body)] text-[var(--color-fg)]">
+        Matthew Butterick's <a href="https://practicaltypography.com" class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)]">Practical Typography</a> remains the best single resource for web typography. His argument that typography is the visual medium of language — not decoration applied to language — is the foundation Remarque builds on.
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-04-07">2026-04-07</time>
+        <span class="ml-3">design-systems</span>
+      </div>
+      <p class="text-[var(--text-body)] text-[var(--color-fg)]">
+        The problem with most design systems is that they optimize for the builder, not the reader. A comprehensive component library is a productivity tool for developers. A typographic system is a readability tool for humans. These are different goals with different tradeoffs.
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-04-03">2026-04-03</time>
+        <span class="ml-3">css</span>
+      </div>
+      <p class="text-[var(--text-body)] text-[var(--color-fg)]">
+        OKLCH is quietly becoming the most important CSS color development in years. Perceptual uniformity means you can adjust lightness or chroma independently and get predictable results. No more manually eyeballing "does this blue look as bright as that green?"
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-03-28">2026-03-28</time>
+        <span class="ml-3">reference</span>
+      </div>
+      <p class="text-[var(--text-body)] text-[var(--color-fg)]">
+        The optimal line length for reading is 45-75 characters per line. At 17px Inter, <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">46rem</code> produces approximately 70 characters — near the upper end, optimized for technical content with longer words and inline code.
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-03-25">2026-03-25</time>
+        <span class="ml-3">tools</span>
+      </div>
+      <p class="text-[var(--text-body)] text-[var(--color-fg)]">
+        Newsreader by Production Type is an underappreciated typeface for the web. Variable weight, variable optical size, open source. It has the authority of a traditional serif without the heaviness of Georgia or the overuse of Playfair Display.
+      </p>
+    </article>
+  </div>
+</BaseLayout>
