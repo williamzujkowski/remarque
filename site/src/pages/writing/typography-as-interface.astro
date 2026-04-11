@@ -9,6 +9,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Meta from '../../components/Meta.astro';
 import Prose from '../../components/Prose.astro';
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Typography as Interface" description="When typography is the primary visual system, every decision about type is a decision about interface.">
@@ -105,7 +106,7 @@ import Prose from '../../components/Prose.astro';
     </Prose>
 
     <nav class="max-w-reading mt-12 pt-8 border-t border-[var(--color-border)] flex justify-between">
-      <a href="/writing/against-decoration" class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] text-[var(--text-body)]">&larr; Against Decoration</a>
+      <a href={`${base}writing/against-decoration`} class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] text-[var(--text-body)]">&larr; Against Decoration</a>
       <span></span>
     </nav>
   </article>

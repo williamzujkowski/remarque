@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Meta from '../../components/Meta.astro';
 import Prose from '../../components/Prose.astro';
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Against Decoration" description="The modern web is drowning in visual noise. What if the antidote is restraint?">
@@ -65,7 +66,7 @@ import Prose from '../../components/Prose.astro';
 
     <nav class="max-w-reading mt-12 pt-8 border-t border-[var(--color-border)] flex justify-between">
       <span></span>
-      <a href="/writing/typography-as-interface" class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] text-[var(--text-body)]">Typography as Interface &rarr;</a>
+      <a href={`${base}writing/typography-as-interface`} class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] text-[var(--text-body)]">Typography as Interface &rarr;</a>
     </nav>
   </article>
 </BaseLayout>
