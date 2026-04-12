@@ -167,6 +167,21 @@ All interactive elements (links, buttons, inputs) must have a minimum touch targ
 | Meta/caption text | 1.35 | 1.5 |
 | Display/heading text | 1.0 | 1.05-1.2 |
 
+### Enforcement Checklist
+
+Every PR that ships Remarque pages MUST pass:
+
+- [ ] Body copy ≥ 17px (`var(--text-body)`). No hardcoded smaller sizes.
+- [ ] Small text ≥ 14px (`var(--text-meta)`). Micro text (`--text-micro` / 13px) only for timestamps.
+- [ ] `--color-muted` contrast ≥ 4.5:1 against `--color-bg` in both themes.
+- [ ] `--color-fg-muted` contrast ≥ 7:1 (AAA) for body-adjacent prose.
+- [ ] Every interactive element is ≥ 44×44px (use min-height/padding, not font-size to reach the floor).
+- [ ] `font-variant-numeric: tabular-nums lining-nums` on all metadata that mixes with dates/counts.
+- [ ] No hardcoded hex/rgb colors — only `var(--color-*)` tokens.
+- [ ] Body line-height ≥ 1.5 (Remarque target: 1.75).
+
+Agents reviewing PRs should reject changes that violate any line above without explicit rationale.
+
 ---
 
 ## Decision Order
