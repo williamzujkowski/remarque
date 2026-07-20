@@ -152,11 +152,20 @@ console.log(`\nsource scans (${SRC})`);
 const FONT_FLOOR_REM = 0.8125, FONT_FLOOR_PX = 13;
 // tokens.astro is the token *reference page* — its job is displaying literal
 // values (issue #48 tracks generating it from a machine-readable source).
-const isTokenFile = (p) => /tokens(-core|-palette)?\.css$|fonts\.css$|globals\.css$|pages[\/\\]tokens\.astro$/.test(p);
+// The file passed via --palette is BY DEFINITION a token file, whatever
+// its name (a consumer's palette is often global.css or similar).
+const paletteRel = relative('.', PALETTE);
+const isTokenFile = (p) =>
+  p === paletteRel ||
+  /tokens(-core|-palette)?\.css$|fonts\.css$|globals?\.css$|theme-deck\.css$|pages[\/\\]tokens\.astro$/.test(p);
 
 for (const file of walk(SRC)) {
   const rel = relative('.', file);
-  const text = readFileSync(file, 'utf8');
+  // Strip comments before scanning, preserving line numbers — otherwise
+  // prose like "(issue #324)" in a comment trips the hex-color regex.
+  const text = readFileSync(file, 'utf8')
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
+    .replace(/(^|[^:])\/\/[^\n]*/g, (m, p1) => p1 + ' '.repeat(m.length - p1.length));
   const lines = text.split('\n');
   lines.forEach((line, i) => {
     // 2. font-size floor (static rem/px values), plus statically
