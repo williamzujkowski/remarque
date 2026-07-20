@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.18",
-    "astro": "^6.3.7",
+    "astro": "^6.4.8",
     "remarque-tokens": "file:.."
   },
   "devDependencies": {
