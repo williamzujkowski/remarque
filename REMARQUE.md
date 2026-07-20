@@ -47,7 +47,7 @@ Remarque projects should feel like a modern technical publication — not a gene
 - **Accessibility:** USWDS-informed. Keyboard navigation, skip-to-content link, ARIA labels, WCAG AA contrast compliance, 44px touch targets, 14px minimum small text
 - **Tokens:** Centralized CSS custom properties in two tiers — `tokens-core.css` (immutable identity) + `tokens-palette.css` (sanctioned personalization). `tokens.css` aggregates both. See "Token Tiers"
 - **Fonts:** Self-hosted woff2 (no CDN dependency). Preloaded via `<link rel="preload">`
-- **Package:** Copy `fonts.css` + `tokens.css` + `tokens-core.css` + `tokens-palette.css` + `fonts/` (plus `tailwind.config.js` for Tailwind v3 projects) — `tokens.css` aggregates the two tier files, so all three CSS files travel together. npm publication of `remarque-tokens` is tracked in #46/#48; until it ships, install from GitHub (`npm install github:williamzujkowski/remarque`) or use the copy path
+- **Package:** `npm install remarque-tokens` — subpaths: `remarque-tokens` (aggregator), `/core`, `/palette`, `/fonts.css`, `/tailwind`; ships `npx remarque-audit`. Copy path also supported: `fonts.css` + `tokens.css` + `tokens-core.css` + `tokens-palette.css` + `fonts/` travel together (the aggregator imports the tier files)
 
 ### Tailwind Spacing Integration Note
 
