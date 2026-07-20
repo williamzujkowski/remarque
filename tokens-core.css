@@ -1,33 +1,22 @@
 /*
- * Remarque Design Tokens
- * ──────────────────────
- * The single source of truth for all visual decisions.
- * Import this file before any other styles.
+ * Remarque Design Tokens — CORE TIER
+ * ───────────────────────────────────
+ * The immutable identity of Remarque: type scale, rhythm, spacing,
+ * widths, radius, and motion — plus the typography/prose machinery
+ * that consumes them.
  *
- * Usage:
- *   @import url('tokens.css');
+ * CONTRACT: a site that overrides tokens in THIS file has forked
+ * Remarque. Personalization happens exclusively in tokens-palette.css
+ * (fonts, colors, accent, reading measure). See "Token Tiers" in
+ * REMARQUE.md.
  *
- * These tokens are consumed by Tailwind via tailwind.config.js
- * and directly via var() in component styles.
+ * Import via the aggregator (tokens.css) or directly:
+ *   @import 'fonts.css';
+ *   @import 'tokens-core.css';
+ *   @import 'tokens-palette.css';
  */
-
-/* ─── Fonts ─────────────────────────────────────────────── */
-/*
- * Fonts are self-hosted — no CDN requests. Import fonts.css (shipped
- * alongside this file, with the woff2 files in fonts/) before this file:
- *
- *   @import url('fonts.css');
- *   @import url('tokens.css');
- */
-
-/* ─── Light Theme (default) ─────────────────────────────── */
 
 :root {
-  /* Font stacks */
-  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Fira Code", monospace;
-
   /* Type scale — fluid where it matters, fixed where it doesn't */
   --text-display: clamp(2.75rem, 5.5vw, 5rem);
   --text-title: clamp(1.875rem, 3.5vw, 3rem);
@@ -70,8 +59,9 @@
   --space-11: 10rem;     /* 160px */
   --space-12: 12rem;     /* 192px */
 
-  /* Content widths — the most important layout tokens */
-  --content-reading: 46rem;     /* ~740px — prose columns, essays, articles */
+  /* Layout container widths.
+     (--content-reading, the prose measure, lives in the PALETTE tier —
+      it is tuned to the body font and moves with it. These two do not.) */
   --content-standard: 72rem;    /* ~1152px — project pages, wider layouts */
   --content-wide: 88rem;        /* ~1408px — outer container, navigation context */
 
@@ -90,91 +80,6 @@
   --motion-fast: 120ms;         /* hover states, focus rings */
   --motion-normal: 180ms;       /* theme transitions */
   --motion-easing: ease-out;
-
-  /* ─── Color: Light theme ───────────────────────────────── */
-  /*
-   * Colors use OKLCH for perceptual uniformity.
-   * The palette is deliberately narrow: warm neutrals + one accent.
-   *
-   * Accent rule: used for inline links and ONE interactive element per viewport.
-   * That's it. No accent backgrounds, no accent borders, no accent fills.
-   */
-
-  --color-bg:          oklch(0.975 0.005 80);    /* warm off-white, not pure white */
-  --color-bg-subtle:   oklch(0.955 0.005 80);    /* slightly darker for alternating sections */
-  --color-fg:          oklch(0.18 0.01 80);       /* near-black, warm undertone */
-  --color-fg-muted:    oklch(0.43 0.015 80);      /* secondary text — 7.55:1 bg / 7.33:1 surface (AAA) */
-  --color-muted:       oklch(0.54 0.01 80);       /* tertiary text — 4.71:1 bg / 4.57:1 surface (AA) */
-  --color-border:      oklch(0.88 0.005 80);      /* quiet borders — DECORATIVE ONLY (1.34:1, below WCAG 1.4.11's 3:1); functional boundaries use --color-border-bold */
-  --color-border-bold: oklch(0.62 0.01 80);       /* functional/emphasized borders — 3.39:1 (meets WCAG 1.4.11) */
-  --color-surface:     oklch(0.965 0.005 80);     /* card/surface backgrounds */
-
-  --color-accent:      oklch(0.50 0.14 250);      /* muted blue — links and one interactive element */
-  --color-accent-hover: oklch(0.42 0.14 250);     /* darker on hover */
-  --color-accent-subtle: oklch(0.95 0.03 250);    /* very faint accent background if absolutely needed */
-
-  /* Semantic mappings */
-  --color-link:        var(--color-accent);
-  --color-link-hover:  var(--color-accent-hover);
-  --color-focus-ring:  var(--color-accent);
-  --color-selection-bg: oklch(0.92 0.04 250);
-  --color-selection-fg: var(--color-fg);
-  --color-code-bg:     oklch(0.945 0.005 80);     /* inline code background */
-  --color-code-fg:     var(--color-fg);
-}
-
-/* ─── Dark Theme ────────────────────────────────────────── */
-/*
- * Dark mode is NOT an inverted light mode.
- * It is independently tuned for readability on dark backgrounds.
- * Key differences:
- *   - Background is warm dark gray, never pure black
- *   - Text is softened to reduce glare (not pure white)
- *   - Accent is brighter to maintain contrast
- *   - Borders are subtler
- */
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg:          oklch(0.16 0.01 80);     /* warm charcoal, not black */
-    --color-bg-subtle:   oklch(0.19 0.01 80);
-    --color-fg:          oklch(0.90 0.005 80);    /* soft white, not pure */
-    --color-fg-muted:    oklch(0.70 0.01 80);    /* 7.26:1 bg (AAA) */
-    --color-muted:       oklch(0.60 0.01 80);    /* 4.92:1 bg / 4.68:1 surface (AA with margin) */
-    --color-border:      oklch(0.25 0.005 80);   /* decorative only — see light-theme note */
-    --color-border-bold: oklch(0.50 0.01 80);    /* functional borders — 3.23:1 (meets WCAG 1.4.11) */
-    --color-surface:     oklch(0.19 0.01 80);
-
-    --color-accent:      oklch(0.68 0.12 250);    /* brighter in dark mode for contrast */
-    --color-accent-hover: oklch(0.75 0.12 250);
-    --color-accent-subtle: oklch(0.22 0.04 250);
-
-    --color-selection-bg: oklch(0.30 0.06 250);
-    --color-selection-fg: oklch(0.92 0.005 80);
-    --color-code-bg:     oklch(0.20 0.005 80);
-    --color-code-fg:     oklch(0.88 0.005 80);
-  }
-}
-
-/* Manual dark mode toggle support */
-[data-theme="dark"] {
-  --color-bg:          oklch(0.16 0.01 80);
-  --color-bg-subtle:   oklch(0.19 0.01 80);
-  --color-fg:          oklch(0.90 0.005 80);
-  --color-fg-muted:    oklch(0.70 0.01 80);
-  --color-muted:       oklch(0.60 0.01 80);
-  --color-border:      oklch(0.25 0.005 80);
-  --color-border-bold: oklch(0.50 0.01 80);
-  --color-surface:     oklch(0.19 0.01 80);
-
-  --color-accent:      oklch(0.68 0.12 250);
-  --color-accent-hover: oklch(0.75 0.12 250);
-  --color-accent-subtle: oklch(0.22 0.04 250);
-
-  --color-selection-bg: oklch(0.30 0.06 250);
-  --color-selection-fg: oklch(0.92 0.005 80);
-  --color-code-bg:     oklch(0.20 0.005 80);
-  --color-code-fg:     oklch(0.88 0.005 80);
 }
 
 /* ─── Reduced Motion ────────────────────────────────────── */

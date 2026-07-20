@@ -36,6 +36,12 @@ Execute in this exact order. Do not skip steps. Do not reorder.
 
 These are not guidelines. Agents must follow them literally.
 
+### Token Tiers
+
+- NEVER change a value in `tokens-core.css` (or its tokens' values anywhere) — core tokens are Remarque's identity; changing them means the project has forked the system
+- Site personalization happens ONLY by overriding `tokens-palette.css` tokens (font slots from the approved pairings, colors, accent, `--content-reading` per the measure table) in a stylesheet loaded after the tokens
+- After ANY palette change, run the audit and fix every failure before shipping — `npm run audit` inside this repo; `npx remarque-audit --palette <file> --src <dir>` in a consumer project (the npm script only exists here)
+
 ### Typography
 
 - Body text is never smaller than `--text-body` (17px / 1.0625rem)
@@ -128,8 +134,10 @@ Do not introduce any of the following unless the project owner explicitly reques
 
 ```
 project/
-├── fonts.css                 # Self-hosted @font-face declarations (import before tokens.css)
-├── tokens.css                # Remarque design tokens
+├── fonts.css                 # Self-hosted @font-face declarations (import before tokens)
+├── tokens.css                # Aggregator — imports the two tiers below
+├── tokens-core.css           # CORE tier: type scale, spacing, widths, radius, motion, prose machinery. NEVER override
+├── tokens-palette.css        # PALETTE tier: font slots, colors, accent, reading measure. Override freely, then run the audit
 ├── tailwind.config.js        # Tailwind v3 ONLY — v4 projects skip this and use an @theme block (see site/src/styles/globals.css)
 ├── public/
 │   └── fonts/                # Self-hosted woff2 fonts (Inter, Newsreader, JetBrains Mono)
@@ -162,6 +170,8 @@ project/
 
 5. **GitHub Pages base path:** When deploying to a subpath (e.g., `/remarque/`), all internal links must use a base URL helper (Astro: `import.meta.env.BASE_URL`). Set `base` in your framework config.
 
+6. **String-form @import only:** Always write `@import './tokens.css';` (string form). Tailwind v4 / Lightning CSS silently DROPS `@import url(...)` for local files — the build succeeds while the entire token cascade vanishes from the output. Verify the built CSS contains `.remarque-prose` after changing imports.
+
 ---
 
 ## Quality Checklist
@@ -185,6 +195,7 @@ Before considering any implementation complete, verify:
 - [ ] Mobile version is roomy — not a compressed desktop layout
 - [ ] Mobile nav links have ≥44px touch targets
 - [ ] No pure white or pure black backgrounds
+- [ ] `npm run audit` passes (contrast, gamut, font floors, hardcoded colors)
 - [ ] Muted text placed on `--color-surface` still meets 4.5:1 (check the surface pairing, not just bg)
 - [ ] All transitions use the motion duration tokens (reduced-motion support depends on it)
 - [ ] Skip-to-content link present and functional

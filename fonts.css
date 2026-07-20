@@ -5,8 +5,8 @@
  * No CDN requests: fonts resolve relative to this file.
  *
  * Usage (import BEFORE tokens.css):
- *   @import url('fonts.css');
- *   @import url('tokens.css');
+ *   @import 'fonts.css';
+ *   @import 'tokens.css';
  *
  * Copy the fonts/ directory alongside this file (or into your static
  * assets dir and adjust the URLs). For best performance, preload the

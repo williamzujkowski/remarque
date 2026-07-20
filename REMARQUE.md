@@ -45,9 +45,9 @@ Remarque projects should feel like a modern technical publication — not a gene
 - **Markup:** Semantic HTML with ARIA landmarks
 - **Theming:** Light and dark mode via `[data-theme]` attribute (system preference + manual toggle)
 - **Accessibility:** USWDS-informed. Keyboard navigation, skip-to-content link, ARIA labels, WCAG AA contrast compliance, 44px touch targets, 14px minimum small text
-- **Tokens:** Centralized CSS custom properties as the single source of truth
+- **Tokens:** Centralized CSS custom properties in two tiers — `tokens-core.css` (immutable identity) + `tokens-palette.css` (sanctioned personalization). `tokens.css` aggregates both. See "Token Tiers"
 - **Fonts:** Self-hosted woff2 (no CDN dependency). Preloaded via `<link rel="preload">`
-- **Package:** Copy `fonts.css` + `tokens.css` + `fonts/` (plus `tailwind.config.js` for Tailwind v3 projects). npm publication of `remarque-tokens` is tracked in #46/#48; until it ships, install from GitHub (`npm install github:williamzujkowski/remarque`) or use the copy path
+- **Package:** Copy `fonts.css` + `tokens.css` + `tokens-core.css` + `tokens-palette.css` + `fonts/` (plus `tailwind.config.js` for Tailwind v3 projects) — `tokens.css` aggregates the two tier files, so all three CSS files travel together. npm publication of `remarque-tokens` is tracked in #46/#48; until it ships, install from GitHub (`npm install github:williamzujkowski/remarque`) or use the copy path
 
 ### Tailwind Spacing Integration Note
 
@@ -55,20 +55,48 @@ Never map Remarque's `--space-N` values onto Tailwind's default numeric spacing 
 
 ---
 
-## Font Roles
+## Token Tiers
 
-Remarque uses a three-font system. Each font has a specific role and should never be used outside that role.
+Tokens live in two files with different contracts:
 
-| Role | Primary | Fallback | Usage |
-|------|---------|----------|-------|
-| **Display** | Newsreader | Georgia, serif | Page titles, hero headings, article titles |
-| **Body** | Inter | system-ui, sans-serif | Body text, UI labels, navigation, buttons |
-| **Mono** | JetBrains Mono | ui-monospace, monospace | Metadata rows, code blocks, labels, technical accents, timestamps |
+| Tier | File | Contains | Override policy |
+|------|------|----------|-----------------|
+| **Core** | `tokens-core.css` | Type scale + 17px body floor, line heights, tracking, weights, spacing scale, `--content-standard`/`--content-wide`, radius ceiling, motion durations, prose/typography machinery | **Never overridden.** A site that changes these has forked Remarque — it is no longer a Remarque site, by definition |
+| **Palette** | `tokens-palette.css` | Font slots (`--font-display/body/mono`), all `--color-*`, `--content-reading` (the measure, which moves with the body font) | **Override freely** in a site stylesheet loaded after the tokens. Every replacement palette must pass the audit in both themes: `npm run audit` in this repo, `npx remarque-audit --palette <file> --src <dir>` in a consumer project |
+
+Package subpaths for consumers: `remarque-tokens` (aggregator), `remarque-tokens/core`, `remarque-tokens/palette`, `remarque-tokens/fonts.css`.
+
+This makes compliance mechanical: a site that overrides only palette-tier tokens is *authored*; one that touches core-tier tokens has *forked*. `tokens.css` imports both tiers, so existing consumers are unaffected.
+
+---
+
+## Font Slots
+
+Remarque uses a three-slot font system. Each slot has a strict role, and each slot accepts a small set of approved faces — swap the face, keep the role.
+
+| Slot | Default | Approved substitutes | Usage |
+|------|---------|----------------------|-------|
+| **Display** (`--font-display`) | Newsreader | Fraunces (display sizes only, ≥2rem — its optical character does not survive smaller sizes) | Page titles, hero headings, article titles |
+| **Body** (`--font-body`) | Inter | Source Serif 4, system-ui stack | Body text, UI labels, navigation, buttons |
+| **Mono** (`--font-mono`) | JetBrains Mono | IBM Plex Mono | Metadata rows, code blocks, labels, technical accents, timestamps |
 
 **Font rules:**
-- Newsreader is used *only* for display text at or above the section heading size. Never for body copy.
-- Inter is the workhorse. All body text, UI elements, and navigation use Inter.
-- JetBrains Mono is reserved for metadata, code, technical labels, and small accents. It is never used for headings or body text.
+- The display face is used *only* for display text at or above the section heading size. Never for body copy.
+- The body face is the workhorse. All body text, UI elements, and navigation use it.
+- The mono face is reserved for metadata, code, technical labels, and small accents. It is never used for headings or body text.
+- Faces outside the approved lists require a spec amendment, not a silent swap. A fourth "accent" slot (hand-written or decorative faces) is not part of core Remarque; sites that add one must restrict it to marginalia and never prose.
+
+### Measure Compensation
+
+`--content-reading` is calibrated to the body font — 46rem gives ~70 characters per line at 17px **Inter**, but the same width in a text serif runs ~85 characters, well past comfortable. When you swap the body slot, change the measure with it (target 66–72 ch/line at `--text-body`):
+
+| Body face | `--content-reading` | Rationale |
+|-----------|--------------------:|-----------|
+| Inter (default) | 46rem | ~70 ch/line at 17px |
+| system-ui stack | 46rem | metrics close to Inter |
+| Source Serif 4 | 40rem | ~71 ch/line — measured on williamzujkowski.github.io, the reference consumer |
+
+This is why the measure is palette-tier: it is a property of the font choice, not of the system's identity. The *target character count* is the invariant.
 
 ---
 
@@ -168,9 +196,17 @@ All interactive elements (links, buttons, inputs) must have a minimum touch targ
 | Meta/caption text | 1.35 | 1.5 |
 | Display/heading text | 1.0 | 1.05-1.2 |
 
+### Changing the Accent Hue
+
+The accent is the single sanctioned expressive color. To personalize it, keep the **lightness** values from the default palette (lightness carries the contrast; hue carries the personality) and change hue/chroma:
+
+1. Re-derive all accent-family tokens at the same lightness steps: `--color-accent` (0.50 light / 0.68 dark), `--color-accent-hover` (0.42 / 0.75), `--color-accent-subtle` (0.95 / 0.22), `--color-selection-bg` (0.92 / 0.30).
+2. Reduce chroma until every value is inside the sRGB gamut — the audit rejects out-of-gamut colors because browsers clip them, so the authored value is not what renders. Different hues tolerate very different chroma at the same lightness (blues carry 0.14 at L 0.50; yellows and cyans will not).
+3. Run `npm run audit` (or, in a consumer project, `npx remarque-audit --palette your-palette.css --src src`). Accent and accent-hover must reach 4.5:1 on `--color-bg` in both themes. The audit is the gate — not every hue passes at every lightness, and the checklist wins over the hue.
+
 ### Enforcement Checklist
 
-Every PR that ships Remarque pages MUST pass:
+Every PR that ships Remarque pages MUST pass (`npm run audit` automates the color/size lines):
 
 - [ ] Body copy ≥ 17px (`var(--text-body)`). No hardcoded smaller sizes.
 - [ ] Small text ≥ 14px (`var(--text-meta)`). Micro text (`--text-micro` / 13px) only for timestamps.

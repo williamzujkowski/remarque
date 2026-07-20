@@ -11,18 +11,31 @@
   },
   "homepage": "https://williamzujkowski.github.io/remarque/",
   "main": "tokens.css",
+  "bin": {
+    "remarque-audit": "scripts/audit.mjs"
+  },
+  "scripts": {
+    "audit": "node scripts/audit.mjs"
+  },
   "exports": {
     ".": "./tokens.css",
     "./tokens": "./tokens.css",
     "./tokens.css": "./tokens.css",
+    "./core": "./tokens-core.css",
+    "./palette": "./tokens-palette.css",
+    "./tokens-core.css": "./tokens-core.css",
+    "./tokens-palette.css": "./tokens-palette.css",
     "./fonts.css": "./fonts.css",
     "./fonts/*": "./fonts/*",
     "./tailwind": "./tailwind.config.js"
   },
   "files": [
     "tokens.css",
+    "tokens-core.css",
+    "tokens-palette.css",
     "fonts.css",
     "fonts/",
+    "scripts/audit.mjs",
     "tailwind.config.js",
     "REMARQUE.md",
     "AGENT_RULES.md",

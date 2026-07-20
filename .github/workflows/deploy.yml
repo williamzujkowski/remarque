@@ -32,6 +32,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Token audit (contrast, gamut, font floors, hardcoded colors)
+        run: node scripts/audit.mjs
+        working-directory: .
+
       - name: Build Astro site
         run: npm run build
 
