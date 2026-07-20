@@ -6,7 +6,13 @@
  */
 
 @import "tailwindcss";
-@import "./tokens.css";
+/* Tier files imported directly (not via the tokens.css aggregator):
+   Lightning CSS inlines imports in place, and nested @imports would land
+   mid-file — violating CSS's imports-first rule and intermittently
+   dropping rules from the bundle. Keep these two in sync with the
+   root tokens-core.css / tokens-palette.css. */
+@import "./tokens-core.css";
+@import "./tokens-palette.css";
 
 /* ─── Self-hosted Fonts ────────────────────────────────── */
 
@@ -79,8 +85,8 @@
   --color-border-bold: oklch(0.62 0.01 80);
   --color-surface: oklch(0.965 0.005 80);
   --color-accent: oklch(0.50 0.14 250);
-  --color-accent-hover: oklch(0.42 0.14 250);
-  --color-accent-subtle: oklch(0.95 0.03 250);
+  --color-accent-hover: oklch(0.42 0.11 250);
+  --color-accent-subtle: oklch(0.95 0.02 250);
   --color-code-bg: oklch(0.945 0.005 80);
   --color-code-fg: oklch(0.18 0.01 80);
 
@@ -101,8 +107,8 @@
   --color-border-bold: oklch(0.62 0.01 80);
   --color-surface: oklch(0.965 0.005 80);
   --color-accent: oklch(0.50 0.14 250);
-  --color-accent-hover: oklch(0.42 0.14 250);
-  --color-accent-subtle: oklch(0.95 0.03 250);
+  --color-accent-hover: oklch(0.42 0.11 250);
+  --color-accent-subtle: oklch(0.95 0.02 250);
   --color-code-bg: oklch(0.945 0.005 80);
   --color-code-fg: oklch(0.18 0.01 80);
 }

@@ -1,0 +1,128 @@
+/*
+ * Remarque Design Tokens — PALETTE TIER
+ * ──────────────────────────────────────
+ * The sanctioned personalization surface: font slots, colors, accent,
+ * and the reading measure. A site may override ANY token in this file
+ * (in its own stylesheet, loaded after this one) and still be a
+ * compliant Remarque site. Overriding tokens-core.css is a fork.
+ *
+ * RULES FOR OVERRIDES:
+ *   - Font slots: choose from the approved pairings in REMARQUE.md
+ *     ("Font Slots"). Display faces never set body copy; mono never
+ *     sets headings or body.
+ *   - --content-reading: pick the value matching your body font from
+ *     the measure-compensation table in REMARQUE.md (target 66–72
+ *     characters per line at --text-body).
+ *   - Colors: every replacement palette must pass the contrast audit
+ *     (npm run audit) — fg-muted ≥ 7:1, muted ≥ 4.5:1 on bg AND
+ *     surface, accent + accent-hover ≥ 4.5:1, border-bold ≥ 3:1,
+ *     in BOTH themes.
+ *   - Accent: change the hue by re-deriving accent/accent-hover/
+ *     accent-subtle/selection at the SAME lightness values used here,
+ *     then validate — lightness carries the contrast, hue carries the
+ *     personality. Not every hue passes at every lightness (yellows/
+ *     cyans behave differently than blues); the audit is the gate.
+ */
+
+/* ─── Font Slots ────────────────────────────────────────── */
+
+:root {
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Fira Code", monospace;
+
+  /* Reading measure — tuned to the body font (see REMARQUE.md measure table).
+     46rem ≈ 70 characters per line at 17px Inter. */
+  --content-reading: 46rem;
+}
+
+/* ─── Color: Light theme (default) ──────────────────────── */
+/*
+ * Colors use OKLCH for perceptual uniformity.
+ * The palette is deliberately narrow: warm neutrals + one accent.
+ *
+ * Accent rule: used for inline links and ONE interactive element per
+ * viewport. No accent backgrounds, no accent borders, no accent fills.
+ *
+ * Contrast ratios in comments are computed WCAG 2.x values
+ * (OKLCH → linear sRGB → relative luminance); the audit script
+ * (scripts/audit.mjs) recomputes and enforces them in CI.
+ */
+
+:root {
+  --color-bg:          oklch(0.975 0.005 80);    /* warm off-white, not pure white */
+  --color-bg-subtle:   oklch(0.955 0.005 80);    /* slightly darker for alternating sections */
+  --color-fg:          oklch(0.18 0.01 80);       /* near-black, warm undertone */
+  --color-fg-muted:    oklch(0.43 0.015 80);      /* secondary text — 7.55:1 bg / 7.33:1 surface (AAA) */
+  --color-muted:       oklch(0.54 0.01 80);       /* tertiary text — 4.71:1 bg / 4.57:1 surface (AA) */
+  --color-border:      oklch(0.88 0.005 80);      /* quiet borders — DECORATIVE ONLY (1.34:1, below WCAG 1.4.11's 3:1); functional boundaries use --color-border-bold */
+  --color-border-bold: oklch(0.62 0.01 80);       /* functional/emphasized borders — 3.39:1 (meets WCAG 1.4.11) */
+  --color-surface:     oklch(0.965 0.005 80);     /* card/surface backgrounds */
+
+  --color-accent:      oklch(0.50 0.14 250);      /* muted blue — links and one interactive element */
+  --color-accent-hover: oklch(0.42 0.11 250);     /* darker on hover — 7.87:1, in-gamut (0.14 chroma clipped) */
+  --color-accent-subtle: oklch(0.95 0.02 250);    /* very faint accent background — in-gamut (0.03 chroma clipped) */
+
+  /* Semantic mappings */
+  --color-link:        var(--color-accent);
+  --color-link-hover:  var(--color-accent-hover);
+  --color-focus-ring:  var(--color-accent);
+  --color-selection-bg: oklch(0.92 0.04 250);
+  --color-selection-fg: var(--color-fg);
+  --color-code-bg:     oklch(0.945 0.005 80);     /* inline code background */
+  --color-code-fg:     var(--color-fg);
+}
+
+/* ─── Color: Dark theme ─────────────────────────────────── */
+/*
+ * Dark mode is NOT an inverted light mode.
+ * It is independently tuned for readability on dark backgrounds.
+ * Key differences:
+ *   - Background is warm dark gray, never pure black
+ *   - Text is softened to reduce glare (not pure white)
+ *   - Accent is brighter to maintain contrast
+ *   - Borders are subtler
+ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:          oklch(0.16 0.01 80);     /* warm charcoal, not black */
+    --color-bg-subtle:   oklch(0.19 0.01 80);
+    --color-fg:          oklch(0.90 0.005 80);    /* soft white, not pure */
+    --color-fg-muted:    oklch(0.70 0.01 80);    /* 7.26:1 bg (AAA) */
+    --color-muted:       oklch(0.60 0.01 80);    /* 4.92:1 bg / 4.68:1 surface (AA with margin) */
+    --color-border:      oklch(0.25 0.005 80);   /* decorative only — see light-theme note */
+    --color-border-bold: oklch(0.50 0.01 80);    /* functional borders — 3.23:1 (meets WCAG 1.4.11) */
+    --color-surface:     oklch(0.19 0.01 80);
+
+    --color-accent:      oklch(0.68 0.12 250);    /* brighter in dark mode for contrast */
+    --color-accent-hover: oklch(0.75 0.12 250);
+    --color-accent-subtle: oklch(0.22 0.04 250);
+
+    --color-selection-bg: oklch(0.30 0.06 250);
+    --color-selection-fg: oklch(0.92 0.005 80);
+    --color-code-bg:     oklch(0.20 0.005 80);
+    --color-code-fg:     oklch(0.88 0.005 80);
+  }
+}
+
+/* Manual dark mode toggle support */
+[data-theme="dark"] {
+  --color-bg:          oklch(0.16 0.01 80);
+  --color-bg-subtle:   oklch(0.19 0.01 80);
+  --color-fg:          oklch(0.90 0.005 80);
+  --color-fg-muted:    oklch(0.70 0.01 80);
+  --color-muted:       oklch(0.60 0.01 80);
+  --color-border:      oklch(0.25 0.005 80);
+  --color-border-bold: oklch(0.50 0.01 80);
+  --color-surface:     oklch(0.19 0.01 80);
+
+  --color-accent:      oklch(0.68 0.12 250);
+  --color-accent-hover: oklch(0.75 0.12 250);
+  --color-accent-subtle: oklch(0.22 0.04 250);
+
+  --color-selection-bg: oklch(0.30 0.06 250);
+  --color-selection-fg: oklch(0.92 0.005 80);
+  --color-code-bg:     oklch(0.20 0.005 80);
+  --color-code-fg:     oklch(0.88 0.005 80);
+}

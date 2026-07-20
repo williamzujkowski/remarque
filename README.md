@@ -21,7 +21,7 @@ Most developer sites inherit the visual language of SaaS dashboards or component
 
 ## Install
 
-Copy `fonts.css`, `tokens.css`, and the `fonts/` directory into your project, then:
+Copy `fonts.css`, `tokens.css`, `tokens-core.css`, `tokens-palette.css`, and the `fonts/` directory into your project (`tokens.css` is an aggregator that imports the two tier files), then:
 
 ```css
 @import 'fonts.css';
@@ -49,7 +49,10 @@ The agent rules define build order, non-negotiable rules, disallowed patterns, a
 |------|---------|
 | `REMARQUE.md` | Full system specification — philosophy, visual rules, page archetypes, acceptance criteria |
 | `AGENT_RULES.md` | Implementation contract — build order, non-negotiables, pitfalls, quality checklist |
-| `tokens.css` | Design tokens as CSS custom properties + base typography classes + prose styling |
+| `tokens.css` | Aggregator importing the two token tiers below |
+| `tokens-core.css` | Core tier — type scale, spacing, widths, radius, motion, prose styling. Never overridden |
+| `tokens-palette.css` | Palette tier — font slots, colors, accent, reading measure. The sanctioned personalization surface |
+| `scripts/audit.mjs` | `npm run audit` — enforces the spec's contrast/gamut/font-floor/no-hardcoded-color checklist |
 | `fonts.css` + `fonts/` | Self-hosted @font-face declarations and woff2 files (no CDN requests) |
 | `tailwind.config.js` | Tailwind CSS **v3** configuration (v4 projects use an `@theme` block instead) |
 | `package.json` | npm package manifest for `remarque-tokens` |
