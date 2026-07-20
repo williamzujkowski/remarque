@@ -3,15 +3,22 @@
  * ─────────────────────────────────────
  * Maps Remarque's runtime CSS custom properties into Tailwind v4
  * utilities (font-display, bg-surface, max-w-reading, mt-remarque-9, …)
- * WITHOUT duplicating any values: `@theme inline` makes utilities
- * reference the vars directly and emits no variable declarations, so
- * light/dark/theme-deck palette switches flow through automatically
- * and tokens-palette.css stays the single source of color truth.
+ * without duplicating any values: `@theme inline` makes utilities
+ * reference the vars directly, so light/dark/theme-deck palette
+ * switches flow through automatically and tokens-palette.css stays the
+ * single source of color truth.
  *
  * Usage (order matters — Tailwind first, tokens before this file):
  *   @import "tailwindcss";
  *   @import "remarque-tokens";
  *   @import "remarque-tokens/theme.css";
+ *
+ * IMPORTANT: import "remarque-tokens" UNLAYERED — never wrap it in
+ * layer(...). Tailwind still emits the same-named theme keys as
+ * self-referencing declarations inside @layer theme; they are inert
+ * only because unlayered token declarations always beat layered ones
+ * in the cascade. Wrapping the tokens in a layer would make every
+ * mapped utility resolve to an invalid circular value.
  *
  * Spacing is namespaced remarque-* so Tailwind's default numeric scale
  * is never overridden (mt-12 stays 3rem; use mt-remarque-9 for 6rem).

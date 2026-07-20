@@ -2,8 +2,10 @@
  * Remarque — Global Styles
  * ────────────────────────
  * The demo consumes the remarque-tokens PACKAGE (file:.. workspace link)
- * instead of file copies — this build is the package's integration test.
- * String-form @imports only (AGENT_RULES.md Pitfall #6).
+ * instead of file copies — this build exercises the package's import
+ * surface (exports resolution, theme adapter, tier cascade).
+ * String-form @imports only (AGENT_RULES.md Pitfall #6); tokens
+ * imported UNLAYERED (Pitfall #7).
  */
 
 @import "tailwindcss";

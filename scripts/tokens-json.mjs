@@ -59,8 +59,18 @@ function typeOf(name, value) {
   if (name.startsWith('weight-')) return 'fontWeight';
   if (name.startsWith('motion-') && /ms$/.test(value)) return 'duration';
   if (name.startsWith('leading-')) return 'number';
+  if (value === '0') return 'dimension';
   if (/(^|\s)(rem|px|em|%)/.test(value) || /^-?[\d.]+(rem|px|em)$/.test(value) || value.startsWith('clamp(')) return 'dimension';
   return 'string';
+}
+
+// W3C spec: number-like types carry numeric $value, not strings.
+function valueFor(type, value) {
+  if (type === 'number' || type === 'fontWeight') {
+    const n = Number(value);
+    if (!Number.isNaN(n)) return n;
+  }
+  return value;
 }
 
 const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
@@ -88,12 +98,14 @@ const out = {
 };
 
 for (const [name, value] of Object.entries(coreDecls)) {
-  out.core[name] = { $value: value, $type: typeOf(name, value) };
+  const $type = typeOf(name, value);
+  out.core[name] = { $value: valueFor($type, value), $type };
 }
 for (const [name, value] of Object.entries(lightDecls)) {
-  const token = { $type: typeOf(name, value), light: { $value: value } };
-  if (name in darkOverrides) token.dark = { $value: darkOverrides[name] };
-  else token.dark = { $value: value, $extensions: { remarque: { inheritedFromLight: true } } };
+  const $type = typeOf(name, value);
+  const token = { $type, light: { $value: valueFor($type, value) } };
+  if (name in darkOverrides) token.dark = { $value: valueFor($type, darkOverrides[name]) };
+  else token.dark = { $value: valueFor($type, value), $extensions: { remarque: { inheritedFromLight: true } } };
   out.palette[name] = token;
 }
 
