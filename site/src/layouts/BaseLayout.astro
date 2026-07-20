@@ -47,6 +47,16 @@ const ogImageURL = ogImage || `${Astro.site?.origin || ''}${base}og-image.svg`;
     <link rel="preload" href={`${base}fonts/inter-latin.woff2`} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={`${base}fonts/newsreader-latin.woff2`} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={`${base}fonts/jetbrains-mono-latin.woff2`} as="font" type="font/woff2" crossorigin />
+
+    <!-- Theme detection BEFORE first paint — prevents wrong-theme flash when
+         the stored preference differs from prefers-color-scheme -->
+    <script is:inline>
+      (function() {
+        var stored = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
+      })();
+    </script>
   </head>
   <body
     class="min-h-screen bg-[var(--color-bg)] text-[var(--color-fg)] font-body text-[1.0625rem] leading-[1.75] antialiased"
@@ -80,7 +90,7 @@ const ogImageURL = ogImage || `${Astro.site?.origin || ''}${base}og-image.svg`;
               id="theme-toggle"
               type="button"
               aria-label="Toggle dark mode"
-              class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] cursor-pointer bg-transparent border-none p-1 ml-1"
+              class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] cursor-pointer bg-transparent border-none min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
             >
               <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="hidden">
                 <circle cx="12" cy="12" r="5"></circle>
@@ -111,21 +121,19 @@ const ogImageURL = ogImage || `${Astro.site?.origin || ''}${base}og-image.svg`;
             Built with the Remarque design system
           </p>
           <div class="flex gap-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)]">
-            <a href="https://github.com/williamzujkowski/remarque" class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] no-underline">GitHub</a>
-            <a href={`${base}start`} class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] no-underline">Get Started</a>
-            <a href={`${base}rss.xml`} class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] no-underline">RSS</a>
+            <a href="https://github.com/williamzujkowski/remarque" class="footer-link">GitHub</a>
+            <a href={`${base}start`} class="footer-link">Get Started</a>
+            <a href={`${base}rss.xml`} class="footer-link">RSS</a>
           </div>
         </div>
       </footer>
     </div>
 
     <script is:inline>
-      // Theme toggle
+      // Theme toggle — data-theme is already set by the head script; this
+      // only syncs the icon and wires the click handler.
       (function() {
-        var stored = localStorage.getItem('theme');
-        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var theme = stored || (prefersDark ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', theme);
+        var theme = document.documentElement.getAttribute('data-theme') || 'light';
         updateIcons(theme);
 
         document.getElementById('theme-toggle').addEventListener('click', function() {

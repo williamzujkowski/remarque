@@ -19,6 +19,14 @@
 }
 
 @font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 300 600;
+  font-display: swap;
+  src: url("/remarque/fonts/inter-italic-latin.woff2") format("woff2");
+}
+
+@font-face {
   font-family: "Newsreader";
   font-style: normal;
   font-weight: 300 600;
@@ -65,10 +73,10 @@
   --color-bg: oklch(0.975 0.005 80);
   --color-bg-subtle: oklch(0.955 0.005 80);
   --color-fg: oklch(0.18 0.01 80);
-  --color-fg-muted: oklch(0.45 0.015 80);
-  --color-muted: oklch(0.55 0.01 80);
+  --color-fg-muted: oklch(0.43 0.015 80);
+  --color-muted: oklch(0.54 0.01 80);
   --color-border: oklch(0.88 0.005 80);
-  --color-border-bold: oklch(0.78 0.01 80);
+  --color-border-bold: oklch(0.62 0.01 80);
   --color-surface: oklch(0.965 0.005 80);
   --color-accent: oklch(0.50 0.14 250);
   --color-accent-hover: oklch(0.42 0.14 250);
@@ -87,10 +95,10 @@
   --color-bg: oklch(0.975 0.005 80);
   --color-bg-subtle: oklch(0.955 0.005 80);
   --color-fg: oklch(0.18 0.01 80);
-  --color-fg-muted: oklch(0.45 0.015 80);
-  --color-muted: oklch(0.55 0.01 80);
+  --color-fg-muted: oklch(0.43 0.015 80);
+  --color-muted: oklch(0.54 0.01 80);
   --color-border: oklch(0.88 0.005 80);
-  --color-border-bold: oklch(0.78 0.01 80);
+  --color-border-bold: oklch(0.62 0.01 80);
   --color-surface: oklch(0.965 0.005 80);
   --color-accent: oklch(0.50 0.14 250);
   --color-accent-hover: oklch(0.42 0.14 250);
@@ -106,9 +114,9 @@
   --color-bg-subtle: oklch(0.19 0.01 80);
   --color-fg: oklch(0.90 0.005 80);
   --color-fg-muted: oklch(0.70 0.01 80);
-  --color-muted: oklch(0.58 0.01 80);
+  --color-muted: oklch(0.60 0.01 80);
   --color-border: oklch(0.25 0.005 80);
-  --color-border-bold: oklch(0.35 0.01 80);
+  --color-border-bold: oklch(0.50 0.01 80);
   --color-surface: oklch(0.19 0.01 80);
   --color-accent: oklch(0.68 0.12 250);
   --color-accent-hover: oklch(0.75 0.12 250);
@@ -133,6 +141,22 @@
 }
 
 .nav-link:hover {
+  color: var(--color-fg);
+}
+
+/* ─── Footer Link ──────────────────────────────────────── */
+/* Mono footer links with the same 44px touch-target floor as .nav-link */
+
+.footer-link {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--motion-easing);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.footer-link:hover {
   color: var(--color-fg);
 }
 

@@ -2,16 +2,16 @@
  * Remarque — Tailwind CSS Configuration
  * ──────────────────────────────────────
  * This config extends Tailwind with Remarque's design tokens.
- * It does NOT replace Tailwind's defaults wholesale — it adds
- * the Remarque-specific values agents and developers should reach for first.
  *
- * Tokens are defined in tokens.css as CSS custom properties.
- * This config maps them into Tailwind utilities so you can use
- * classes like `font-display`, `text-title`, `max-w-reading`, etc.
+ * TAILWIND VERSION STORY (one canonical answer):
+ *   - Tailwind v3.x → use this file as your tailwind.config.js.
+ *   - Tailwind v4.x → do NOT use this file. Write an @theme block in CSS
+ *     using the values from tokens.css (see site/src/styles/globals.css in
+ *     this repo for the reference @theme; a shipped theme.css subpath export
+ *     is tracked in issue #48).
  *
- * Compatible with Tailwind CSS v3.x and v4.x.
- * For Tailwind v4, you may prefer using @theme directives in CSS directly —
- * see tokens.css for the raw values.
+ * Tokens are defined in tokens.css as CSS custom properties; this config
+ * maps them into Tailwind utilities (font-display, text-title, etc.).
  */
 
 /** @type {import('tailwindcss').Config} */
@@ -23,7 +23,10 @@ module.exports = {
     "./app/**/*.{js,ts,jsx,tsx,mdx,astro}",
   ],
 
-  darkMode: "class", // supports both class and media — toggle via [data-theme="dark"] or .dark
+  // Match Remarque's actual theming mechanism ([data-theme] attribute).
+  // The bare "class" strategy only matches a literal `dark` class, which
+  // Remarque never sets — dark: utilities would silently never activate.
+  darkMode: ["selector", '[data-theme="dark"]'],
 
   theme: {
     extend: {
@@ -48,26 +51,36 @@ module.exports = {
       },
 
       /* ─── Spacing ────────────────────────────────────── */
-      /* Extends default scale with Remarque's generous upper values */
+      /*
+       * Namespaced under remarque-* so Tailwind's default numeric scale is
+       * NEVER overridden (mt-12 stays 3rem). Use mt-remarque-9 (6rem) etc.
+       * for Remarque's generous editorial spacings, or var(--space-N)
+       * directly in arbitrary values: mt-[var(--space-9)].
+       */
       spacing: {
-        "px": "1px",
-        "0": "0",
-        "1": "var(--space-1)",
-        "2": "var(--space-2)",
-        "3": "var(--space-3)",
-        "4": "var(--space-4)",
-        "5": "var(--space-5)",
-        "6": "var(--space-6)",
-        "7": "var(--space-7)",
-        "8": "var(--space-8)",
-        "9": "var(--space-9)",
-        "10": "var(--space-10)",
-        "11": "var(--space-11)",
-        "12": "var(--space-12)",
+        "remarque-1": "var(--space-1)",
+        "remarque-2": "var(--space-2)",
+        "remarque-3": "var(--space-3)",
+        "remarque-4": "var(--space-4)",
+        "remarque-5": "var(--space-5)",
+        "remarque-6": "var(--space-6)",
+        "remarque-7": "var(--space-7)",
+        "remarque-8": "var(--space-8)",
+        "remarque-9": "var(--space-9)",
+        "remarque-10": "var(--space-10)",
+        "remarque-11": "var(--space-11)",
+        "remarque-12": "var(--space-12)",
       },
 
       /* ─── Max Widths ─────────────────────────────────── */
-      /* The three content widths are the most critical layout tokens. */
+      /*
+       * Width-constraint utilities ONLY — they do not center.
+       * Per AGENT_RULES.md, page sections must use the .content-reading /
+       * .content-standard classes from tokens.css (which add
+       * margin-inline: auto). Reach for max-w-reading only on elements
+       * that are intentionally left-aligned inside an already-constrained
+       * container (e.g. a lead paragraph).
+       */
       maxWidth: {
         "reading": "var(--content-reading)",      // 46rem — prose
         "standard": "var(--content-standard)",    // 72rem — project pages
@@ -124,100 +137,8 @@ module.exports = {
       transitionTimingFunction: {
         remarque: "var(--motion-easing)",
       },
-
-      /* ─── Typography Plugin Overrides ────────────────── */
-      /* If using @tailwindcss/typography, these override its defaults */
-      typography: {
-        remarque: {
-          css: {
-            "--tw-prose-body": "var(--color-fg)",
-            "--tw-prose-headings": "var(--color-fg)",
-            "--tw-prose-links": "var(--color-accent)",
-            "--tw-prose-bold": "var(--color-fg)",
-            "--tw-prose-code": "var(--color-code-fg)",
-            "--tw-prose-pre-bg": "var(--color-code-bg)",
-            "--tw-prose-pre-code": "var(--color-code-fg)",
-            "--tw-prose-quotes": "var(--color-fg-muted)",
-            "--tw-prose-quote-borders": "var(--color-border-bold)",
-            "--tw-prose-hr": "var(--color-border)",
-
-            maxWidth: "var(--content-reading)",
-            fontSize: "var(--text-body)",
-            lineHeight: "var(--leading-body)",
-
-            h2: {
-              fontFamily: "var(--font-display)",
-              fontSize: "var(--text-section)",
-              lineHeight: "var(--leading-section)",
-              letterSpacing: "var(--tracking-title)",
-              fontWeight: "var(--weight-medium)",
-              marginTop: "var(--space-8)",
-              marginBottom: "var(--space-4)",
-            },
-            h3: {
-              fontFamily: "var(--font-body)",
-              fontSize: "var(--text-body-lg)",
-              lineHeight: "var(--leading-title)",
-              fontWeight: "var(--weight-semibold)",
-              marginTop: "var(--space-7)",
-              marginBottom: "var(--space-3)",
-            },
-            a: {
-              color: "var(--color-link)",
-              textDecoration: "underline",
-              textUnderlineOffset: "0.2em",
-              textDecorationThickness: "1px",
-              transition: `color var(--motion-fast) var(--motion-easing)`,
-              "&:hover": {
-                color: "var(--color-link-hover)",
-              },
-            },
-            blockquote: {
-              borderLeftColor: "var(--color-border-bold)",
-              borderLeftWidth: "2px",
-              paddingLeft: "var(--space-5)",
-              color: "var(--color-fg-muted)",
-              fontStyle: "italic",
-            },
-            code: {
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.9em",
-              backgroundColor: "var(--color-code-bg)",
-              padding: "0.15em 0.35em",
-              borderRadius: "var(--radius-sm)",
-            },
-            pre: {
-              fontFamily: "var(--font-mono)",
-              fontSize: "var(--text-meta)",
-              lineHeight: "1.6",
-              backgroundColor: "var(--color-code-bg)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-md)",
-              padding: "var(--space-5)",
-            },
-            hr: {
-              borderColor: "var(--color-border)",
-              marginTop: "var(--space-8)",
-              marginBottom: "var(--space-8)",
-            },
-            img: {
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-sm)",
-            },
-            figcaption: {
-              fontFamily: "var(--font-mono)",
-              fontSize: "var(--text-meta)",
-              letterSpacing: "var(--tracking-meta)",
-              color: "var(--color-muted)",
-            },
-          },
-        },
-      },
     },
   },
 
-  plugins: [
-    // Uncomment if using @tailwindcss/typography:
-    // require("@tailwindcss/typography"),
-  ],
+  plugins: [],
 };

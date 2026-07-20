@@ -6,26 +6,31 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 const base = import.meta.env.BASE_URL;
 
+// NOTE: keep these values in sync with tokens.css (issue #48 tracks
+// generating this page from a machine-readable token source).
 const colorPairs = [
   { name: '--color-bg', light: 'oklch(0.975 0.005 80)', dark: 'oklch(0.16 0.01 80)', desc: 'Page background' },
   { name: '--color-bg-subtle', light: 'oklch(0.955 0.005 80)', dark: 'oklch(0.19 0.01 80)', desc: 'Alternating sections' },
   { name: '--color-fg', light: 'oklch(0.18 0.01 80)', dark: 'oklch(0.90 0.005 80)', desc: 'Primary text' },
-  { name: '--color-fg-muted', light: 'oklch(0.45 0.015 80)', dark: 'oklch(0.65 0.01 80)', desc: 'Secondary text' },
-  { name: '--color-muted', light: 'oklch(0.55 0.01 80)', dark: 'oklch(0.50 0.01 80)', desc: 'Tertiary text' },
-  { name: '--color-border', light: 'oklch(0.88 0.005 80)', dark: 'oklch(0.25 0.005 80)', desc: 'Quiet borders' },
+  { name: '--color-fg-muted', light: 'oklch(0.43 0.015 80)', dark: 'oklch(0.70 0.01 80)', desc: 'Secondary text' },
+  { name: '--color-muted', light: 'oklch(0.54 0.01 80)', dark: 'oklch(0.60 0.01 80)', desc: 'Tertiary text' },
+  { name: '--color-border', light: 'oklch(0.88 0.005 80)', dark: 'oklch(0.25 0.005 80)', desc: 'Quiet borders (decorative only)' },
+  { name: '--color-border-bold', light: 'oklch(0.62 0.01 80)', dark: 'oklch(0.50 0.01 80)', desc: 'Functional borders' },
   { name: '--color-surface', light: 'oklch(0.965 0.005 80)', dark: 'oklch(0.19 0.01 80)', desc: 'Card surfaces' },
   { name: '--color-accent', light: 'oklch(0.50 0.14 250)', dark: 'oklch(0.68 0.12 250)', desc: 'Links, one interactive' },
   { name: '--color-accent-hover', light: 'oklch(0.42 0.14 250)', dark: 'oklch(0.75 0.12 250)', desc: 'Accent hover' },
   { name: '--color-code-bg', light: 'oklch(0.945 0.005 80)', dark: 'oklch(0.20 0.005 80)', desc: 'Code background' },
 ];
 
-// Approximate WCAG contrast ratios for key pairings
+// Computed WCAG 2.x contrast ratios (OKLCH → sRGB → relative luminance)
 const contrastPairs = [
-  { pair: 'fg on bg', light: '14.2:1', dark: '12.8:1', grade: 'AAA' },
-  { pair: 'fg-muted on bg', light: '5.8:1', dark: '5.4:1', grade: 'AA' },
-  { pair: 'muted on bg', light: '3.9:1', dark: '3.4:1', grade: 'AA Large' },
-  { pair: 'accent on bg', light: '5.2:1', dark: '6.1:1', grade: 'AA' },
-  { pair: 'fg on surface', light: '13.5:1', dark: '12.8:1', grade: 'AAA' },
+  { pair: 'fg on bg', light: '17.5:1', dark: '14.4:1', grade: 'AAA' },
+  { pair: 'fg-muted on bg', light: '7.5:1', dark: '7.3:1', grade: 'AAA' },
+  { pair: 'muted on bg', light: '4.7:1', dark: '4.9:1', grade: 'AA' },
+  { pair: 'muted on surface', light: '4.6:1', dark: '4.7:1', grade: 'AA' },
+  { pair: 'accent on bg', light: '5.6:1', dark: '6.8:1', grade: 'AA' },
+  { pair: 'fg on surface', light: '17.0:1', dark: '13.7:1', grade: 'AAA' },
+  { pair: 'border-bold on bg', light: '3.4:1', dark: '3.2:1', grade: 'Non-text' },
 ];
 
 const spacing = [
@@ -64,11 +69,11 @@ const spacing = [
             <p class="text-[var(--text-micro)] text-[var(--color-fg-muted)]">{c.desc}</p>
           </div>
           <div class="flex flex-col items-center gap-1">
-            <div class="w-16 h-8 rounded-[var(--radius-sm)] border border-[oklch(0.88_0.005_80)]" style={`background: ${c.light};`}></div>
+            <div class="w-16 h-8 rounded-[var(--radius-sm)] border border-[var(--color-border)]" style={`background: ${c.light};`}></div>
             <span class="font-mono text-[var(--text-micro)] text-[var(--color-muted)]">light</span>
           </div>
           <div class="flex flex-col items-center gap-1">
-            <div class="w-16 h-8 rounded-[var(--radius-sm)] border border-[oklch(0.35_0.01_80)]" style={`background: ${c.dark};`}></div>
+            <div class="w-16 h-8 rounded-[var(--radius-sm)] border border-[var(--color-border-bold)]" style={`background: ${c.dark};`}></div>
             <span class="font-mono text-[var(--text-micro)] text-[var(--color-muted)]">dark</span>
           </div>
         </div>
@@ -80,7 +85,7 @@ const spacing = [
   <section class="mt-12">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Contrast Ratios</h2>
     <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">
-      WCAG compliance for key color pairings. All text-on-background combinations meet or exceed AA requirements.
+      Computed WCAG 2.x compliance for key color pairings. Text pairings meet AA or better; --color-border is decorative-only (functional boundaries use --color-border-bold, which meets the 3:1 non-text minimum).
     </p>
     <div class="border-t border-[var(--color-border)]">
       <div class="py-3 border-b border-[var(--color-border)] grid grid-cols-4 gap-4 font-mono text-[var(--text-micro)] tracking-[var(--tracking-caps)] uppercase text-[var(--color-muted)]">
@@ -94,7 +99,7 @@ const spacing = [
           <span class="font-mono text-[var(--text-meta)] text-[var(--color-fg)]">{cp.pair}</span>
           <span class="font-mono text-[var(--text-meta)] text-[var(--color-fg-muted)]">{cp.light}</span>
           <span class="font-mono text-[var(--text-meta)] text-[var(--color-fg-muted)]">{cp.dark}</span>
-          <span class={`font-mono text-[var(--text-meta)] font-medium ${cp.grade === 'AAA' ? 'text-[oklch(0.55_0.15_145)]' : cp.grade === 'AA' ? 'text-[var(--color-accent)]' : 'text-[var(--color-fg-muted)]'}`}>
+          <span class="font-mono text-[var(--text-meta)] font-medium text-[var(--color-fg)]">
             {cp.grade}
           </span>
         </div>

@@ -12,8 +12,13 @@
  */
 
 /* ─── Fonts ─────────────────────────────────────────────── */
-
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap');
+/*
+ * Fonts are self-hosted — no CDN requests. Import fonts.css (shipped
+ * alongside this file, with the woff2 files in fonts/) before this file:
+ *
+ *   @import url('fonts.css');
+ *   @import url('tokens.css');
+ */
 
 /* ─── Light Theme (default) ─────────────────────────────── */
 
@@ -47,14 +52,11 @@
   --tracking-caps: 0.06em;      /* for any rare uppercase labels */
 
   /* Font weights */
-  --weight-light: 300;
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
 
   /* Spacing scale — deliberately generous */
-  --space-px: 1px;
-  --space-0: 0;
   --space-1: 0.25rem;    /*  4px */
   --space-2: 0.5rem;     /*  8px */
   --space-3: 0.75rem;    /* 12px */
@@ -83,6 +85,8 @@
   --border-style: solid;
 
   /* Motion — minimal, functional only */
+  /* All sanctioned motion MUST use these tokens; the reduced-motion
+     block below zeroes them, disabling motion system-wide. */
   --motion-fast: 120ms;         /* hover states, focus rings */
   --motion-normal: 180ms;       /* theme transitions */
   --motion-easing: ease-out;
@@ -99,10 +103,10 @@
   --color-bg:          oklch(0.975 0.005 80);    /* warm off-white, not pure white */
   --color-bg-subtle:   oklch(0.955 0.005 80);    /* slightly darker for alternating sections */
   --color-fg:          oklch(0.18 0.01 80);       /* near-black, warm undertone */
-  --color-fg-muted:    oklch(0.45 0.015 80);      /* secondary text, descriptions */
-  --color-muted:       oklch(0.55 0.01 80);       /* tertiary text, placeholders */
-  --color-border:      oklch(0.88 0.005 80);      /* quiet borders */
-  --color-border-bold: oklch(0.78 0.01 80);       /* emphasized borders (active states) */
+  --color-fg-muted:    oklch(0.43 0.015 80);      /* secondary text — 7.55:1 bg / 7.33:1 surface (AAA) */
+  --color-muted:       oklch(0.54 0.01 80);       /* tertiary text — 4.71:1 bg / 4.57:1 surface (AA) */
+  --color-border:      oklch(0.88 0.005 80);      /* quiet borders — DECORATIVE ONLY (1.34:1, below WCAG 1.4.11's 3:1); functional boundaries use --color-border-bold */
+  --color-border-bold: oklch(0.62 0.01 80);       /* functional/emphasized borders — 3.39:1 (meets WCAG 1.4.11) */
   --color-surface:     oklch(0.965 0.005 80);     /* card/surface backgrounds */
 
   --color-accent:      oklch(0.50 0.14 250);      /* muted blue — links and one interactive element */
@@ -135,10 +139,10 @@
     --color-bg:          oklch(0.16 0.01 80);     /* warm charcoal, not black */
     --color-bg-subtle:   oklch(0.19 0.01 80);
     --color-fg:          oklch(0.90 0.005 80);    /* soft white, not pure */
-    --color-fg-muted:    oklch(0.70 0.01 80);    /* bumped for WCAG AA contrast on dark bg */
-    --color-muted:       oklch(0.58 0.01 80);    /* bumped from 0.50 — was failing 4.5:1 on 0.16 bg */
-    --color-border:      oklch(0.25 0.005 80);
-    --color-border-bold: oklch(0.35 0.01 80);
+    --color-fg-muted:    oklch(0.70 0.01 80);    /* 7.26:1 bg (AAA) */
+    --color-muted:       oklch(0.60 0.01 80);    /* 4.92:1 bg / 4.68:1 surface (AA with margin) */
+    --color-border:      oklch(0.25 0.005 80);   /* decorative only — see light-theme note */
+    --color-border-bold: oklch(0.50 0.01 80);    /* functional borders — 3.23:1 (meets WCAG 1.4.11) */
     --color-surface:     oklch(0.19 0.01 80);
 
     --color-accent:      oklch(0.68 0.12 250);    /* brighter in dark mode for contrast */
@@ -158,9 +162,9 @@
   --color-bg-subtle:   oklch(0.19 0.01 80);
   --color-fg:          oklch(0.90 0.005 80);
   --color-fg-muted:    oklch(0.70 0.01 80);
-  --color-muted:       oklch(0.58 0.01 80);
+  --color-muted:       oklch(0.60 0.01 80);
   --color-border:      oklch(0.25 0.005 80);
-  --color-border-bold: oklch(0.35 0.01 80);
+  --color-border-bold: oklch(0.50 0.01 80);
   --color-surface:     oklch(0.19 0.01 80);
 
   --color-accent:      oklch(0.68 0.12 250);
@@ -171,6 +175,23 @@
   --color-selection-fg: oklch(0.92 0.005 80);
   --color-code-bg:     oklch(0.20 0.005 80);
   --color-code-fg:     oklch(0.88 0.005 80);
+}
+
+/* ─── Reduced Motion ────────────────────────────────────── */
+/*
+ * WCAG 2.3.3 / vestibular safety. Because every sanctioned transition
+ * uses the two duration tokens, zeroing them disables all motion.
+ * Any future opt-in animation must be authored inside a
+ * (prefers-reduced-motion: no-preference) query.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  [data-theme="light"],
+  [data-theme="dark"] {
+    --motion-fast: 0ms;
+    --motion-normal: 0ms;
+  }
 }
 
 /* ─── Base Resets ────────────────────────────────────────── */

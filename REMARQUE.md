@@ -40,18 +40,18 @@ Remarque projects should feel like a modern technical publication — not a gene
 
 ## Technology Stack
 
-- **CSS framework:** Tailwind CSS v4 (with `@theme` directive for token mapping)
+- **CSS framework:** Tailwind CSS — v4 via an `@theme` block written from tokens.css values (reference: `site/src/styles/globals.css`), or v3 via the shipped `tailwind.config.js`. One mechanism per project, never both.
 - **Component primitives:** shadcn/ui (when reusable components are needed)
 - **Markup:** Semantic HTML with ARIA landmarks
 - **Theming:** Light and dark mode via `[data-theme]` attribute (system preference + manual toggle)
 - **Accessibility:** USWDS-informed. Keyboard navigation, skip-to-content link, ARIA labels, WCAG AA contrast compliance, 44px touch targets, 14px minimum small text
 - **Tokens:** Centralized CSS custom properties as the single source of truth
 - **Fonts:** Self-hosted woff2 (no CDN dependency). Preloaded via `<link rel="preload">`
-- **Package:** Installable via npm (`remarque-tokens`) or copy `tokens.css` + `tailwind.config.js`
+- **Package:** Copy `fonts.css` + `tokens.css` + `fonts/` (plus `tailwind.config.js` for Tailwind v3 projects). npm publication of `remarque-tokens` is tracked in #46/#48; until it ships, install from GitHub (`npm install github:williamzujkowski/remarque`) or use the copy path
 
-### Tailwind v4 Integration Note
+### Tailwind Spacing Integration Note
 
-When using Tailwind v4's `@theme` directive to map Remarque tokens, **do not override Tailwind's default spacing keys** (`--spacing-9` through `--spacing-12`). Remarque's spacing scale uses larger values than Tailwind defaults (e.g., `--space-9` = 6rem vs Tailwind's `--spacing-9` = 2.25rem). Use the `var(--space-N)` CSS variables directly in style attributes for intentional large spacings, and Tailwind's default spacing utilities (`mt-12` = 3rem) for standard layout gaps.
+Never map Remarque's `--space-N` values onto Tailwind's default numeric spacing keys — in v4 `@theme` that means no `--spacing-9` through `--spacing-12`, and in a v3 config no `spacing: { "5"…"12" }` overrides. Remarque's scale is larger than Tailwind's (`--space-9` = 6rem vs Tailwind's 2.25rem), so colliding keys silently change utilities like `mt-12` from 3rem to 12rem. Both shipped artifacts namespace instead (`--spacing-remarque-N` in the reference `@theme`; `mt-remarque-N` utilities in `tailwind.config.js`). Tailwind's default numeric utilities keep their default values.
 
 ---
 
@@ -67,7 +67,6 @@ Remarque uses a three-font system. Each font has a specific role and should neve
 
 **Font rules:**
 - Newsreader is used *only* for display text at or above the section heading size. Never for body copy.
-- Fraunces may be substituted for Newsreader for display-only use above 2rem where its optical character adds value. It is not interchangeable at smaller sizes.
 - Inter is the workhorse. All body text, UI elements, and navigation use Inter.
 - JetBrains Mono is reserved for metadata, code, technical labels, and small accents. It is never used for headings or body text.
 
@@ -133,6 +132,8 @@ Motion in Remarque is nearly invisible. The only permitted motion:
 - Parallax effects
 - Any animation on non-interactive elements
 
+**Reduced motion:** all motion must respect `prefers-reduced-motion` (WCAG 2.3.3). Because every sanctioned transition uses the two duration tokens, tokens.css zeroes `--motion-fast`/`--motion-normal` under `prefers-reduced-motion: reduce` — motion authored with the tokens is automatically safe. Never hardcode durations; any future opt-in animation must live inside a `(prefers-reduced-motion: no-preference)` query.
+
 ---
 
 ## USWDS Accessibility Compliance
@@ -151,9 +152,9 @@ Remarque adopts typography and accessibility standards from the US Web Design Sy
 
 | Pairing | Requirement | Notes |
 |---------|-------------|-------|
-| Normal text on background | 4.5:1 minimum | All text below 24px regular / 18.5px bold |
+| Normal text on background | 4.5:1 minimum | All text below 24px regular / 18.5px bold. Applies on `--color-surface` too, not just `--color-bg` |
 | Large text on background | 3:1 minimum | Display and title text (24px+) |
-| Non-text elements (borders, icons) | 3:1 minimum | WCAG 1.4.11 |
+| Functional non-text elements | 3:1 minimum | WCAG 1.4.11 — use `--color-border-bold` (meets 3:1). `--color-border` is decorative-only by design and exempt; never the sole boundary of an interactive element |
 
 ### Touch Targets
 
@@ -173,8 +174,9 @@ Every PR that ships Remarque pages MUST pass:
 
 - [ ] Body copy ≥ 17px (`var(--text-body)`). No hardcoded smaller sizes.
 - [ ] Small text ≥ 14px (`var(--text-meta)`). Micro text (`--text-micro` / 13px) only for timestamps.
-- [ ] `--color-muted` contrast ≥ 4.5:1 against `--color-bg` in both themes.
+- [ ] `--color-muted` contrast ≥ 4.5:1 against `--color-bg` **and** `--color-surface` in both themes.
 - [ ] `--color-fg-muted` contrast ≥ 7:1 (AAA) for body-adjacent prose.
+- [ ] All transitions use `--motion-fast`/`--motion-normal` tokens (reduced-motion support depends on it).
 - [ ] Every interactive element is ≥ 44×44px (use min-height/padding, not font-size to reach the floor).
 - [ ] `font-variant-numeric: tabular-nums lining-nums` on all metadata that mixes with dates/counts.
 - [ ] No hardcoded hex/rgb colors — only `var(--color-*)` tokens.
