@@ -4,6 +4,23 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.5.1 — 2026-07-20
+
+Two `remarque-audit` fixes found by the flagship site's adoption (its
+first real-world run):
+
+### Fixed
+- The file passed via `--palette` now always counts as a token file for
+  the oklch-literal scan — previously a consumer palette named
+  `global.css` produced ~200 false positives against its own token
+  declarations. `theme-deck.css`-style generated palette files are also
+  allowlisted.
+- The `--src` scans strip comments (line numbers preserved) before
+  matching, so prose like `(issue #324)` in a comment no longer trips
+  the hex-color regex.
+
+No token values changed.
+
 ## 0.5.0 — 2026-07-20
 
 Theme-convention unification (epic #47 item 4; ratified 3-0 by consensus
