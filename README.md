@@ -21,17 +21,16 @@ Most developer sites inherit the visual language of SaaS dashboards or component
 
 ## Install
 
-```bash
-npm install remarque-tokens
-```
-
-Then import in your CSS:
+Copy `fonts.css`, `tokens.css`, and the `fonts/` directory into your project, then:
 
 ```css
-@import 'remarque-tokens';
+@import 'fonts.css';
+@import 'tokens.css';
 ```
 
-Or copy `tokens.css` and `tailwind.config.js` directly into your project.
+Tailwind v3 projects can additionally copy `tailwind.config.js`. Tailwind v4 projects skip the config and write an `@theme` block from the token values (see `site/src/styles/globals.css` for the reference).
+
+> **npm:** `remarque-tokens` is not yet published to the registry — the publish pipeline (provenance, semver, changelog) is tracked in [#46](https://github.com/williamzujkowski/remarque/issues/46) and [#48](https://github.com/williamzujkowski/remarque/issues/48). Until then, the copy path above (or `npm install github:williamzujkowski/remarque`) is the supported install.
 
 ## For AI Agents
 
@@ -51,7 +50,8 @@ The agent rules define build order, non-negotiable rules, disallowed patterns, a
 | `REMARQUE.md` | Full system specification — philosophy, visual rules, page archetypes, acceptance criteria |
 | `AGENT_RULES.md` | Implementation contract — build order, non-negotiables, pitfalls, quality checklist |
 | `tokens.css` | Design tokens as CSS custom properties + base typography classes + prose styling |
-| `tailwind.config.js` | Tailwind CSS v3/v4 configuration extending tokens into utility classes |
+| `fonts.css` + `fonts/` | Self-hosted @font-face declarations and woff2 files (no CDN requests) |
+| `tailwind.config.js` | Tailwind CSS **v3** configuration (v4 projects use an `@theme` block instead) |
 | `package.json` | npm package manifest for `remarque-tokens` |
 
 ## Three-Font System

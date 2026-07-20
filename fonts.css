@@ -1,0 +1,59 @@
+/*
+ * Remarque — Self-Hosted Fonts
+ * ─────────────────────────────
+ * @font-face declarations for the three-font system (latin subsets).
+ * No CDN requests: fonts resolve relative to this file.
+ *
+ * Usage (import BEFORE tokens.css):
+ *   @import url('fonts.css');
+ *   @import url('tokens.css');
+ *
+ * Copy the fonts/ directory alongside this file (or into your static
+ * assets dir and adjust the URLs). For best performance, preload the
+ * three roman faces in <head>:
+ *   <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+ *   <link rel="preload" href="/fonts/newsreader-latin.woff2" as="font" type="font/woff2" crossorigin>
+ *   <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+ * (Italic faces load on demand; preloading them is rarely worth it.)
+ */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 300 600;
+  font-display: swap;
+  src: url("fonts/inter-latin.woff2") format("woff2");
+}
+
+/* True italic — without this, em/blockquote render faux (synthesized) italic */
+@font-face {
+  font-family: "Inter";
+  font-style: italic;
+  font-weight: 300 600;
+  font-display: swap;
+  src: url("fonts/inter-italic-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: normal;
+  font-weight: 300 600;
+  font-display: swap;
+  src: url("fonts/newsreader-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Newsreader";
+  font-style: italic;
+  font-weight: 300 600;
+  font-display: swap;
+  src: url("fonts/newsreader-italic-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 300 500;
+  font-display: swap;
+  src: url("fonts/jetbrains-mono-latin.woff2") format("woff2");
+}

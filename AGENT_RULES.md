@@ -65,7 +65,8 @@ These are not guidelines. Agents must follow them literally.
 
 - No component should be visually louder than the content it contains
 - Borders use `--color-border` at 1px — never thicker, never drop shadows as replacements
-- Border radius never exceeds `--radius-md` (0.625rem)
+- `--color-border` is decorative-only (below the 3:1 non-text minimum by design). Boundaries of interactive elements (inputs, dialogs, active states) use `--color-border-bold`, which meets WCAG 1.4.11
+- Border radius never exceeds `--radius-md` (0.5rem / 8px)
 - Buttons are quiet: text-only or subtle bordered. Never filled/solid as default.
 
 ### Motion
@@ -73,6 +74,7 @@ These are not guidelines. Agents must follow them literally.
 - Motion is permitted *only* on: hover states, focus rings, theme transitions
 - Duration is `--motion-fast` (120ms) for micro-interactions, `--motion-normal` (180ms) for transitions
 - No scroll-triggered, entrance, staggered, or parallax animations. Ever.
+- All motion must respect `prefers-reduced-motion` — always use the duration tokens (tokens.css zeroes them under reduced motion); never hardcode durations
 
 ### Images
 
@@ -105,7 +107,7 @@ Do not introduce any of the following unless the project owner explicitly reques
 - Large decorative gradients
 - Glassmorphism / frosted glass
 - Card grids as primary layout
-- Over-rounded corners (border-radius > 0.625rem)
+- Over-rounded corners (border-radius > 0.5rem)
 - "Friendly SaaS" visual language
 - Flashy or attention-seeking motion
 - Dense admin/dashboard layouts
@@ -126,8 +128,9 @@ Do not introduce any of the following unless the project owner explicitly reques
 
 ```
 project/
-├── tokens.css                # Remarque design tokens (import first)
-├── tailwind.config.js        # Tailwind v3 configuration extending tokens
+├── fonts.css                 # Self-hosted @font-face declarations (import before tokens.css)
+├── tokens.css                # Remarque design tokens
+├── tailwind.config.js        # Tailwind v3 ONLY — v4 projects skip this and use an @theme block (see site/src/styles/globals.css)
 ├── public/
 │   └── fonts/                # Self-hosted woff2 fonts (Inter, Newsreader, JetBrains Mono)
 ├── styles/
@@ -149,7 +152,7 @@ project/
 
 ### Implementation Pitfalls (learned from reference implementation)
 
-1. **Tailwind v4 spacing collision:** Do NOT define `--spacing-9` through `--spacing-12` in `@theme` — this overrides Tailwind's defaults and makes `mt-12` produce 192px instead of 48px. Use `var(--space-N)` CSS variables for Remarque's large spacings.
+1. **Tailwind spacing collision:** Never map Remarque's `--space-N` values onto Tailwind's default numeric spacing keys — in v4 `@theme` that means no `--spacing-9`…`--spacing-12`, and in the v3 config no `spacing: { "5"…"12" }` overrides — or `mt-12` produces 192px instead of 48px. Both shipped artifacts namespace instead: the v3 config exposes `mt-remarque-9` etc., the reference v4 `@theme` uses `--spacing-remarque-N`. Use those, or `var(--space-N)` in arbitrary values.
 
 2. **Prose alignment:** The essay header and prose body must BOTH use centered max-width (`max-w-reading mx-auto`) to prevent misalignment. The `.content-reading` class auto-centers; match headers with `mx-auto`.
 
@@ -182,6 +185,8 @@ Before considering any implementation complete, verify:
 - [ ] Mobile version is roomy — not a compressed desktop layout
 - [ ] Mobile nav links have ≥44px touch targets
 - [ ] No pure white or pure black backgrounds
+- [ ] Muted text placed on `--color-surface` still meets 4.5:1 (check the surface pairing, not just bg)
+- [ ] All transitions use the motion duration tokens (reduced-motion support depends on it)
 - [ ] Skip-to-content link present and functional
 - [ ] OG meta tags present (og:title, og:description, og:image)
 - [ ] `<html lang="en">` attribute set

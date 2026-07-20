@@ -5,7 +5,9 @@ export function GET(context: APIContext) {
   return rss({
     title: 'Remarque — Writing',
     description: 'Essays on design, typography, and building for the web.',
-    site: context.site?.toString() ?? 'https://williamzujkowski.github.io/remarque/',
+    // Fallback matches astro.config's `site` WITHOUT `base` — item links below
+    // already carry the /remarque/ prefix, so including it here would double it.
+    site: context.site?.toString() ?? 'https://williamzujkowski.github.io/',
     items: [
       {
         title: 'Typography as Interface',

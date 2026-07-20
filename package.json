@@ -14,10 +14,15 @@
   "exports": {
     ".": "./tokens.css",
     "./tokens": "./tokens.css",
+    "./tokens.css": "./tokens.css",
+    "./fonts.css": "./fonts.css",
+    "./fonts/*": "./fonts/*",
     "./tailwind": "./tailwind.config.js"
   },
   "files": [
     "tokens.css",
+    "fonts.css",
+    "fonts/",
     "tailwind.config.js",
     "REMARQUE.md",
     "AGENT_RULES.md",
