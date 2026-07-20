@@ -10,7 +10,7 @@ Read `REMARQUE.md` first for the full system specification. This file tells you 
 
 Execute in this exact order. Do not skip steps. Do not reorder.
 
-1. **Load tokens.** Import `tokens.css` and configure `tailwind.config.js` with Remarque's font families and extended theme values. Verify fonts load correctly.
+1. **Load tokens.** Import `fonts.css` then `tokens.css`, and wire Tailwind: v4 projects import `theme.css` (after `tailwindcss` and the tokens, unlayered — see Pitfall #7); v3 projects use `tailwind.config.js`. Verify fonts load correctly.
 
 2. **Set up global typography.** Apply display, title, section, body, meta, and prose classes. Verify the type scale renders correctly at mobile and desktop widths.
 
@@ -138,7 +138,8 @@ project/
 ├── tokens.css                # Aggregator — imports the two tiers below
 ├── tokens-core.css           # CORE tier: type scale, spacing, widths, radius, motion, prose machinery. NEVER override
 ├── tokens-palette.css        # PALETTE tier: font slots, colors, accent, reading measure. Override freely, then run the audit
-├── tailwind.config.js        # Tailwind v3 ONLY — v4 projects skip this and use an @theme block (see site/src/styles/globals.css)
+├── theme.css                 # Tailwind v4 adapter (@theme inline) — import after tailwindcss + tokens
+├── tailwind.config.js        # Tailwind v3 ONLY — v4 projects use theme.css instead
 ├── public/
 │   └── fonts/                # Self-hosted woff2 fonts (Inter, Newsreader, JetBrains Mono)
 ├── styles/
@@ -171,6 +172,8 @@ project/
 5. **GitHub Pages base path:** When deploying to a subpath (e.g., `/remarque/`), all internal links must use a base URL helper (Astro: `import.meta.env.BASE_URL`). Set `base` in your framework config.
 
 6. **String-form @import only:** Always write `@import './tokens.css';` (string form). Tailwind v4 / Lightning CSS silently DROPS `@import url(...)` for local files — the build succeeds while the entire token cascade vanishes from the output. Verify the built CSS contains `.remarque-prose` after changing imports.
+
+7. **Tokens must be imported unlayered (Tailwind v4):** never `@import "remarque-tokens" layer(...)`. theme.css's `@theme inline` mappings emit same-named self-referencing declarations inside `@layer theme`; the real token values win only because unlayered declarations beat layered ones. Layering the tokens makes every mapped utility circular and invalid, with no build error.
 
 ---
 

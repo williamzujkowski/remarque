@@ -37,7 +37,15 @@ Copy the `fonts/` woff2 files from `node_modules/remarque-tokens/fonts/` into yo
 npx remarque-audit --palette src/styles/my-palette.css --src src
 ```
 
-Tailwind v3 projects can add the shipped config (`remarque-tokens/tailwind`). Tailwind v4 projects skip the config and write an `@theme` block from the token values (see `site/src/styles/globals.css` for the reference). Prefer copy-paste? Grab `fonts.css`, `tokens.css`, `tokens-core.css`, `tokens-palette.css`, and `fonts/` directly — `tokens.css` aggregates the two tier files, so all three CSS files travel together. Use string-form `@import './tokens.css'` only (some bundlers silently drop `@import url(...)` for local files).
+**Tailwind v4** projects add the shipped adapter — utilities that track the tokens through every theme switch, no value duplication:
+
+```css
+@import "tailwindcss";
+@import "remarque-tokens";
+@import "remarque-tokens/theme.css";
+```
+
+**Tailwind v3** projects use the shipped config (`remarque-tokens/tailwind`) instead. A machine-readable token inventory ships as `remarque-tokens/tokens.json` (generated from the CSS — core/palette tiers, light+dark values) for tooling and AI agents. Prefer copy-paste? Grab `fonts.css`, `tokens.css`, `tokens-core.css`, `tokens-palette.css`, and `fonts/` directly — `tokens.css` aggregates the two tier files, so all three CSS files travel together. Use string-form `@import './tokens.css'` only (some bundlers silently drop `@import url(...)` for local files).
 
 ## For AI Agents
 

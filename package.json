@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "node": ">=18"
   },
@@ -37,7 +37,10 @@
     "./tokens-palette.css": "./tokens-palette.css",
     "./fonts.css": "./fonts.css",
     "./fonts/*": "./fonts/*",
-    "./tailwind": "./tailwind.config.js"
+    "./tailwind": "./tailwind.config.js",
+    "./theme.css": "./theme.css",
+    "./theme": "./theme.css",
+    "./tokens.json": "./tokens.json"
   },
   "files": [
     "tokens.css",
@@ -50,6 +53,9 @@
     "REMARQUE.md",
     "AGENT_RULES.md",
     "LICENSE",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "theme.css",
+    "tokens.json",
+    "scripts/tokens-json.mjs"
   ]
 }
