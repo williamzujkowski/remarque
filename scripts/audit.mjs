@@ -22,7 +22,9 @@
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { extractBlocks, declsOf, isLightRoot, isDarkBlock } from './lib/css-tokens.mjs';
 
 const args = process.argv.slice(2);
 function argOf(flag, dflt) {
@@ -75,57 +77,9 @@ function ratio(c1, c2) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/* ── Brace-aware CSS block extraction ───────────────────── */
-/* Returns [{ prelude, body, context }] where context is the enclosing
-   at-rule prelude ('' at top level). One level of at-rule nesting is
-   supported — enough for token files; deeper nesting is flattened with
-   its outermost context. Comments are stripped first. */
-
-function extractBlocks(css) {
-  const src = css.replace(/\/\*[\s\S]*?\*\//g, '');
-  const blocks = [];
-  function scan(text, context) {
-    let i = 0;
-    while (i < text.length) {
-      const open = text.indexOf('{', i);
-      if (open === -1) break;
-      const prelude = text.slice(i, open).trim().replace(/^[;\s]+/, '');
-      let depth = 1, j = open + 1;
-      while (j < text.length && depth > 0) {
-        if (text[j] === '{') depth++;
-        else if (text[j] === '}') depth--;
-        j++;
-      }
-      const body = text.slice(open + 1, j - 1);
-      if (prelude.startsWith('@')) {
-        scan(body, prelude);
-      } else {
-        blocks.push({ prelude, body, context });
-      }
-      i = j;
-    }
-  }
-  scan(src, '');
-  return blocks;
-}
-
-function declsOf(blocks, filterFn) {
-  const decls = {};
-  for (const b of blocks) {
-    if (!filterFn(b)) continue;
-    for (const m of b.body.matchAll(/--([a-z0-9-]+)\s*:\s*([^;]+);/g)) {
-      decls[m[1]] = m[2].trim();
-    }
-  }
-  return decls;
-}
-
 const blocks = extractBlocks(readFileSync(PALETTE, 'utf8'));
-const lightDecls = declsOf(blocks, (b) => b.context === '' && b.prelude.includes(':root'));
-const darkOverrides = declsOf(blocks, (b) =>
-  (b.context.includes('prefers-color-scheme') && b.context.includes('dark') && b.prelude.includes(':root')) ||
-  b.prelude.includes('[data-theme="dark"]')
-);
+const lightDecls = declsOf(blocks, isLightRoot);
+const darkOverrides = declsOf(blocks, isDarkBlock);
 if (Object.keys(lightDecls).length === 0) fail(`no top-level :root declarations found in ${PALETTE}`);
 if (Object.keys(darkOverrides).length === 0) fail(`no dark-theme declarations found in ${PALETTE} (@media prefers-color-scheme: dark or [data-theme="dark"])`);
 // CSS cascade: dark blocks override light; unset dark tokens inherit light values.

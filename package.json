@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "engines": {
     "node": ">=18"
   },
@@ -40,7 +40,9 @@
     "./tailwind": "./tailwind.config.js",
     "./theme.css": "./theme.css",
     "./theme": "./theme.css",
-    "./tokens.json": "./tokens.json"
+    "./tokens.json": "./tokens.json",
+    "./prose": "./prose.css",
+    "./prose.css": "./prose.css"
   },
   "files": [
     "tokens.css",
@@ -56,6 +58,8 @@
     "CHANGELOG.md",
     "theme.css",
     "tokens.json",
-    "scripts/tokens-json.mjs"
+    "scripts/tokens-json.mjs",
+    "prose.css",
+    "scripts/lib/css-tokens.mjs"
   ]
 }

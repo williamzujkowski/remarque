@@ -67,6 +67,7 @@ The agent rules define build order, non-negotiable rules, disallowed patterns, a
 | `tokens.css` | Aggregator importing the two token tiers below |
 | `tokens-core.css` | Core tier — type scale, spacing, widths, radius, motion, prose styling. Never overridden |
 | `tokens-palette.css` | Palette tier — font slots, colors, accent, reading measure. The sanctioned personalization surface |
+| `prose.css` | `.remarque-prose` long-form styling — own subpath so sites with their own prose system can skip it |
 | `scripts/audit.mjs` | `npm run audit` — enforces the spec's contrast/gamut/font-floor/no-hardcoded-color checklist |
 | `fonts.css` + `fonts/` | Self-hosted @font-face declarations and woff2 files (no CDN requests) |
 | `tailwind.config.js` | Tailwind CSS **v3** configuration (v4 projects use an `@theme` block instead) |
