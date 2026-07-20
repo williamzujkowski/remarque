@@ -1,8 +1,18 @@
 {
   "name": "remarque-tokens",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "engines": {
+    "node": ">=18"
+  },
   "description": "Typography-first design tokens for editorial, technical, and personal web projects",
-  "keywords": ["design-system", "typography", "css", "tailwind", "design-tokens", "oklch"],
+  "keywords": [
+    "design-system",
+    "typography",
+    "css",
+    "tailwind",
+    "design-tokens",
+    "oklch"
+  ],
   "author": "William Zujkowski",
   "license": "MIT",
   "repository": {
@@ -39,6 +49,7 @@
     "tailwind.config.js",
     "REMARQUE.md",
     "AGENT_RULES.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ]
 }
