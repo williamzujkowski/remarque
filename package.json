@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "engines": {
     "node": ">=18"
   },
@@ -42,7 +42,8 @@
     "./theme": "./theme.css",
     "./tokens.json": "./tokens.json",
     "./prose": "./prose.css",
-    "./prose.css": "./prose.css"
+    "./prose.css": "./prose.css",
+    "./package.json": "./package.json"
   },
   "files": [
     "tokens.css",

@@ -44,8 +44,17 @@ export function declsOf(blocks, filterFn) {
   return decls;
 }
 
-/* Standard tier filters */
-export const isLightRoot = (b) => b.context === '' && b.prelude.includes(':root');
+/* Standard tier filters. Selector matching is exact per comma-separated
+   part — `.includes(':root')` would wrongly classify `:root.dark` (a
+   dark block in the class convention) as light. */
+const parts = (prelude) => prelude.split(',').map((s) => s.trim());
+
+export const isLightRoot = (b) =>
+  b.context === '' && parts(b.prelude).some((s) => s === ':root' || s === ':root.light' || s === '[data-theme="light"]');
+
+/* Dark: media-query :root, the canonical [data-theme="dark"], or the
+   class-convention :root.dark / html.dark (compatibility bridge). */
 export const isDarkBlock = (b) =>
-  (b.context.includes('prefers-color-scheme') && b.context.includes('dark') && b.prelude.includes(':root')) ||
-  b.prelude.includes('[data-theme="dark"]');
+  (b.context.includes('prefers-color-scheme') && b.context.includes('dark') &&
+    parts(b.prelude).some((s) => s === ':root')) ||
+  parts(b.prelude).some((s) => s === '[data-theme="dark"]' || s === ':root.dark' || s === 'html.dark' || s === '.dark');

@@ -43,7 +43,7 @@ Remarque projects should feel like a modern technical publication — not a gene
 - **CSS framework:** Tailwind CSS — v4 via the shipped `remarque-tokens/theme.css` (`@theme inline` adapter; utilities reference the runtime tokens), or v3 via the shipped `tailwind.config.js`. One mechanism per project, never both.
 - **Component primitives:** shadcn/ui (when reusable components are needed)
 - **Markup:** Semantic HTML with ARIA landmarks
-- **Theming:** Light and dark mode via `[data-theme]` attribute (system preference + manual toggle)
+- **Theming:** Light and dark mode via the `[data-theme]` attribute (canonical; system preference + manual toggle). `:root.dark` is supported as a compatibility bridge for class-keyed sites (sunset: 1.0) — the audit parses both. Mind the specificity asymmetry: `[data-theme=\"dark\"]` is (0,1,0), `:root.dark` is (0,2,0). Platform endgame to watch: `color-scheme` + `light-dark()`
 - **Accessibility:** USWDS-informed. Keyboard navigation, skip-to-content link, ARIA labels, WCAG AA contrast compliance, 44px touch targets, 14px minimum small text
 - **Tokens:** Centralized CSS custom properties in two tiers — `tokens-core.css` (immutable identity) + `tokens-palette.css` (sanctioned personalization). `tokens.css` aggregates both. See "Token Tiers"
 - **Fonts:** Self-hosted woff2 (no CDN dependency). Preloaded via `<link rel="preload">`

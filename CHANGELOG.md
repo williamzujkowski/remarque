@@ -4,6 +4,31 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.5.0 — 2026-07-20
+
+Theme-convention unification (epic #47 item 4; ratified 3-0 by consensus
+panel with conditions, all implemented).
+
+### Added
+- **Dual dark selector**: the palette's manual-toggle block is now
+  `[data-theme="dark"], :root.dark` — `[data-theme]` stays canonical for
+  new sites; `:root.dark` is a compatibility bridge for class-keyed
+  consumers (sunset target: 1.0). Specificity asymmetry documented.
+- **`remarque-audit` parses both conventions natively** (plus
+  `html.dark`/`.dark`), so class-keyed sites can adopt the audit with no
+  flags. Fixture tests for all three conventions + a must-fail case run
+  in CI.
+- `exports` now includes `./package.json` (standard tooling expects
+  `require('remarque-tokens/package.json')`; previously blocked).
+
+### Fixed
+- Parser bug: light-theme extraction matched any selector *containing*
+  `:root`, so a `:root.dark` block would have leaked dark values into
+  the light-theme audit and could mask light-theme contrast failures.
+  Selector matching is now exact per comma-separated part.
+
+No token values changed in this release.
+
 ## 0.4.0 — 2026-07-20
 
 ### Added

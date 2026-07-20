@@ -106,8 +106,16 @@
   }
 }
 
-/* Manual dark mode toggle support */
-[data-theme="dark"] {
+/* Manual dark mode toggle support.
+   CANONICAL convention: [data-theme="dark"] — use it for new sites.
+   :root.dark is a compatibility bridge for class-keyed consumers
+   (sunset target: 1.0). NOTE the specificity asymmetry: [data-theme]
+   is (0,1,0) but :root.dark is (0,2,0) — site overrides that beat one
+   can lose to the other; always override with at least (0,2,0) or use
+   cascade order. Platform endgame worth tracking: color-scheme +
+   light-dark(), which obsoletes both selectors. */
+[data-theme="dark"],
+:root.dark {
   --color-bg:          oklch(0.16 0.01 80);
   --color-bg-subtle:   oklch(0.19 0.01 80);
   --color-fg:          oklch(0.90 0.005 80);
