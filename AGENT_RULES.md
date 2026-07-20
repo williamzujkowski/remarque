@@ -138,7 +138,8 @@ project/
 ├── tokens.css                # Aggregator — imports the two tiers below
 ├── tokens-core.css           # CORE tier: type scale, spacing, widths, radius, motion, prose machinery. NEVER override
 ├── tokens-palette.css        # PALETTE tier: font slots, colors, accent, reading measure. Override freely, then run the audit
-├── tailwind.config.js        # Tailwind v3 ONLY — v4 projects skip this and use an @theme block (see site/src/styles/globals.css)
+├── theme.css                 # Tailwind v4 adapter (@theme inline) — import after tailwindcss + tokens
+├── tailwind.config.js        # Tailwind v3 ONLY — v4 projects use theme.css instead
 ├── public/
 │   └── fonts/                # Self-hosted woff2 fonts (Inter, Newsreader, JetBrains Mono)
 ├── styles/

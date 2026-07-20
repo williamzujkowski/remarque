@@ -40,7 +40,7 @@ Remarque projects should feel like a modern technical publication — not a gene
 
 ## Technology Stack
 
-- **CSS framework:** Tailwind CSS — v4 via an `@theme` block written from tokens.css values (reference: `site/src/styles/globals.css`), or v3 via the shipped `tailwind.config.js`. One mechanism per project, never both.
+- **CSS framework:** Tailwind CSS — v4 via the shipped `remarque-tokens/theme.css` (`@theme inline` adapter; utilities reference the runtime tokens), or v3 via the shipped `tailwind.config.js`. One mechanism per project, never both.
 - **Component primitives:** shadcn/ui (when reusable components are needed)
 - **Markup:** Semantic HTML with ARIA landmarks
 - **Theming:** Light and dark mode via `[data-theme]` attribute (system preference + manual toggle)

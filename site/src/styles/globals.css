@@ -1,20 +1,18 @@
 /*
  * Remarque — Global Styles
  * ────────────────────────
- * Imports Tailwind v4 and Remarque design tokens.
- * This file is the single entry point for all styles.
+ * The demo consumes the remarque-tokens PACKAGE (file:.. workspace link)
+ * instead of file copies — this build is the package's integration test.
+ * String-form @imports only (AGENT_RULES.md Pitfall #6).
  */
 
 @import "tailwindcss";
-/* Tier files imported directly (not via the tokens.css aggregator):
-   Lightning CSS inlines imports in place, and nested @imports would land
-   mid-file — violating CSS's imports-first rule and intermittently
-   dropping rules from the bundle. Keep these two in sync with the
-   root tokens-core.css / tokens-palette.css. */
-@import "./tokens-core.css";
-@import "./tokens-palette.css";
+@import "remarque-tokens";
+@import "remarque-tokens/theme.css";
 
 /* ─── Self-hosted Fonts ────────────────────────────────── */
+/* Demo-specific @font-face (not the package's fonts.css) because URLs
+   carry the /remarque/ GitHub Pages base path; files in public/fonts. */
 
 @font-face {
   font-family: "Inter";
@@ -56,46 +54,10 @@
   src: url("/remarque/fonts/jetbrains-mono-latin.woff2") format("woff2");
 }
 
-/* ─── Tailwind v4 Theme ─────────────────────────────────── */
-
-@theme {
-  /* Font families */
-  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Fira Code", monospace;
-
-  /* Max widths */
-  --max-width-reading: 46rem;
-  --max-width-standard: 72rem;
-  --max-width-wide: 88rem;
-
-  /* Spacing extensions — use remarque-* prefix to avoid colliding with Tailwind defaults */
-  --spacing-remarque-9: 6rem;
-  --spacing-remarque-10: 8rem;
-  --spacing-remarque-11: 10rem;
-  --spacing-remarque-12: 12rem;
-
-  /* Colors — light theme defaults */
-  --color-bg: oklch(0.975 0.005 80);
-  --color-bg-subtle: oklch(0.955 0.005 80);
-  --color-fg: oklch(0.18 0.01 80);
-  --color-fg-muted: oklch(0.43 0.015 80);
-  --color-muted: oklch(0.54 0.01 80);
-  --color-border: oklch(0.88 0.005 80);
-  --color-border-bold: oklch(0.62 0.01 80);
-  --color-surface: oklch(0.965 0.005 80);
-  --color-accent: oklch(0.50 0.14 250);
-  --color-accent-hover: oklch(0.42 0.11 250);
-  --color-accent-subtle: oklch(0.95 0.02 250);
-  --color-code-bg: oklch(0.945 0.005 80);
-  --color-code-fg: oklch(0.18 0.01 80);
-
-  /* Border radius */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-}
-
-/* ─── Light Mode (explicit override for system-dark users) ── */
+/* ─── Explicit Light Override ──────────────────────────── */
+/* Palette-tier override (sanctioned): without it, users whose OS is
+   dark could never toggle back to light (AGENT_RULES Pitfall #3).
+   Values mirror the package's light :root defaults. */
 
 [data-theme="light"] {
   --color-bg: oklch(0.975 0.005 80);
@@ -109,26 +71,10 @@
   --color-accent: oklch(0.50 0.14 250);
   --color-accent-hover: oklch(0.42 0.11 250);
   --color-accent-subtle: oklch(0.95 0.02 250);
+  --color-selection-bg: oklch(0.92 0.04 250);
+  --color-selection-fg: var(--color-fg);
   --color-code-bg: oklch(0.945 0.005 80);
-  --color-code-fg: oklch(0.18 0.01 80);
-}
-
-/* ─── Dark Mode ──────────────────────────────────────────── */
-
-[data-theme="dark"] {
-  --color-bg: oklch(0.16 0.01 80);
-  --color-bg-subtle: oklch(0.19 0.01 80);
-  --color-fg: oklch(0.90 0.005 80);
-  --color-fg-muted: oklch(0.70 0.01 80);
-  --color-muted: oklch(0.60 0.01 80);
-  --color-border: oklch(0.25 0.005 80);
-  --color-border-bold: oklch(0.50 0.01 80);
-  --color-surface: oklch(0.19 0.01 80);
-  --color-accent: oklch(0.68 0.12 250);
-  --color-accent-hover: oklch(0.75 0.12 250);
-  --color-accent-subtle: oklch(0.22 0.04 250);
-  --color-code-bg: oklch(0.20 0.005 80);
-  --color-code-fg: oklch(0.88 0.005 80);
+  --color-code-fg: var(--color-fg);
 }
 
 /* ─── Nav Link ─────────────────────────────────────────── */

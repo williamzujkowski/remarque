@@ -4,6 +4,27 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.3.0 — 2026-07-20
+
+### Added
+- **`remarque-tokens/theme.css`** (#48): Tailwind v4 adapter using
+  `@theme inline` — utilities (`font-display`, `bg-surface`,
+  `max-w-reading`, `mt-remarque-9`, …) reference the runtime custom
+  properties directly, so palette switches (light/dark/theme-deck) flow
+  through utilities with zero value duplication. Import order:
+  `tailwindcss` → `remarque-tokens` → `remarque-tokens/theme.css`.
+- **`tokens.json`** (#48): machine-readable token inventory (W3C
+  design-tokens flavored, core/palette tiers, light+dark values),
+  GENERATED from the CSS by `scripts/tokens-json.mjs` — the CSS remains
+  the single source of truth; CI fails if the JSON goes stale.
+
+### Changed
+- The reference site now consumes the package itself (`file:..` link)
+  instead of maintaining file copies — the demo build is the package's
+  integration test, and the copy-sync burden is gone.
+
+No token values changed in this release.
+
 ## 0.2.0 — 2026-07-20
 
 First published release. Everything below is relative to the unpublished
