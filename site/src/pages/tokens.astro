@@ -69,11 +69,11 @@ const spacing = [
             <p class="text-[var(--text-micro)] text-[var(--color-fg-muted)]">{c.desc}</p>
           </div>
           <div class="flex flex-col items-center gap-1">
-            <div class="w-16 h-8 rounded-[var(--radius-sm)] border border-[var(--color-border)]" style={`background: ${c.light};`}></div>
+            <div class="w-16 h-8 rounded-sm border border-[var(--color-border)]" style={`background: ${c.light};`}></div>
             <span class="font-mono text-[var(--text-micro)] text-[var(--color-muted)]">light</span>
           </div>
           <div class="flex flex-col items-center gap-1">
-            <div class="w-16 h-8 rounded-[var(--radius-sm)] border border-[var(--color-border-bold)]" style={`background: ${c.dark};`}></div>
+            <div class="w-16 h-8 rounded-sm border border-[var(--color-border-bold)]" style={`background: ${c.dark};`}></div>
             <span class="font-mono text-[var(--text-micro)] text-[var(--color-muted)]">dark</span>
           </div>
         </div>
@@ -117,7 +117,7 @@ const spacing = [
           <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] w-28 shrink-0">{s.name}</div>
           <div class="font-mono text-[var(--text-meta)] text-[var(--color-fg-muted)] w-16 shrink-0">{s.px}</div>
           <div class="flex-1">
-            <div class="h-3 rounded-[var(--radius-sm)] bg-[var(--color-accent)]" style={`width: ${s.value}; max-width: 100%;`}></div>
+            <div class="h-3 rounded-sm bg-[var(--color-accent)]" style={`width: ${s.value}; max-width: 100%;`}></div>
           </div>
         </div>
       ))}
@@ -131,15 +131,15 @@ const spacing = [
     <div class="space-y-4">
       <div>
         <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">--content-reading: 46rem (~740px) — prose, essays, articles</div>
-        <div class="h-4 rounded-[var(--radius-sm)] bg-[var(--color-accent)] opacity-40" style="max-width: 46rem;"></div>
+        <div class="h-4 rounded-sm bg-[var(--color-accent)] opacity-40" style="max-width: 46rem;"></div>
       </div>
       <div>
         <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">--content-standard: 72rem (~1152px) — project pages, wider layouts</div>
-        <div class="h-4 rounded-[var(--radius-sm)] bg-[var(--color-accent)] opacity-60" style="max-width: 72rem;"></div>
+        <div class="h-4 rounded-sm bg-[var(--color-accent)] opacity-60" style="max-width: 72rem;"></div>
       </div>
       <div>
         <div class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">--content-wide: 88rem (~1408px) — outer container, navigation</div>
-        <div class="h-4 rounded-[var(--radius-sm)] bg-[var(--color-accent)] opacity-80" style="max-width: 88rem;"></div>
+        <div class="h-4 rounded-sm bg-[var(--color-accent)] opacity-80" style="max-width: 88rem;"></div>
       </div>
     </div>
   </section>
@@ -152,7 +152,7 @@ const spacing = [
         <h3 class="font-body text-[var(--text-body)] font-semibold text-[var(--color-fg)] mb-4">Border Radius</h3>
         <div class="flex items-end gap-6">
           <div class="text-center">
-            <div class="w-16 h-16 border border-[var(--color-border-bold)] rounded-[var(--radius-sm)]"></div>
+            <div class="w-16 h-16 border border-[var(--color-border-bold)] rounded-sm"></div>
             <p class="font-mono text-[var(--text-micro)] text-[var(--color-muted)] mt-2">--radius-sm<br/>0.25rem</p>
           </div>
           <div class="text-center">

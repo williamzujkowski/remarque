@@ -13,45 +13,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-
-/* Brace-aware block extraction — kept in sync with scripts/audit.mjs
-   (duplicated deliberately: audit.mjs is a CLI whose import would run
-   its main; unifying them is tracked under issue #48's follow-ups). */
-function extractBlocks(css) {
-  const src = css.replace(/\/\*[\s\S]*?\*\//g, '');
-  const blocks = [];
-  function scan(text, context) {
-    let i = 0;
-    while (i < text.length) {
-      const open = text.indexOf('{', i);
-      if (open === -1) break;
-      const prelude = text.slice(i, open).trim().replace(/^[;\s]+/, '');
-      let depth = 1, j = open + 1;
-      while (j < text.length && depth > 0) {
-        if (text[j] === '{') depth++;
-        else if (text[j] === '}') depth--;
-        j++;
-      }
-      const body = text.slice(open + 1, j - 1);
-      if (prelude.startsWith('@')) scan(body, prelude);
-      else blocks.push({ prelude, body, context });
-      i = j;
-    }
-  }
-  scan(src, '');
-  return blocks;
-}
-
-function declsOf(blocks, filterFn) {
-  const decls = {};
-  for (const b of blocks) {
-    if (!filterFn(b)) continue;
-    for (const m of b.body.matchAll(/--([a-z0-9-]+)\s*:\s*([^;]+);/g)) {
-      decls[m[1]] = m[2].trim();
-    }
-  }
-  return decls;
-}
+import { extractBlocks, declsOf, isLightRoot, isDarkBlock } from './lib/css-tokens.mjs';
 
 function typeOf(name, value) {
   if (name.startsWith('color-')) return 'color';
@@ -74,13 +36,10 @@ function valueFor(type, value) {
 }
 
 const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
-const coreDecls = declsOf(extractBlocks(readFileSync('tokens-core.css', 'utf8')), (b) => b.context === '' && b.prelude.includes(':root'));
+const coreDecls = declsOf(extractBlocks(readFileSync('tokens-core.css', 'utf8')), isLightRoot);
 const paletteBlocks = extractBlocks(readFileSync('tokens-palette.css', 'utf8'));
-const lightDecls = declsOf(paletteBlocks, (b) => b.context === '' && b.prelude.includes(':root'));
-const darkOverrides = declsOf(paletteBlocks, (b) =>
-  (b.context.includes('prefers-color-scheme') && b.context.includes('dark') && b.prelude.includes(':root')) ||
-  b.prelude.includes('[data-theme="dark"]')
-);
+const lightDecls = declsOf(paletteBlocks, isLightRoot);
+const darkOverrides = declsOf(paletteBlocks, isDarkBlock);
 
 const out = {
   $description: 'Remarque design tokens — GENERATED from tokens-core.css + tokens-palette.css by scripts/tokens-json.mjs. Do not edit; the CSS is the source of truth.',

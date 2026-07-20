@@ -4,6 +4,28 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.4.0 — 2026-07-20
+
+### Added
+- **`remarque-tokens/prose`** subpath: `.remarque-prose` split out of
+  `tokens-core.css` into `prose.css`, so consumers with their own prose
+  system (e.g. the reference consumer's `.prose`) can import the core
+  structural tokens without it.
+
+### Changed
+- **Breaking for `/core` importers:** `remarque-tokens/core` no longer
+  includes `.remarque-prose` — import `remarque-tokens/prose` alongside
+  it, or use the aggregator (`remarque-tokens`), which now includes all
+  three files and is unchanged for consumers.
+- Demo pages exercise the Tailwind v4 adapter utilities directly
+  (`pt-remarque-10`, `rounded-sm`) instead of arbitrary-value escapes —
+  same computed styles, real coverage of the theme.css surface.
+- Internals: the brace-aware CSS token parser previously duplicated in
+  `audit.mjs` and `tokens-json.mjs` now lives once in
+  `scripts/lib/css-tokens.mjs` (shipped with the package for the bin).
+
+No token values changed in this release.
+
 ## 0.3.0 — 2026-07-20
 
 ### Added
