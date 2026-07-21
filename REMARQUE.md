@@ -366,7 +366,8 @@ The homepage or entry point. Sets the tone.
 
 These are the repeatable visual tells that make a Remarque site recognizable:
 
-- Serif hero/page titles (Newsreader at display scale)
+- The remarque mark: a small muted fleuron closing every essay (`.remarque-endmark`) — the namesake made visible, one per essay, never decorated further
+- Serif hero/page titles (Newsreader at display scale; display weight bumps one step in dark mode to keep serif hairlines alive)
 - Mono metadata rows beneath titles
 - Constrained body width with generous margins
 - Subtle `1px` section dividers using `--color-border`

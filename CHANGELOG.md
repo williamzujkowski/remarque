@@ -4,6 +4,20 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.6.0 — 2026-07-20
+
+### Added
+- **`--weight-display`** (palette tier, theme-conditional): display faces
+  render at 400 in light mode and 500 in dark — light-on-dark text is
+  optically thinner (halation), and high-contrast serif hairlines were
+  disappearing at display sizes on dark backgrounds (#59).
+  `.text-display`/`.text-title` consume it with a 400 fallback, so
+  palettes that don't define it are unaffected.
+- **The remarque mark** (`.remarque-endmark` in prose.css): the system's
+  namesake made visible — a small muted fleuron closing every essay.
+  One per essay, aria-hidden, deliberately outside the latin subsets so
+  it falls to the serif fallback stack.
+
 ## 0.5.1 — 2026-07-20
 
 Two `remarque-audit` fixes found by the flagship site's adoption (its
