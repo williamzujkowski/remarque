@@ -16,7 +16,10 @@ export function extractBlocks(css) {
     while (i < text.length) {
       const open = text.indexOf('{', i);
       if (open === -1) break;
-      const prelude = text.slice(i, open).trim().replace(/^[;\s]+/, '');
+      // Body-less at-statements (@import 'x'; @charset ...;) preceding a block
+      // would otherwise pollute its prelude and misclassify it as an at-rule
+      // (#67): keep only the segment after the last ';'.
+      const prelude = text.slice(i, open).split(';').pop().trim();
       let depth = 1, j = open + 1;
       while (j < text.length && depth > 0) {
         if (text[j] === '{') depth++;
@@ -49,12 +52,15 @@ export function declsOf(blocks, filterFn) {
    dark block in the class convention) as light. */
 const parts = (prelude) => prelude.split(',').map((s) => s.trim());
 
+const DARKISH = /(\.dark\b|\[data-theme="dark"\])/;
+const ROOTISH = /^(:root|html|body)\b/;
 export const isLightRoot = (b) =>
-  b.context === '' && parts(b.prelude).some((s) => s === ':root' || s === ':root.light' || s === '[data-theme="light"]');
+  b.context === '' && parts(b.prelude).some((s) =>
+    (ROOTISH.test(s) && !DARKISH.test(s)) || s === '[data-theme="light"]');
 
 /* Dark: media-query :root, the canonical [data-theme="dark"], or the
    class-convention :root.dark / html.dark (compatibility bridge). */
 export const isDarkBlock = (b) =>
   (b.context.includes('prefers-color-scheme') && b.context.includes('dark') &&
-    parts(b.prelude).some((s) => s === ':root')) ||
-  parts(b.prelude).some((s) => s === '[data-theme="dark"]' || s === ':root.dark' || s === 'html.dark' || s === '.dark');
+    parts(b.prelude).some((s) => ROOTISH.test(s) && !DARKISH.test(s))) ||
+  parts(b.prelude).some((s) => DARKISH.test(s) && (ROOTISH.test(s) || s.startsWith('.') || s.startsWith('[')));

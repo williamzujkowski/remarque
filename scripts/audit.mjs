@@ -165,6 +165,7 @@ for (const file of walk(SRC)) {
   // prose like "(issue #324)" in a comment trips the hex-color regex.
   const text = readFileSync(file, 'utf8')
     .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
+    .replace(/<!--[\s\S]*?-->/g, (m) => m.replace(/[^\n]/g, ' '))
     .replace(/(^|[^:])\/\/[^\n]*/g, (m, p1) => p1 + ' '.repeat(m.length - p1.length));
   const lines = text.split('\n');
   lines.forEach((line, i) => {
