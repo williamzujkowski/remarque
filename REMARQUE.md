@@ -172,7 +172,7 @@ Never mix the two: a numeral inside running prose should never be tabular, and a
 
 ## Content Density Rule
 
-No page should show more than three distinct content sections above the fold. The first screen of any page contains only: title, metadata, and the opening of content. Hero sections with CTAs, feature grids, and social proof are not part of Remarque's vocabulary.
+No page should show more than three distinct content sections above the fold. The first screen of any page contains only: title, metadata, and the opening of content. Hero sections with CTAs, feature grids, and social proof are not part of Remarque's vocabulary. (The CLI-tool landing install block, see the Landing archetype, is a single command — not a CTA — and does not count against this rule.)
 
 ---
 
@@ -186,6 +186,28 @@ Remarque is typography-first, but projects include screenshots, architecture dia
 - Architecture diagrams and terminal captures may extend to `--content-standard` width
 - No rounded corners on images beyond `--radius-sm`
 - Images are never decorative — every image must serve the content
+
+### Plate (screenshot-heavy pages)
+
+Reference/Docs and Project Dossier pages often need to show several screenshots — six or more UI captures walking through a workflow — where "one image at a time" doesn't scale. Plate is the sanctioned pattern; everything above still applies, it only adds:
+
+- Default to single-column figures at `--content-reading` width, one screenshot per figure
+- Every figure gets a numbered mono caption in the form `Fig. 01 — description` (`--font-mono`, `--text-meta`) — the number is mandatory once a page has more than one figure, so prose can cross-reference a specific plate
+- A 2-up grid is permitted only for terminal/CLI captures, and only at `--content-standard` width — the one sanctioned exception to "images never wider than `--content-reading`," reserved for this narrow case
+- A page with six or more plates gets prev/next figure navigation (mono, matching Reference/Docs' footer convention) rather than an unbroken scroll
+
+---
+
+## Dataviz Tokens
+
+Charts are not yet a first-class Remarque surface, but tools built with the system inevitably need them. Rather than inventing chart-specific tokens, map dataviz elements onto vocabulary that already exists, so a chart survives a palette swap the same way prose and chrome do:
+
+- **Grid lines** use `--color-border` — never a separate "chart gray." Grid lines are structural, not decorative, and already have a sanctioned quiet role.
+- **Axis text and tick labels** use `--font-mono` at `--text-meta`, `--color-muted` — the same register as metadata rows and captions, never the body or display face.
+- **Categorical color ramp** is derived, not hand-picked: rotate hue at the accent's lightness/chroma steps — the same discipline "Changing the Accent Hue" already prescribes (fix lightness, vary hue, reduce chroma until every value clears the gamut) — producing a small hue family distinct from `--color-accent` itself, so chart color is never mistaken for the system's one interactive signal.
+- That ramp must be **audit-validated**, exactly like a palette override: every ramp color needs to clear gamut and 4.5:1 contrast against `--color-bg`/`--color-surface` in both themes before it ships.
+
+**Precedent:** [tsundoku](https://github.com/williamzujkowski/tsundoku) built the underlying pattern already — its `DESIGN-NOTES.md` documents an 8-hue "orthogonal category system" (`--pop-pink`/`--pop-blue`/`--pop-green`/etc.), kept deliberately separate from `--color-accent` and used for content taxonomy (book categories, reading status) rather than interactivity. It held those hues to roughly the same lightness/contrast discipline as its audited palette, but by its own admission the hues were **never run through `remarque-audit`'s `CHECKS` array** — that is the one gap this guidance closes. A dataviz ramp should follow tsundoku's separation-from-accent instinct, but unlike its precedent, it must pass the audit before it ships.
 
 ---
 
@@ -324,7 +346,7 @@ This order is not a suggestion. It is the tiebreaker for every design decision.
 
 ## Page Archetypes
 
-Every page built with Remarque must conform to one of these four archetypes. Agents and implementers should not invent new page structures.
+Every page built with Remarque must conform to one of these seven archetypes: Essay, Project Dossier, Notebook, Landing, Reference/Docs, Changelog, Gallery. Agents and implementers should not invent new page structures — the last three exist precisely because real downstream projects (tsundoku, and the multi-site review that produced this revision) needed shapes the first four actively fought, and inventing an unsanctioned workaround is worse than extending the vocabulary here.
 
 ### Essay
 
@@ -396,6 +418,7 @@ The homepage or entry point. Sets the tone.
 **Optionally includes:**
 - Recent entries or updates (3–5 max)
 - A brief "about" line
+- **CLI-tool landing only:** a single mono install command block (styled as prose `<pre>`, copy button allowed) — the one sanctioned interactive element on an otherwise CTA-free page — and an optional `--help`-output figure (follows the Plate convention, see Image Treatment)
 
 **Never includes:**
 - Hero images or banners
@@ -403,6 +426,67 @@ The homepage or entry point. Sets the tone.
 - Feature grids
 - Testimonial carousels
 - Newsletter signup forms above the fold
+
+The CLI install block is not a CTA exception in disguise — it is the single piece of information a CLI tool's landing page cannot omit (how do I get this), same status as a book's title. One block, one command, no surrounding marketing copy. A page with an install block *and* a separate "Sign up now" button has smuggled in a second CTA and fails this archetype.
+
+### Reference/Docs
+
+Persistent technical documentation: API references, config guides, multi-page manuals. Reuses the Essay archetype's existing three-column shape (nav rail outside the reading column · reading column · optional desktop ToC outside the reading column) — this is not a new layout engine, only a different left rail.
+
+**Always includes:**
+- A persistent left nav rail listing every doc page (mono, quiet, `--text-meta` — a list of links, not a component), sitting outside the reading column exactly like Essay's optional ToC sits outside it on the other side
+- A breadcrumb kicker above the title (mono, `--text-meta`, e.g. `Reference / Configuration`)
+- Content constrained to `--content-reading`, matching Essay's prose column
+- A low-noise prev/next footer nav between adjacent doc pages (mono, matching Essay's footer nav)
+
+**Optionally includes:**
+- Tables and code blocks widening past the reading column to `--content-standard` when the content genuinely needs the room (a config reference table, a wide code sample) — the surrounding prose stays at `--content-reading`
+- A desktop-only "on this page" ToC, reusing Essay's optional side-ToC convention, on the side opposite the nav rail
+
+**Never includes:**
+- Sidebar content mixed *into* the reading column itself (the nav rail is a fourth structural region, not reading-column content — same rule Essay already enforces for its own ToC)
+- Card grids for the page listing (the nav rail is a list, not a grid of cards)
+- More than one accent color
+- CTAs, feature grids, or any Landing-archetype vocabulary
+
+### Changelog
+
+A tool or project's primary log of released changes. Built from the Notebook archetype's entry structure, not a new component: compact, mono-timestamped, content-forward entries, applied to version history instead of notes.
+
+**Always includes:**
+- A mono version + date headline per entry (e.g. `0.7.0 — 2026-07-21`) — semver renders as plain mono text, never a colored pill or badge
+- Grouped category lists per entry (Added / Changed / Fixed, or whatever categories the project uses), reusing Notebook's compact entry rhythm
+- Reverse-chronological order, most recent release first
+
+**Optionally includes:**
+- An inline mono link to the relevant issue/PR per line item
+- A "compare" or diff link per version, mono, in the entry headline row
+
+**Never includes:**
+- Semver rendered as a pill/badge (`.rounded-full` chips, colored status pills) — plain mono text only, same rule as tags elsewhere in the system
+- Card-based per-version layout
+- Marketing framing of a change ("Exciting new feature!") — changelog prose stays as flat and factual as commit messages
+
+A changelog embedded as an optional subsection of a Project Dossier (already sanctioned) remains valid for short update logs. Promote to the standalone Changelog archetype once the log is long enough, or important enough, to be the page rather than a section of one — typically once a tool ships its own versioned releases.
+
+### Gallery
+
+Cover-grid and catalog pages — a page whose primary content unit is a grid of images with a caption, not prose. None of the other archetypes are shaped for this: they are all fundamentally text/document-shaped. **Reference implementation: [tsundoku](https://github.com/williamzujkowski/tsundoku)**, which needed this shape immediately for its book-catalog `/browse` grid and documented it as an informal fifth archetype in its `DESIGN-NOTES.md` before this spec existed; Gallery formalizes that implementation rather than inventing a new one.
+
+**Always includes:**
+- A grid container widened beyond `--content-standard` (72rem) to `--content-wide` (88rem) — Gallery is the only archetype permitted to exceed `--content-standard`, because a grid of cover-aspect thumbnails needs more horizontal room before it feels cramped than an essay or a dossier ever would
+- Cover/thumbnail images exempt from the `--content-reading` width cap that Image Treatment otherwise mandates — cover art *is* the content here, not illustrative decoration of prose. Every other Image Treatment rule still applies without exception: 1px `--color-border`, no drop shadow, mono captions
+- Grid item hover restricted to a border-color shift only (`--motion-fast`) — no scale, no lift, no shadow growth, matching Motion Rules' general prohibition on attention-seeking animation
+- Grid density driven by content (`repeat(auto-fill, minmax(...))` or breakpoint-based column counts), never a fixed card size that fights the image's native aspect ratio
+
+**Optionally includes:**
+- Prose-bearing sections within a Gallery page (an "about" blurb, an item description) narrowed back down to `--content-reading` — the widened container serves the grid only, not every element on the page
+- Mono captions under each cover (title, author, or other item metadata)
+
+**Never includes:**
+- Card shadows or scale/lift-on-hover
+- Masonry layouts (Notebook's existing prohibition applies here too — a fixed-ratio grid only)
+- The `--content-wide` container used for anything other than the grid itself
 
 ---
 
