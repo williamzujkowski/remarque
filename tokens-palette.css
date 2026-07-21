@@ -34,6 +34,12 @@
   /* Reading measure — tuned to the body font (see REMARQUE.md measure table).
      46rem ≈ 70 characters per line at 17px Inter. */
   --content-reading: 46rem;
+
+  /* Display weight — palette-tier because it is theme-conditional:
+     light-on-dark text renders optically thinner (halation), so dark
+     mode bumps display faces one step to keep serif hairlines alive.
+     (issue #59) */
+  --weight-display: 400;
 }
 
 /* ─── Color: Light theme (default) ──────────────────────── */
@@ -89,6 +95,7 @@
     --color-bg:          oklch(0.16 0.01 80);     /* warm charcoal, not black */
     --color-bg-subtle:   oklch(0.19 0.01 80);
     --color-fg:          oklch(0.90 0.005 80);    /* soft white, not pure */
+    --weight-display: 500;                        /* compensate thin serif hairlines on dark */
     --color-fg-muted:    oklch(0.70 0.01 80);    /* 7.26:1 bg (AAA) */
     --color-muted:       oklch(0.60 0.01 80);    /* 4.92:1 bg / 4.68:1 surface (AA with margin) */
     --color-border:      oklch(0.25 0.005 80);   /* decorative only — see light-theme note */
@@ -116,6 +123,7 @@
    light-dark(), which obsoletes both selectors. */
 [data-theme="dark"],
 :root.dark {
+  --weight-display: 500;
   --color-bg:          oklch(0.16 0.01 80);
   --color-bg-subtle:   oklch(0.19 0.01 80);
   --color-fg:          oklch(0.90 0.005 80);

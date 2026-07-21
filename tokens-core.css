@@ -130,7 +130,7 @@ html {
   font-size: var(--text-display);
   line-height: var(--leading-display);
   letter-spacing: var(--tracking-display);
-  font-weight: var(--weight-regular);
+  font-weight: var(--weight-display, var(--weight-regular));
 }
 
 .text-title {
@@ -138,7 +138,7 @@ html {
   font-size: var(--text-title);
   line-height: var(--leading-title);
   letter-spacing: var(--tracking-title);
-  font-weight: var(--weight-regular);
+  font-weight: var(--weight-display, var(--weight-regular));
 }
 
 .text-section {

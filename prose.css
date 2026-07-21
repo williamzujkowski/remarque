@@ -137,3 +137,29 @@
   margin-top: var(--space-2);
 }
 
+
+/* ─── The Remarque Mark ─────────────────────────────────── */
+/*
+ * The system's namesake, made visible: a small mark closing every
+ * essay, the way a printer's fleuron ends a chapter. Quiet by rule —
+ * muted color, meta scale, one per essay, nothing else on its line.
+ *
+ * Markup (aria-hidden — it is punctuation, not content):
+ *   <div class="remarque-endmark" aria-hidden="true"></div>
+ * placed after the last element inside .remarque-prose.
+ *
+ * The fleuron (U+2766) is outside the latin font subsets by design;
+ * it intentionally falls through to the serif fallback stack.
+ */
+
+.remarque-endmark {
+  text-align: center;
+  margin-top: var(--space-7);
+}
+
+.remarque-endmark::after {
+  content: "\2766";
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  color: var(--color-muted);
+}
