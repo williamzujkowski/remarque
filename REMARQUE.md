@@ -222,6 +222,48 @@ Agents reviewing PRs should reject changes that violate any line above without e
 
 ---
 
+## Lineage: Butterick's Five Rules
+
+Remarque's core values descend from Matthew Butterick's [*Typography in
+Ten Minutes*](https://practicaltypography.com/typography-in-ten-minutes.html)
+(an acknowledged inspiration). The mapping, including where and why we
+deviate — values below are asserted against `tokens.json` in CI:
+
+| Butterick rule | His guidance | Remarque | Status |
+|---|---|---|---|
+| 1. Body text first | Typographic quality is determined largely by body text | AGENT_RULES.md Build Order steps 1–4 are tokens → typography → shell → prose, before any component | Aligned by construction |
+| 2. Point size | 15–25 px on the web | `--text-body: 1.0625rem` (17px); lead paragraphs `--text-body-lg: 1.1875rem` (19px) | Aligned |
+| 3. Line spacing | 120–145% of point size | `--leading-body: 1.75` (175%) | **Deliberate deviation** — see below |
+| 4. Line length | 45–90 characters per line | `--content-reading: 46rem` ≈ 70 ch at 17px Inter; the measure-compensation table targets 66–72 ch for every approved body face | Aligned |
+| 5. Font choice | Professional fonts, never default system faces | Newsreader (Production Type), Inter (Rasmus Andersson), JetBrains Mono — professionally designed, self-hosted | Aligned in spirit: these are free but professional-grade faces; Butterick's stricter preference is paid fonts |
+
+### The line-spacing deviation, argued
+
+Remarque's 175% body leading sits **outside Butterick's 120–145% range,
+at the airy extreme of quality web practice (commonly 150–165%)**. We
+own that plainly rather than argue it away. The reasons it is a
+deliberate identity choice, not an oversight:
+
+1. **Leading scales with measure.** Classic guidance ties looser leading
+   to longer lines; Remarque's ~70 ch measure sits in the upper-middle
+   of Butterick's own 45–90 ch range, and screen prose at 17px benefits
+   from more air than his print-derived band.
+2. **Token-hierarchy coherence.** Literal conformance (≤145%) would put
+   body leading *below* `--leading-meta: 1.5` — which is pinned by the
+   USWDS/WCAG floors this spec also adopts. Body text reading tighter
+   than caption text is not a hierarchy this system will ship.
+3. **Identity.** "Generous — this is what makes prose readable" predates
+   this audit; the spacious register is part of what makes a Remarque
+   page recognizable (see Signature Moves).
+
+The trade-off is real: 1.75 spends more vertical space and reads calmer
+and slower than 1.5–1.65. Sites wanting Butterick-tighter rhythm are
+choosing a different identity — that is a fork, and an honorable one,
+but it is not Remarque. (Ratified 3–0 by design-review panel, 2026-07-20,
+over the alternative of changing the token.)
+
+---
+
 ## Decision Order
 
 When multiple design options are possible, choose in this order:
