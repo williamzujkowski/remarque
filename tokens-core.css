@@ -38,7 +38,7 @@
   --tracking-title: -0.015em;
   --tracking-body: 0em;
   --tracking-meta: 0.02em;      /* mono metadata gets slight tracking */
-  --tracking-caps: 0.06em;      /* for any rare uppercase labels */
+  --tracking-caps: 0.06em;      /* letter-spacing for .text-label (true small caps, issue #51) */
 
   /* Font weights */
   --weight-regular: 400;
@@ -149,6 +149,19 @@ html {
   font-weight: var(--weight-medium);
 }
 
+/* Optical/wrapping defaults for display-scale headings (issue #51):
+   balanced line breaks, optical sizing on variable display faces, and
+   no synthesized bold/italic for faces that lack a real one. All three
+   degrade safely — unsupported browsers silently fall back to normal
+   wrapping and the font's default rendering. */
+.text-display,
+.text-title,
+.text-section {
+  text-wrap: balance;
+  font-optical-sizing: auto;
+  font-synthesis: none;
+}
+
 .text-body {
   font-family: var(--font-body);
   font-size: var(--text-body);
@@ -171,6 +184,25 @@ html {
   line-height: var(--leading-meta);
   letter-spacing: var(--tracking-meta);
   font-weight: var(--weight-regular);
+  color: var(--color-muted);
+  /* Tabular lining numerals — dates/counts/timestamps align in a
+     column and don't jitter as digits change. Mirrored by
+     .remarque-prose's oldstyle proportional register below; the two
+     never mix (issue #51). */
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* True small caps for labels (issue #51) — font-variant-caps renders at
+   x-height with corrected weight/spacing; text-transform: uppercase
+   renders letters at cap-height with no optical correction and reads
+   louder than intended. Prefer .text-label over uppercase text
+   anywhere a label needs a caps-like treatment. */
+.text-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-caps);
   color: var(--color-muted);
 }
 

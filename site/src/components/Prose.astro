@@ -3,9 +3,17 @@
  * Prose wrapper component.
  * Wraps article/essay content with Remarque's prose styling.
  * Content within this component gets the full typographic treatment.
+ *
+ * `dropcap`: opt-in Essay first-paragraph drop cap (.remarque-prose--dropcap,
+ * REMARQUE.md "Editorial Microtypography"). Use sparingly — first paragraph
+ * of an Essay only, never mid-article.
  */
+interface Props {
+  dropcap?: boolean;
+}
+const { dropcap = false } = Astro.props;
 ---
 
-<div class="remarque-prose content-reading">
+<div class:list={["remarque-prose content-reading", { "remarque-prose--dropcap": dropcap }]}>
   <slot />
 </div>

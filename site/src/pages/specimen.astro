@@ -136,6 +136,58 @@ const base = import.meta.env.BASE_URL;
     </article>
   </section>
 
+  <!-- Prose Vocabulary -->
+  <section class="mt-12">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-6">Prose Vocabulary</h2>
+    <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-6">
+      Every Markdown element .remarque-prose styles beyond headings, blockquotes, lists, and code.
+    </p>
+
+    <article class="border border-[var(--color-border)] rounded-[var(--radius-md)] p-6 sm:p-8">
+      <div class="remarque-prose">
+        <h4>A fourth-level heading</h4>
+        <p>
+          Tables, definition lists, and inline marks round out the vocabulary. A key like <kbd>Ctrl</kbd>+<kbd>K</kbd> opens the command palette. Text can carry a <mark>quiet highlight</mark> without reaching for a callout box. The <abbr title="World Wide Web Consortium">W3C</abbr> abbreviation gets a dotted underline on hover. Footnote markers<sup>1</sup> and chemical formulas like H<sub>2</sub>O sit without disturbing the line.
+        </p>
+
+        <h5>A fifth-level heading</h5>
+        <p>See the table below for the type scale, reproduced as data.</p>
+
+        <div class="scroll-wrap">
+          <table>
+            <caption>Type scale reference</caption>
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Role</th>
+                <th class="num">Size (px)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>--text-display</td><td>Hero headings</td><td class="num">44–80</td></tr>
+              <tr><td>--text-title</td><td>Page titles</td><td class="num">30–48</td></tr>
+              <tr><td>--text-body</td><td>Body copy</td><td class="num">17</td></tr>
+              <tr><td>--text-meta</td><td>Metadata</td><td class="num">14</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h6>A sixth-level heading</h6>
+        <dl>
+          <dt>Newsreader</dt>
+          <dd>The display face — page titles, hero headings, article titles. Optical sizing tuned for 2rem and up.</dd>
+          <dt>Inter</dt>
+          <dd>The body face — the workhorse for running copy, UI labels, and navigation.</dd>
+        </dl>
+
+        <details>
+          <summary>A collapsible aside</summary>
+          <p>Content revealed on demand — quiet by default, no default browser marker.</p>
+        </details>
+      </div>
+    </article>
+  </section>
+
   <!-- Line Heights -->
   <section class="mt-12 mb-12">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-6">Line Heights</h2>

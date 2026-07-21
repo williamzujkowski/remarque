@@ -20,6 +20,14 @@
   line-height: var(--leading-body);
   color: var(--color-fg);
   max-width: var(--content-reading);
+  /* Oldstyle proportional numerals — text figures that sit quietly
+     inside a sentence, the way numerals behave in well-set book prose.
+     Never mixed with .text-meta's tabular lining register (issue #51). */
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  /* Optical defaults: avoid single-word orphan lines, let quotes and
+     punctuation hang outside the measure. Both degrade safely. */
+  text-wrap: pretty;
+  hanging-punctuation: first last;
 }
 
 .remarque-prose > * + * {
@@ -135,6 +143,300 @@
   letter-spacing: var(--tracking-meta);
   color: var(--color-muted);
   margin-top: var(--space-2);
+}
+
+/* ─── Headings, continued (h4–h6) ───────────────────────── */
+/*
+ * h2/h3 are defined above. h4–h6 complete the vocabulary with a
+ * deliberate descent through the three font slots — h4 stays in the
+ * body voice (still prose), h5 borrows the display face's italic for a
+ * quieter sub-heading, h6 drops into the mono "technical label" voice
+ * used everywhere else for the deepest level of metadata. No
+ * text-transform: uppercase — see .text-label (tokens-core.css) for
+ * the true small-caps alternative.
+ */
+
+.remarque-prose h4 {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-title);
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-2);
+  color: var(--color-fg);
+}
+
+.remarque-prose h5 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-title);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-2);
+  color: var(--color-fg);
+}
+
+.remarque-prose h6 {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-meta);
+  margin-top: var(--space-4);
+  margin-bottom: var(--space-2);
+  color: var(--color-muted);
+}
+
+/* Optical/wrapping defaults for prose headings (issue #51) — see the
+   matching rule on .text-display/.text-title/.text-section in
+   tokens-core.css. */
+.remarque-prose h2,
+.remarque-prose h3,
+.remarque-prose h4,
+.remarque-prose h5,
+.remarque-prose h6 {
+  text-wrap: balance;
+  font-optical-sizing: auto;
+  font-synthesis: none;
+}
+
+/* ─── Tables ─────────────────────────────────────────────── */
+/*
+ * Reading-width tables: mono th voice (metadata surface, matching
+ * figcaption/code/pre), a 2px rule under the header row, 1px row rules
+ * only (no vertical rules, no zebra striping — quiet by rule). Numeric
+ * columns opt in to tabular lining figures with the `.num` class on the
+ * relevant <th>/<td> (keeps digits from jittering as they change,
+ * matches the .text-meta numerals policy).
+ *
+ * Wide tables should not force the reading column wider than
+ * --content-reading — wrap them:
+ *   <div class="scroll-wrap"><table>...</table></div>
+ */
+
+.remarque-prose .scroll-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: var(--space-5);
+}
+
+.remarque-prose .scroll-wrap > table {
+  margin-top: 0;
+}
+
+.remarque-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-body);
+}
+
+.remarque-prose caption {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-muted);
+  text-align: left;
+  caption-side: top;
+  margin-bottom: var(--space-2);
+}
+
+.remarque-prose th {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 2px solid var(--color-border-bold);
+  color: var(--color-fg);
+}
+
+.remarque-prose td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--border-width) var(--border-style) var(--color-border);
+  color: var(--color-fg);
+}
+
+.remarque-prose th.num,
+.remarque-prose td.num {
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: right;
+}
+
+/* ─── Definition Lists ───────────────────────────────────── */
+/*
+ * The "specimen list" pattern: a serif-italic term (dt) over a muted
+ * body-face description (dd), row rules like a table. Nest a
+ * `.text-label`/`.text-meta` span inside dt for a metadata line under
+ * the term — the utility already renders it in the mono voice, no
+ * extra CSS needed.
+ */
+
+.remarque-prose dl {
+  border-top: var(--border-width) var(--border-style) var(--color-border);
+}
+
+.remarque-prose dt {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-title);
+  color: var(--color-fg);
+  margin-top: var(--space-4);
+}
+
+.remarque-prose dt:first-child {
+  margin-top: var(--space-4);
+}
+
+.remarque-prose dd {
+  margin-left: 0;
+  margin-top: var(--space-1);
+  padding-bottom: var(--space-4);
+  color: var(--color-fg-muted);
+  border-bottom: var(--border-width) var(--border-style) var(--color-border);
+}
+
+/* ─── kbd, mark, abbr, sup/sub ───────────────────────────── */
+
+.remarque-prose kbd {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.1em 0.4em;
+  border: var(--border-width) var(--border-style) var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-fg);
+}
+
+/* --color-accent-subtle's first sanctioned use (issue #50) — a quiet
+   highlight, not a callout background. */
+.remarque-prose mark {
+  background-color: var(--color-accent-subtle);
+  color: var(--color-fg);
+  padding: 0.05em 0.2em;
+  border-radius: var(--radius-sm);
+}
+
+.remarque-prose abbr[title] {
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+  cursor: help;
+}
+
+.remarque-prose sup,
+.remarque-prose sub {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.remarque-prose sup {
+  top: -0.5em;
+}
+
+.remarque-prose sub {
+  bottom: -0.25em;
+}
+
+/* ─── Details / Summary ──────────────────────────────────── */
+/*
+ * Collapsible asides. Quiet marker: a small triangle in the mono
+ * metadata voice, no default browser disclosure widget.
+ */
+
+.remarque-prose details {
+  border-top: var(--border-width) var(--border-style) var(--color-border);
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-1);
+}
+
+.remarque-prose summary {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.remarque-prose summary::-webkit-details-marker {
+  display: none;
+}
+
+.remarque-prose summary::before {
+  content: "\25B8";
+  display: inline-block;
+  margin-right: var(--space-2);
+  color: var(--color-muted);
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-prose details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.remarque-prose details > :not(summary) {
+  margin-top: var(--space-3);
+}
+
+
+/* ─── Drop Cap (opt-in) ──────────────────────────────────── */
+/*
+ * Essay first paragraph only. Add alongside .remarque-prose:
+ *   <div class="remarque-prose remarque-prose--dropcap">
+ * `initial-letter` is used where supported, with a float + font-size
+ * fallback for browsers that lack it. Inherits --color-fg — the drop
+ * cap is not a place for accent color. Automatically skipped when the
+ * paragraph opens with a quote or inline code, since the ornament
+ * assumes a plain capital letter.
+ */
+
+.remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 3.5em;
+  line-height: 0.85;
+  float: left;
+  padding: 0.08em 0.12em 0 0;
+  color: var(--color-fg);
+}
+
+@supports (initial-letter: 4) or (-webkit-initial-letter: 4) {
+  .remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
+    initial-letter: 3.5;
+    -webkit-initial-letter: 3.5;
+    float: none;
+    padding: 0 0.08em 0 0;
+  }
+}
+
+/* ─── Pull Quote ─────────────────────────────────────────── */
+/*
+ * Not .remarque-prose blockquote — a blockquote cites someone else; a
+ * pullquote re-states the article's own words as a visual accent (a
+ * magazine convention). Display italic at section size, hairline rules
+ * above/below, no background, no accent color. If the pulled text
+ * duplicates body copy verbatim, mark the element aria-hidden so
+ * screen readers don't hear it twice:
+ *   <aside class="pullquote" aria-hidden="true">...</aside>
+ * At most one per screen.
+ */
+
+.pullquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-section);
+  line-height: var(--leading-section);
+  color: var(--color-fg);
+  text-align: center;
+  max-width: var(--content-reading);
+  margin: var(--space-7) auto;
+  padding: var(--space-4) 0;
+  border-top: var(--border-width) var(--border-style) var(--color-border);
+  border-bottom: var(--border-width) var(--border-style) var(--color-border);
 }
 
 

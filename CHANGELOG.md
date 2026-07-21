@@ -4,9 +4,43 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
-## Unreleased
+## 0.7.0 — 2026-07-21
+
+Typographic-completeness release (design review, #50/#51/#54): the
+prose element vocabulary, the editorial microtypography layer, and a
+print stylesheet — three gaps the review found between what Remarque
+claims to be ("rooted in book typography") and what it shipped.
 
 ### Added
+- **Prose vocabulary completion** (#50): `.remarque-prose` now styles
+  every remaining Markdown element — table/th/td/caption (+
+  `.scroll-wrap` overflow container, mono th with a 2px bottom rule,
+  1px row rules, no zebra, `.num` opt-in for tabular-lining numeric
+  cells), dl/dt/dd (serif-italic term over a muted description, the
+  "specimen list" pattern), h4–h6 (a descent through the three font
+  slots), kbd (mono, 1px border), mark (`--color-accent-subtle`'s first
+  sanctioned use), abbr[title] (dotted underline), sup/sub (footnote-
+  marker-safe sizing), and details/summary (quiet mono triangle
+  marker). No Markdown element renders unstyled after this release.
+- **Editorial microtypography** (#51): the numerals policy
+  (`--text-meta` → tabular-nums lining-nums; `.remarque-prose` →
+  oldstyle-nums proportional-nums — REMARQUE.md:179 mandated this but
+  no CSS ever implemented it); `.text-label` (true small caps via
+  `font-variant-caps`, replacing `text-transform: uppercase`);
+  `.remarque-prose--dropcap` (opt-in Essay first-paragraph drop cap);
+  `.pullquote` (display italic, hairline rules, distinct from
+  blockquote); wrapping/optical defaults (`text-wrap: balance` on
+  headings, `text-wrap: pretty` + `hanging-punctuation` on prose,
+  `font-synthesis: none`, `font-optical-sizing: auto`). New "Editorial
+  Microtypography" spec section in REMARQUE.md.
+- **`remarque-tokens/print.css`** (#54): a print layer scoped entirely
+  inside `@page`/`@media print` — forces the light palette with true
+  black-on-white (ink economy), hides nav/footer/TOC/theme-toggle/skip-
+  link, expands content to full page width at 2cm margins, sets body
+  to 11pt, appends `(url)` after external links, and applies
+  orphans/widows/break-inside discipline to figures/tables/pre. Own
+  subpath — not included by the `tokens.css` aggregator; import
+  explicitly.
 - **Drift-detection CI** (#47/#48, consensus-armed now that 2+ sites
   consume the package — williamzujkowski.github.io and tsundoku both pull
   `remarque-tokens` from npm): `scripts/drift-check.mjs` (shipped in the
@@ -25,6 +59,18 @@ these entries when syncing.
     consumers can call cross-repo (`css-file`, `package-dir` inputs).
   - `scripts/test-drift.mjs`: fixture tests for the classification rules
     (9 cases), wired into `deploy.yml` alongside `test-audit.mjs`.
+
+### Changed
+- `scripts/audit.mjs`'s token-file classification now recognizes
+  `print.css` (it carries literal `oklch()` values for the forced
+  print palette, same as a palette file).
+- Demo site (`site/`): specimen page exercises the new table/dl/kbd/
+  mark/abbr/sup-sub/details vocabulary; the five faux-uppercase eyebrow
+  labels (`index.astro` x3, `tokens.astro`, `projects/remarque.astro`)
+  now use `.text-label`; `against-decoration.astro` demonstrates the
+  opt-in drop cap (`<Prose dropcap>`) and a `.pullquote`.
+
+No core-tier token values changed in this release.
 
 ## 0.6.1 — 2026-07-21
 
