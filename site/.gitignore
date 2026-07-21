@@ -24,3 +24,8 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Playwright run artifacts (baselines in tests/*-snapshots/ ARE committed)
+test-results/
+playwright-report/
+blob-report/
