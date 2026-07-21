@@ -4,6 +4,22 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.6.1 — 2026-07-21
+
+### Fixed
+Three audit/parser bugs from real-world adoption (#67, found by tsundoku):
+- Body-less at-statements (`@import`, `@charset`) preceding a block no
+  longer pollute its prelude and misclassify it as an at-rule — palette
+  files may begin with imports.
+- Selector classification accepts qualified root forms (`html:root`,
+  `html[data-theme="dark"]`, `body.dark`, …) instead of exact strings.
+- `--src` scans now strip HTML `<!-- -->` comments (line-numbers
+  preserved) like CSS comments, ending issue-number false positives in
+  .astro/.svelte markup.
+
+Two new convention fixtures (leading-import, qualified-selectors) lock
+the fixes in CI. Consumers can drop their documented workarounds.
+
 ## 0.6.0 — 2026-07-20
 
 ### Added

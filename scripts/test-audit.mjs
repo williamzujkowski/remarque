@@ -48,6 +48,8 @@ const cases = [
   ['attr-convention.css', `${LIGHT}\n[data-theme="dark"] {${DARK_DECLS}}`, true],
   ['class-convention.css', `${LIGHT}\n:root.dark {${DARK_DECLS}}`, true],
   ['media-convention.css', `${LIGHT}\n@media (prefers-color-scheme: dark) { :root {${DARK_DECLS}} }`, true],
+  ['leading-import.css', `@import './fonts.css';\n@charset "utf-8";\n${LIGHT}\n[data-theme="dark"] {${DARK_DECLS}}`, true],
+  ['qualified-selectors.css', `${LIGHT.replace(':root {', 'html:root {')}\nhtml[data-theme="dark"] {${DARK_DECLS}}`, true],
   // :root.dark must NOT pollute the light theme: light fg-muted here fails AAA,
   // so if dark values leaked into light (the old .includes(':root') bug hid
   // this), the failure would disappear. Expect FAIL for the light theme.
