@@ -69,4 +69,30 @@ for (const [name, css, shouldPass] of cases) {
   if (!ok) bad++;
 }
 
-process.exit(bad ? 1 : 0);
+if (bad) process.exit(1);
+
+/* ── Lineage doc-drift check (consensus condition, 2026-07-20) ──────
+   The Butterick Lineage table in REMARQUE.md quotes token values; assert
+   they match tokens.json so the doc can never drift from the tokens. */
+import { readFileSync } from 'node:fs';
+const spec = readFileSync('REMARQUE.md', 'utf8');
+const tokens = JSON.parse(readFileSync('tokens.json', 'utf8'));
+const lineageChecks = [
+  ['--text-body: 1.0625rem', tokens.core['text-body'].$value === '1.0625rem'],
+  ['--text-body-lg: 1.1875rem', tokens.core['text-body-lg'].$value === '1.1875rem'],
+  ['--leading-body: 1.75', tokens.core['leading-body'].$value === 1.75],
+  ['--leading-meta: 1.5', tokens.core['leading-meta'].$value === 1.5],
+  ['--content-reading: 46rem', tokens.palette['content-reading'].light.$value === '46rem'],
+];
+let lineageBad = 0;
+for (const [quoted, matches] of lineageChecks) {
+  const inDoc = spec.includes(quoted.replace(': ', ': `').replace(/$/, '')) || spec.includes(quoted);
+  const ok = inDoc && matches;
+  console.log(`${ok ? '✓' : '✗'} lineage: ${quoted} (in doc: ${inDoc}, matches tokens.json: ${matches})`);
+  if (!ok) lineageBad++;
+}
+if (lineageBad) {
+  console.error(`lineage doc-drift check FAILED — ${lineageBad} mismatch(es)`);
+  process.exit(1);
+}
+console.log('lineage doc-drift check passed ✓');
