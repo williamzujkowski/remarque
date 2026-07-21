@@ -22,10 +22,12 @@
   "homepage": "https://williamzujkowski.github.io/remarque/",
   "main": "tokens.css",
   "bin": {
-    "remarque-audit": "scripts/audit.mjs"
+    "remarque-audit": "scripts/audit.mjs",
+    "remarque-drift": "scripts/drift-check.mjs"
   },
   "scripts": {
-    "audit": "node scripts/audit.mjs"
+    "audit": "node scripts/audit.mjs",
+    "drift": "node scripts/drift-check.mjs"
   },
   "exports": {
     ".": "./tokens.css",
@@ -52,6 +54,7 @@
     "fonts.css",
     "fonts/",
     "scripts/audit.mjs",
+    "scripts/drift-check.mjs",
     "tailwind.config.js",
     "REMARQUE.md",
     "AGENT_RULES.md",

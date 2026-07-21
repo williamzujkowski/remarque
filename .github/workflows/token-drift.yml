@@ -1,0 +1,100 @@
+name: Token Drift Check
+
+# Reusable workflow (workflow_call) for remarque-tokens consumers.
+#
+# Detects whether a consumer's stylesheet has drifted from the installed
+# remarque-tokens package. See issues #47/#48 and REMARQUE.md's "Token
+# Tiers" section for the classification this implements:
+#   - CORE-tier token redefined with a different value, undocumented → FAIL
+#   - CORE-tier token redefined with a different value, but named in the
+#     consumer's DESIGN-DEVIATIONS.md / DESIGN-NOTES.md → WARN
+#   - PALETTE-tier token redefined with a different value → INFO (this is
+#     the sanctioned personalization surface, not a problem)
+#   - CORE-tier token only ever consumed via var(), never redeclared → no-op
+#
+# Consensus-panel condition for building this at all ("2-3 consuming
+# sites") is met: williamzujkowski.github.io and tsundoku both consume
+# remarque-tokens from npm.
+#
+# Pre-release note: scripts/drift-check.mjs does not yet ship inside a
+# published remarque-tokens version — it lands with a future release once
+# this PR merges. Until then, this workflow checks out remarque itself at
+# `remarque-ref` to source the engine. Once a released remarque-tokens
+# version already includes scripts/drift-check.mjs (added to `files` +
+# the `remarque-drift` bin in this same PR), this workflow prefers the
+# copy sitting in the consumer's own node_modules/remarque-tokens instead
+# — no change needed here, and `remarque-ref` simply goes unused. At that
+# point callers may also switch to a plain `npx remarque-drift` step and
+# drop this reusable workflow entirely; both remain equivalent.
+
+on:
+  workflow_call:
+    inputs:
+      css-file:
+        description: >-
+          Path (relative to the consumer repo root) to the stylesheet that
+          defines/overrides remarque tokens — the same file you'd pass to
+          `remarque-audit --palette`.
+        required: true
+        type: string
+      package-dir:
+        description: >-
+          Directory containing node_modules/remarque-tokens (where
+          remarque-tokens is installed as a dependency) — also where
+          `npm ci` / `pnpm install` is run.
+        required: true
+        type: string
+      remarque-ref:
+        description: >-
+          Git ref of williamzujkowski/remarque to source scripts/drift-check.mjs
+          from. Only used pre-release, when the installed remarque-tokens
+          package (under package-dir) predates the drift-check bin; ignored
+          once the installed package already ships it.
+        required: false
+        type: string
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout consumer repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Setup Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6
+        with:
+          node-version: 22
+
+      - name: Install consumer dependencies
+        working-directory: ${{ inputs.package-dir }}
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            corepack enable
+            corepack prepare pnpm@10 --activate
+            pnpm install --frozen-lockfile
+          else
+            npm ci
+          fi
+
+      - name: Checkout remarque (pre-release drift-check.mjs source)
+        if: ${{ hashFiles(format('{0}/node_modules/remarque-tokens/scripts/drift-check.mjs', inputs.package-dir)) == '' }}
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          repository: williamzujkowski/remarque
+          ref: ${{ inputs.remarque-ref }}
+          path: .remarque-drift-engine
+
+      - name: Token drift check
+        run: |
+          set -e
+          INSTALLED="${{ inputs.package-dir }}/node_modules/remarque-tokens/scripts/drift-check.mjs"
+          if [ -f "$INSTALLED" ]; then
+            ENGINE="$INSTALLED"
+          else
+            ENGINE=".remarque-drift-engine/scripts/drift-check.mjs"
+          fi
+          node "$ENGINE" --css-file "${{ inputs.css-file }}" --package-dir "${{ inputs.package-dir }}"

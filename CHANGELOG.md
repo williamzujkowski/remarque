@@ -4,6 +4,28 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## Unreleased
+
+### Added
+- **Drift-detection CI** (#47/#48, consensus-armed now that 2+ sites
+  consume the package — williamzujkowski.github.io and tsundoku both pull
+  `remarque-tokens` from npm): `scripts/drift-check.mjs` (shipped in the
+  package; `files` + a `remarque-drift` bin entry) compares a consumer's
+  stylesheet against the INSTALLED package's `tokens.json`. Reuses
+  `scripts/lib/css-tokens.mjs` rather than a third CSS parser.
+  - CORE-tier token redefined with a different value → **FAIL** (exit 1),
+    unless the consumer's `DESIGN-DEVIATIONS.md` or `DESIGN-NOTES.md`
+    names the token — then **WARN** with a pointer to that doc.
+  - PALETTE-tier divergence → **INFO** (sanctioned personalization,
+    listed, never blocking).
+  - CORE-tier token consumed only via `var()`, never redeclared → no-op
+    (it resolves from the package import).
+  - Also prints the installed `remarque-tokens` version.
+  - `.github/workflows/token-drift.yml`: reusable `workflow_call` wrapper
+    consumers can call cross-repo (`css-file`, `package-dir` inputs).
+  - `scripts/test-drift.mjs`: fixture tests for the classification rules
+    (9 cases), wired into `deploy.yml` alongside `test-audit.mjs`.
+
 ## 0.6.1 — 2026-07-21
 
 ### Fixed
