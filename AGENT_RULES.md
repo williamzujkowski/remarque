@@ -26,7 +26,7 @@ Execute in this exact order. Do not skip steps. Do not reorder.
 
 8. **Validate readability on mobile** before adding any visual polish.
 
-9. **Verify every page conforms** to one of the four archetypes (Essay, Project Dossier, Notebook, Landing).
+9. **Verify every page conforms** to one of the seven archetypes (Essay, Project Dossier, Notebook, Landing, Reference/Docs, Changelog, Gallery).
 
 **Why this order matters:** Most agents build polished components first and bolt on typography later. That produces the exact aesthetic Remarque exists to prevent. Typography and prose are the foundation. Everything else is furniture.
 
@@ -160,6 +160,8 @@ project/
     └── notes                 # Notebook archetype
 ```
 
+Three further archetypes — Reference/Docs, Changelog, Gallery — are specified in REMARQUE.md but have no reference page in this repo's demo site yet; build them per spec, they follow the same file-structure conventions as the four above (e.g. `docs/[slug]`, `changelog`, `gallery` or `browse`).
+
 ### Implementation Pitfalls (learned from reference implementation)
 
 1. **Tailwind spacing collision:** Never map Remarque's `--space-N` values onto Tailwind's default numeric spacing keys — in v4 `@theme` that means no `--spacing-9`…`--spacing-12`, and in the v3 config no `spacing: { "5"…"12" }` overrides — or `mt-12` produces 192px instead of 48px. Both shipped artifacts namespace instead: the v3 config exposes `mt-remarque-9` etc., the reference v4 `@theme` uses `--spacing-remarque-N`. Use those, or `var(--space-N)` in arbitrary values.
@@ -195,7 +197,7 @@ Before considering any implementation complete, verify:
 - [ ] Accent color appears in ≤2 roles per viewport
 - [ ] No scroll-triggered or entrance animations exist
 - [ ] Every image has a 1px border and mono caption
-- [ ] Every page maps to an archetype (Essay, Dossier, Notebook, Landing)
+- [ ] Every page maps to an archetype (Essay, Dossier, Notebook, Landing, Reference/Docs, Changelog, Gallery)
 - [ ] Mobile version is roomy — not a compressed desktop layout
 - [ ] Mobile nav links have ≥44px touch targets
 - [ ] No pure white or pure black backgrounds

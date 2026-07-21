@@ -83,14 +83,17 @@ The agent rules define build order, non-negotiable rules, disallowed patterns, a
 
 ## Page Archetypes
 
-Every page conforms to one of four archetypes:
+Every page conforms to one of seven archetypes:
 
 - **Essay** — long-form writing with serif title, mono metadata, narrow reading column
 - **Project Dossier** — structured project page with metadata block and architecture section
 - **Notebook** — short-form notes with mono timestamps, no cards
 - **Landing** — identity statement, content navigation, generous whitespace
+- **Reference/Docs** — persistent nav rail, breadcrumb kicker, prev/next footer (reuses Essay's three-column shape)
+- **Changelog** — mono version/date headlines, grouped Added/Changed/Fixed lists (built from Notebook's entry structure)
+- **Gallery** — cover-grid pages at `--content-wide`, covers exempt from the reading-width cap (formalized from tsundoku's reference implementation)
 
-See the [live demo](https://williamzujkowski.github.io/remarque/) for all four archetypes in action.
+See the [live demo](https://williamzujkowski.github.io/remarque/) for the original four archetypes in action — Reference/Docs, Changelog, and Gallery are specified in REMARQUE.md but don't yet have a demo page in this repo.
 
 ## Design Decisions
 
