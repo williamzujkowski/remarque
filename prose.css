@@ -20,6 +20,14 @@
   line-height: var(--leading-body);
   color: var(--color-fg);
   max-width: var(--content-reading);
+  /* Oldstyle proportional numerals — text figures that sit quietly
+     inside a sentence, the way numerals behave in well-set book prose.
+     Never mixed with .text-meta's tabular lining register (issue #51). */
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  /* Optical defaults: avoid single-word orphan lines, let quotes and
+     punctuation hang outside the measure. Both degrade safely. */
+  text-wrap: pretty;
+  hanging-punctuation: first last;
 }
 
 .remarque-prose > * + * {
@@ -178,6 +186,19 @@
   margin-top: var(--space-4);
   margin-bottom: var(--space-2);
   color: var(--color-muted);
+}
+
+/* Optical/wrapping defaults for prose headings (issue #51) — see the
+   matching rule on .text-display/.text-title/.text-section in
+   tokens-core.css. */
+.remarque-prose h2,
+.remarque-prose h3,
+.remarque-prose h4,
+.remarque-prose h5,
+.remarque-prose h6 {
+  text-wrap: balance;
+  font-optical-sizing: auto;
+  font-synthesis: none;
 }
 
 /* ─── Tables ─────────────────────────────────────────────── */
@@ -359,6 +380,63 @@
 
 .remarque-prose details > :not(summary) {
   margin-top: var(--space-3);
+}
+
+
+/* ─── Drop Cap (opt-in) ──────────────────────────────────── */
+/*
+ * Essay first paragraph only. Add alongside .remarque-prose:
+ *   <div class="remarque-prose remarque-prose--dropcap">
+ * `initial-letter` is used where supported, with a float + font-size
+ * fallback for browsers that lack it. Inherits --color-fg — the drop
+ * cap is not a place for accent color. Automatically skipped when the
+ * paragraph opens with a quote or inline code, since the ornament
+ * assumes a plain capital letter.
+ */
+
+.remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 3.5em;
+  line-height: 0.85;
+  float: left;
+  padding: 0.08em 0.12em 0 0;
+  color: var(--color-fg);
+}
+
+@supports (initial-letter: 4) or (-webkit-initial-letter: 4) {
+  .remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
+    initial-letter: 3.5;
+    -webkit-initial-letter: 3.5;
+    float: none;
+    padding: 0 0.08em 0 0;
+  }
+}
+
+/* ─── Pull Quote ─────────────────────────────────────────── */
+/*
+ * Not .remarque-prose blockquote — a blockquote cites someone else; a
+ * pullquote re-states the article's own words as a visual accent (a
+ * magazine convention). Display italic at section size, hairline rules
+ * above/below, no background, no accent color. If the pulled text
+ * duplicates body copy verbatim, mark the element aria-hidden so
+ * screen readers don't hear it twice:
+ *   <aside class="pullquote" aria-hidden="true">...</aside>
+ * At most one per screen.
+ */
+
+.pullquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-section);
+  line-height: var(--leading-section);
+  color: var(--color-fg);
+  text-align: center;
+  max-width: var(--content-reading);
+  margin: var(--space-7) auto;
+  padding: var(--space-4) 0;
+  border-top: var(--border-width) var(--border-style) var(--color-border);
+  border-bottom: var(--border-width) var(--border-style) var(--color-border);
 }
 
 

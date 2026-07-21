@@ -100,6 +100,50 @@ This is why the measure is palette-tier: it is a property of the font choice, no
 
 ---
 
+## Editorial Microtypography
+
+The book-craft layer: numerals, small caps, drop caps, pull quotes, and optical wrapping. These are the details that separate typeset prose from a web page that merely uses nice fonts.
+
+### Numerals
+
+Two numeral registers, chosen by context:
+
+- **`.remarque-prose`** uses `font-variant-numeric: oldstyle-nums proportional-nums` — text figures that sit quietly inside a sentence, the way numerals behave in well-set book prose.
+- **`.text-meta`** (and anything sharing its role — dates, counts, table cells, timestamps) uses `font-variant-numeric: tabular-nums lining-nums` — full-height, fixed-width digits that align in columns and don't jitter as they change.
+
+Never mix the two: a numeral inside running prose should never be tabular, and a numeral in a metadata row or table should never be oldstyle. Apply `.num` to any `<td>`/`<th>` holding numeric data to opt that cell into the tabular-lining register (see prose.css's table rules).
+
+### Small Caps
+
+`font-variant-caps: all-small-caps` — not `text-transform: uppercase` — for any label that wants a caps-like treatment. Faux uppercase renders letters at cap-height with no optical correction and reads louder than intended; true small caps render at x-height with corrected weight and spacing. `.text-label` (mono, `--text-meta`, all-small-caps, `--tracking-caps`, `--color-muted`) is the sanctioned utility. `text-transform: uppercase` is disallowed anywhere a label could use `.text-label` instead.
+
+### Drop Caps (opt-in)
+
+`.remarque-prose--dropcap`, applied alongside `.remarque-prose`, floats a large italic display-face initial letter on the first paragraph only — the way a printed essay opens its first page. Rules:
+
+- Essay first paragraph only — never mid-article, never in Dossier/Notebook/Landing content.
+- Uses `initial-letter` where supported, with a `float` + font-size fallback for browsers that lack it.
+- Inherits `--color-fg` — the drop cap is not a place for accent color.
+- Skipped automatically when the paragraph opens with a quote or inline code (the ornament assumes a plain capital letter).
+- Opt-in only. Most pages should not use it; it is reserved for essays that want a printed, literary register.
+
+### Pull Quotes
+
+`.pullquote` is not `.remarque-prose blockquote`. A blockquote cites someone else; a pullquote re-states the article's own words as a visual accent — a magazine convention. Rules:
+
+- Display italic at `--text-section` size, not blockquote's body-italic.
+- Hairline rules above and below (`--color-border`), no background, no accent color.
+- If the pulled text duplicates body copy verbatim, mark the element `<aside aria-hidden="true">` so screen readers don't hear it twice.
+- At most one per screen — it is a rare accent, not a recurring motif.
+
+### Wrapping & Optical Defaults
+
+- Headings: `text-wrap: balance`, `font-optical-sizing: auto`, `font-synthesis: none` — headings never wrap ragged, optical sizing lets variable fonts pick the right grade, and browsers never fake bold/italic for faces that don't have them.
+- Prose: `text-wrap: pretty` (avoids single-word orphan lines) and `hanging-punctuation: first last` (quotes and punctuation hang outside the measure rather than indenting the line).
+- All four properties degrade safely — unsupported browsers silently ignore them and fall back to normal wrapping. Invisible when absent, unmistakable when present.
+
+---
+
 ## Visual Rules
 
 ### Do
