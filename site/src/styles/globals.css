@@ -11,6 +11,7 @@
 @import "tailwindcss";
 @import "remarque-tokens";
 @import "remarque-tokens/theme.css";
+@import "remarque-tokens/print.css";
 
 /* ─── Self-hosted Fonts ────────────────────────────────── */
 /* Demo-specific @font-face (not the package's fonts.css) because URLs

@@ -1,0 +1,140 @@
+/*
+ * Remarque — Print Stylesheet
+ * ────────────────────────────
+ * A "rooted in book typography" system that prints screen chrome and
+ * dead links has not earned the claim. This file is scoped entirely
+ * inside @page/@media print — it has zero effect on screen rendering,
+ * so it is safe to import unconditionally alongside tokens.css.
+ *
+ * Own subpath (remarque-tokens/print, remarque-tokens/print.css) —
+ * NOT included by the tokens.css aggregator, since not every consumer
+ * wants it wired in automatically. Import explicitly:
+ *   @import 'remarque-tokens/print.css';
+ * (string form — see AGENT_RULES.md Pitfall #6.)
+ *
+ * Selectors for screen chrome (nav/footer/TOC/theme toggle/skip link)
+ * target common conventions (<nav>, <footer>, #theme-toggle, the
+ * "Skip to content" anchor) rather than any one consumer's exact
+ * markup — a site with different class names should add its own
+ * @media print rule for anything this file doesn't catch.
+ *
+ * Sidenotes: this package does not yet ship a sidenotes module. When
+ * one lands, its narrow-viewport "inline" mode is exactly the right
+ * print behavior — print should never attempt the wide-margin
+ * side-rail layout a sidenotes module might use on desktop screens.
+ */
+
+@page {
+  margin: 2cm;
+}
+
+@media print {
+  /* ─── Force the light palette (ink economy) ───────────────
+   * True black on white, not the screen theme's warm near-black/
+   * off-white — printed pages are read in ambient light with no theme
+   * toggle available, and a warm off-white background prints as a
+   * visible ink wash on many printers. Overrides regardless of which
+   * dark-mode convention put the site in dark mode. */
+  :root,
+  [data-theme="light"],
+  [data-theme="dark"],
+  :root.dark {
+    --color-bg: oklch(1 0 0);
+    --color-bg-subtle: oklch(1 0 0);
+    --color-fg: oklch(0 0 0);
+    --color-fg-muted: oklch(0.25 0 0);
+    --color-muted: oklch(0.35 0 0);
+    --color-border: oklch(0.7 0 0);
+    --color-border-bold: oklch(0.4 0 0);
+    --color-surface: oklch(1 0 0);
+    --color-accent: oklch(0 0 0);
+    --color-accent-hover: oklch(0 0 0);
+    --color-accent-subtle: oklch(1 0 0);
+    --color-code-bg: oklch(0.96 0 0);
+    --color-code-fg: oklch(0 0 0);
+    --color-selection-bg: oklch(1 0 0);
+    --color-selection-fg: oklch(0 0 0);
+    --weight-display: 400;
+  }
+
+  html,
+  body {
+    background: oklch(1 0 0) !important;
+    color: oklch(0 0 0) !important;
+  }
+
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* ─── Hide screen-only chrome ──────────────────────────────
+   * Navigation, footer, table of contents, theme toggle, skip link. */
+  nav,
+  footer,
+  .toc,
+  [class*="toc-"],
+  #theme-toggle,
+  [data-theme-toggle],
+  .theme-toggle,
+  a[href="#main-content"],
+  a[href^="#main"],
+  .skip-link,
+  .copy-btn {
+    display: none !important;
+  }
+
+  /* ─── Full-width reading column ────────────────────────────
+   * The page itself is already narrow at 2cm margins — don't also
+   * constrain content to the on-screen reading measure. */
+  .content-reading,
+  .content-standard,
+  .content-wide,
+  main {
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  /* ─── External links keep their URL on paper ─────────────── */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    color: oklch(0 0 0);
+    word-break: break-all;
+  }
+
+  /* ─── Orphans, widows, and page-break discipline ──────────── */
+  p,
+  li,
+  dd,
+  blockquote {
+    orphans: 2;
+    widows: 2;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    break-after: avoid;
+    orphans: 3;
+    widows: 3;
+  }
+
+  figure,
+  table,
+  pre,
+  .remarque-prose pre,
+  .remarque-prose table,
+  .remarque-prose details {
+    break-inside: avoid;
+  }
+}

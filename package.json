@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "engines": {
     "node": ">=18"
   },
@@ -45,6 +45,8 @@
     "./tokens.json": "./tokens.json",
     "./prose": "./prose.css",
     "./prose.css": "./prose.css",
+    "./print": "./print.css",
+    "./print.css": "./print.css",
     "./package.json": "./package.json"
   },
   "files": [
@@ -64,6 +66,7 @@
     "tokens.json",
     "scripts/tokens-json.mjs",
     "prose.css",
+    "print.css",
     "scripts/lib/css-tokens.mjs"
   ]
 }

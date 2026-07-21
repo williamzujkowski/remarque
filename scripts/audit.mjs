@@ -157,7 +157,7 @@ const FONT_FLOOR_REM = 0.8125, FONT_FLOOR_PX = 13;
 const paletteRel = relative('.', PALETTE);
 const isTokenFile = (p) =>
   p === paletteRel ||
-  /tokens(-core|-palette)?\.css$|fonts\.css$|globals?\.css$|theme-deck\.css$|pages[\/\\]tokens\.astro$/.test(p);
+  /tokens(-core|-palette)?\.css$|fonts\.css$|globals?\.css$|theme-deck\.css$|print\.css$|pages[\/\\]tokens\.astro$/.test(p);
 
 for (const file of walk(SRC)) {
   const rel = relative('.', file);
