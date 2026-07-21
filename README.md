@@ -58,6 +58,11 @@ See: REMARQUE.md for specification, AGENT_RULES.md for implementation contract, 
 
 The agent rules define build order, non-negotiable rules, disallowed patterns, and a quality checklist. Every decision is specified — agents don't need to guess.
 
+Packaging for agent tooling:
+- **npm exports:** `remarque-tokens/agent-rules` (→ `AGENT_RULES.md`) and `remarque-tokens/spec` (→ `REMARQUE.md`), alongside the existing `remarque-tokens/tokens.json`, so a project can point an agent at `node_modules/remarque-tokens/AGENT_RULES.md` without hardcoding a filename.
+- **Claude Code skill:** [`.claude/skills/remarque/SKILL.md`](.claude/skills/remarque/SKILL.md) — triggers on "remarque" / "design system" / new-page work, loads all three files, and states the tier rules, the audit command, and the two build-time pitfalls (unlayered-token-import, string-form `@import`) that pass a green build while silently breaking.
+- **Live tokens endpoint:** the demo site serves the current `tokens.json` at **https://williamzujkowski.github.io/remarque/tokens.json** — a remote agent can fetch current token values directly instead of trusting training data.
+
 ## Files
 
 | File | Purpose |

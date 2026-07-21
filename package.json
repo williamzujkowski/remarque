@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "engines": {
     "node": ">=18"
   },
@@ -47,6 +47,8 @@
     "./prose.css": "./prose.css",
     "./print": "./print.css",
     "./print.css": "./print.css",
+    "./agent-rules": "./AGENT_RULES.md",
+    "./spec": "./REMARQUE.md",
     "./package.json": "./package.json"
   },
   "files": [

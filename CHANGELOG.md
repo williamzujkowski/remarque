@@ -4,6 +4,52 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.8.0 — 2026-07-21
+
+Archetype-vocabulary and AI-agent-packaging release (design review; closes
+#55, closes #57).
+
+### Added
+- **Three new page archetypes** (#55): Reference/Docs (persistent nav
+  rail, breadcrumb kicker, prev/next footer — reuses Essay's three-column
+  shape), Changelog (mono version/date headline, grouped Added/Changed/
+  Fixed lists — built from Notebook's entry structure), and Gallery
+  (content-wide cover grids, covers exempt from the reading-width cap,
+  border-only hover — formalized from tsundoku's documented reference
+  implementation, cited directly in REMARQUE.md). Seven archetypes total;
+  agents must not invent an eighth.
+- **Plate** (#55): a screenshot-heavy-page subsection of Image Treatment —
+  numbered mono captions, a narrow 2-up exception for terminal captures.
+- **CLI-tool landing guidance** (#55): a scoped, rationale-argued exception
+  to Landing's no-CTA rule for a single mono install command block.
+- **Dataviz Tokens** (#55): chart grid/axis/categorical-ramp mapped onto
+  existing tokens and required to pass the audit — citing tsundoku's
+  orthogonal category-color system as precedent and naming the one gap
+  (never run through `remarque-audit`'s `CHECKS` array) this guidance
+  closes.
+- **`remarque-tokens/agent-rules` and `remarque-tokens/spec` exports**
+  (#57): both files were already in `files`; this ships them as named
+  subpaths so a consumer can `require.resolve('remarque-tokens/agent-rules')`
+  instead of hardcoding a `node_modules` path.
+- **`.claude/skills/remarque/SKILL.md`** (#57): a Claude Code skill
+  triggering on "remarque" / "design system" / new-page work. Loads
+  `AGENT_RULES.md` + `REMARQUE.md` + `tokens.json`, states the token-tier
+  rules, the audit command, and Pitfalls #6/#7 (string-form `@import`;
+  unlayered token import under Tailwind v4) inline — both pass a green
+  build while silently breaking, so they're worth surfacing without a
+  file round-trip.
+- **`/tokens.json` on the demo site** (#57): `site/scripts/copy-tokens-json.mjs`
+  runs as a prebuild step (`npm run build` in `site/`), copying the
+  installed package's `tokens.json` into `public/` so it ships at
+  `https://williamzujkowski.github.io/remarque/tokens.json` — a remote
+  agent can fetch current token values instead of trusting training data.
+  The copy is generated, not a source file (`site/public/tokens.json` is
+  gitignored).
+- Root README's "For AI Agents" section documents all three packaging
+  additions above.
+
+No core-tier token values changed in this release.
+
 ## 0.7.0 — 2026-07-21
 
 Typographic-completeness release (design review, #50/#51/#54): the
