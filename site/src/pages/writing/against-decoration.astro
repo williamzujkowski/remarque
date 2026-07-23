@@ -1,17 +1,24 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Meta from '../../components/Meta.astro';
 import Prose from '../../components/Prose.astro';
 const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Against Decoration" description="The modern web is drowning in visual noise. What if the antidote is restraint?">
   <article class="pt-[var(--space-9)]">
-    <header class="max-w-reading mx-auto mb-8">
+    <!-- Broadsheet pattern's fourth primitive (issue #36): the post-header
+         kicker, demoed here rather than on writing/typography-as-interface
+         (that page is the Essay archetype's own VR baseline) so this
+         change doesn't touch an existing baseline. -->
+    <header class="remarque-post-header max-w-reading mx-auto">
+      <p class="remarque-post-kicker">
+        <span class="remarque-post-kicker-section">Essay</span>
+        <span class="remarque-dot" aria-hidden="true">&middot;</span>
+        <span>6 min read</span>
+        <span class="remarque-dot" aria-hidden="true">&middot;</span>
+        <time datetime="2026-03-29">Mar 29, 2026</time>
+      </p>
       <h1 class="text-display font-display text-[var(--color-fg)]">Against Decoration</h1>
-      <div class="mt-4">
-        <Meta date="2026-03-29" readingTime="6 min read" tags={["design", "minimalism"]} />
-      </div>
     </header>
 
     <Prose dropcap>

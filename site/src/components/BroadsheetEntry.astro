@@ -1,0 +1,88 @@
+---
+/**
+ * BroadsheetEntry — reference component for the Broadsheet pattern
+ * (remarque-tokens/broadsheet, issue #36).
+ *
+ * Adapted from williamzujkowski.github.io's `BroadsheetEntry.astro`
+ * (the graduation source): that component reads an Astro content-
+ * collection `post` entry (`{ id, body, data: {...} }`) because the
+ * flagship's posts live in a markdown collection. This demo site has no
+ * content collection — `writing/*` are hand-authored `.astro` pages
+ * (see `writing/typography-as-interface.astro`) — so this version takes
+ * plain, already-resolved props instead of a collection entry. The
+ * rendered markup and CSS classes are otherwise the same contract
+ * documented in REMARQUE.md's "Patterns" section.
+ */
+interface Props {
+  title: string;
+  href: string;
+  section: string;
+  readingTime: string;
+  date: string; // ISO date, e.g. "2026-04-08"
+  description?: string;
+  /** Entry-list position, rendered via `data-entry-number` + `attr()` — required for `variant="entry"`. */
+  number?: number | string;
+  variant?: "lead" | "entry";
+}
+
+const {
+  title,
+  href,
+  section,
+  readingTime,
+  date,
+  description,
+  number,
+  variant = "entry",
+} = Astro.props;
+
+const dateStr = new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
+---
+
+{
+  variant === "lead" ? (
+    <article class="remarque-lead">
+      <p class="remarque-lead-kicker">
+        <span class="remarque-lead-section">{section}</span>
+        <span class="remarque-dot" aria-hidden="true">
+          &middot;
+        </span>
+        <span>{readingTime}</span>
+        <span class="remarque-dot" aria-hidden="true">
+          &middot;
+        </span>
+        <time datetime={date}>{dateStr}</time>
+      </p>
+      <h2 class="remarque-lead-title">
+        <a href={href}>{title}</a>
+      </h2>
+      {description && <p class="remarque-lead-lede">{description}</p>}
+    </article>
+  ) : (
+    <li class="remarque-entry">
+      <span class="remarque-entry-numeral" data-entry-number={number} aria-hidden="true" />
+      <div class="remarque-entry-body">
+        <p class="remarque-entry-kicker">
+          <span class="remarque-entry-section">{section}</span>
+          <span class="remarque-dot" aria-hidden="true">
+            &middot;
+          </span>
+          <span>{readingTime}</span>
+          <span class="remarque-dot" aria-hidden="true">
+            &middot;
+          </span>
+          <time datetime={date}>{dateStr}</time>
+        </p>
+        <h3 class="remarque-entry-title">
+          <a href={href}>{title}</a>
+        </h3>
+        {description && <p class="remarque-entry-excerpt">{description}</p>}
+      </div>
+    </li>
+  )
+}

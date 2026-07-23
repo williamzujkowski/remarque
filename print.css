@@ -23,6 +23,13 @@
  * promise above — the essay module's own default (non-`@media`) CSS
  * already IS the narrow-viewport inline mode, so this rule only needs to
  * cancel the `>= 80rem` float, not author a print-specific layout.
+ *
+ * Broadsheet pattern (remarque-tokens/broadsheet.css, issue #36): the
+ * masthead/lead/entry-list nameplate register is tuned for a screen
+ * nameplate, not a printed page — a `--remarque-masthead-size` up to
+ * 7.5rem would burn most of a sheet on one word. Capped in point sizes
+ * here, matching this file's existing `body { font-size: 11pt; }`
+ * convention, rather than left to inherit the fluid clamp on paper.
  */
 
 @page {
@@ -113,6 +120,9 @@
   .content-standard,
   .content-wide,
   .remarque-essay,
+  .remarque-masthead,
+  .remarque-lead,
+  .remarque-entry-list,
   main {
     max-width: 100% !important;
     margin-inline: 0 !important;
@@ -120,6 +130,26 @@
 
   .remarque-essay {
     display: block !important;
+  }
+
+  /* ─── Broadsheet: collapse the nameplate register ──────────────
+   * The fluid masthead/lead titles are a screen-only nameplate voice
+   * (issue #36) — cap them in points like the rest of this file's
+   * print type scale instead of printing at their full on-screen size. */
+  .remarque-masthead-title {
+    font-size: 28pt !important;
+    line-height: 1.15 !important;
+  }
+
+  .remarque-lead-title {
+    font-size: 18pt !important;
+  }
+
+  /* Entry numerals stay legible but no longer decorative-hover-scaled;
+     the hover-only accent color never applies in print anyway (no
+     pointer), this just guards the static color explicitly. */
+  .remarque-entry-numeral::before {
+    color: oklch(0.4 0 0) !important;
   }
 
   body {

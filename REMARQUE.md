@@ -556,6 +556,7 @@ The homepage or entry point. Sets the tone.
 - Recent entries or updates (3–5 max)
 - A brief "about" line
 - **CLI-tool landing only:** a single mono install command block (styled as prose `<pre>`, copy button allowed) — the one sanctioned interactive element on an otherwise CTA-free page — and an optional `--help`-output figure (follows the Plate convention, see Image Treatment)
+- **Editorial/archive landing:** the Broadsheet pattern's masthead + lead article + numbered entry list (own module, `remarque-tokens/broadsheet`) — see "Patterns" below
 
 **Never includes:**
 - Hero images or banners
@@ -771,6 +772,170 @@ own height inflated row 1, pushing the whole essay down and leaving a
 visible gap between the header and the first paragraph on wide
 viewports, fixed same-day. This module ships with the fix already
 applied so the next consumer doesn't rediscover it.
+
+---
+
+## Patterns
+
+Optional, opt-in composition patterns for specific contexts — unlike the
+Essay Module above (one archetype, two related features), a "pattern" in
+this section is a small family of primitives meant to be composed
+together, shipped as its own subpath rather than aggregated.
+
+### Broadsheet
+
+The editorial Landing/archive pattern: a newspaper-broadsheet voice for
+the typography-maximalist end of the system. Own subpath,
+`remarque-tokens/broadsheet` (`broadsheet.css`) — not aggregated into
+`tokens.css` or `prose.css`.
+
+**Provenance.** Graduated from williamzujkowski.github.io's landing
+masthead and archive/tag/post-header implementation, validated in
+[PR #213](https://github.com/williamzujkowski/williamzujkowski.github.io/pull/213)
+(landing) and [PR #214](https://github.com/williamzujkowski/williamzujkowski.github.io/pull/214)
+(archive/tag/post-header) — all Remarque tokens, all audits + axe passing
+downstream before upstreaming — ratified in
+[issue #36](https://github.com/williamzujkowski/remarque/issues/36) per
+the "Graduation" checklist in the package README. No site-specific
+literal was copied; every dimension is re-derived from tokens this
+package already ships (see `broadsheet.css`'s header comment for the
+value-by-value mapping and the fluid-type decision below).
+
+Four primitives, composed independently — a page can use any subset:
+
+1. **Masthead** (`.remarque-masthead`) — centered nameplate: mono
+   small-caps kicker, an oversized mixed roman + italic `--font-display`
+   title, mono dateline with hairline-rule separators.
+2. **Lead article** (`.remarque-lead`) — a featured story: mono kicker
+   (`Section · N min read · Date`), a large `--font-display` title with
+   underline-grow hover, an italic lede paragraph with an italic drop cap.
+3. **Numbered entry list** (`.remarque-entry-list` / `.remarque-entry`) —
+   italic oldstyle-figure numerals in the outer margin (via
+   `data-entry-number`), a two-column grid (numeral / kicker+title+excerpt),
+   a hairline between entries, collapsing to one column in a narrow
+   container.
+4. **Post-header kicker** (`.remarque-post-kicker`) — the same mono
+   `Section · Reading time · Date` line, scaled down to sit above an
+   individual post's own title.
+
+### Markup contract
+
+```html
+<header class="remarque-masthead">
+  <p class="remarque-masthead-kicker"><span>Field Notes</span></p>
+  <h1 class="remarque-masthead-title">Quiet <em>Signals</em></h1>
+  <p class="remarque-masthead-dateline">
+    <span class="remarque-rule" aria-hidden="true"></span>
+    <span>July 23, 2026</span>
+    <span class="remarque-rule" aria-hidden="true"></span>
+  </p>
+</header>
+
+<article class="remarque-lead">
+  <p class="remarque-lead-kicker">
+    <span class="remarque-lead-section">Essay</span>
+    <span class="remarque-dot" aria-hidden="true">&middot;</span>
+    <span>8 min read</span>
+    <span class="remarque-dot" aria-hidden="true">&middot;</span>
+    <time datetime="2026-04-08">Apr 8, 2026</time>
+  </p>
+  <h2 class="remarque-lead-title"><a href="/writing/x">Title</a></h2>
+  <p class="remarque-lead-lede">Lede paragraph…</p>
+</article>
+
+<ul class="remarque-entry-list">
+  <li class="remarque-entry">
+    <span class="remarque-entry-numeral" data-entry-number="2" aria-hidden="true"></span>
+    <div class="remarque-entry-body">
+      <p class="remarque-entry-kicker">
+        <span class="remarque-entry-section">Essay</span>
+        <span class="remarque-dot" aria-hidden="true">&middot;</span>
+        <span>6 min read</span>
+        <span class="remarque-dot" aria-hidden="true">&middot;</span>
+        <time datetime="2026-03-29">Mar 29, 2026</time>
+      </p>
+      <h3 class="remarque-entry-title"><a href="/writing/y">Title</a></h3>
+      <p class="remarque-entry-excerpt">Excerpt…</p>
+    </div>
+  </li>
+</ul>
+
+<header class="remarque-post-header">
+  <p class="remarque-post-kicker">
+    <span class="remarque-post-kicker-section">Essay</span>
+    <span class="remarque-dot" aria-hidden="true">&middot;</span>
+    <span>8 min read</span>
+    <span class="remarque-dot" aria-hidden="true">&middot;</span>
+    <time datetime="2026-04-08">Apr 8, 2026</time>
+  </p>
+  <h1 class="text-display font-display">Post Title</h1>
+</header>
+```
+
+Requirements the CSS depends on:
+
+- `.remarque-entry-list` uses `<ul>`, not `<ol>` — the visual numeral is
+  decorative (`aria-hidden`) and generated from `data-entry-number`; an
+  `<ol>` would have a screen reader announce "1 of 2" alongside it, a
+  second voice for the same information.
+- Entry numerals are generated via `content: attr(data-entry-number)` on
+  `.remarque-entry-numeral::before`, NOT CSS `counter()`. `attr()` reads
+  the attribute of the element the pseudo-content is generated on, so
+  `data-entry-number` goes on `.remarque-entry-numeral` itself, not the
+  parent `<li>`.
+- Every kicker/dateline row (`.remarque-masthead-kicker`,
+  `.remarque-masthead-dateline`, `.remarque-lead-kicker`,
+  `.remarque-entry-kicker`, `.remarque-post-kicker`) uses
+  `font-variant-caps: all-small-caps` — never `text-transform: uppercase`
+  (the flagship predates the Small Caps rule and used uppercase
+  throughout this pattern; corrected on the way upstream, same as the
+  Essay Module's TOC summary).
+
+### Fluid-type decision: the masthead title
+
+The flagship's masthead title is `clamp(3.5rem, 9vw, 7.5rem)` — bigger
+than `--text-display` (tokens-core.css's largest type-scale rung,
+`clamp(2.75rem, 5.5vw, 5rem)`) ever reaches. Per issue #36's required
+call: express via an existing type token if the scale reaches that size,
+else a documented fluid exception using core tokens as bounds — never a
+new core token.
+
+The scale does not reach it, so `.remarque-masthead` declares a
+file-scoped custom property whose min/max bounds are arithmetic on
+tokens already in `tokens-core.css`, not new literals:
+
+```css
+--remarque-masthead-size: clamp(
+  calc(var(--space-7) + var(--space-2)),   /* 3rem + 0.5rem = 3.5rem */
+  9vw,
+  calc(var(--space-10) - var(--space-2))   /* 8rem - 0.5rem = 7.5rem */
+);
+```
+
+Both bounds resolve to the exact flagship values already validated
+downstream (contrast/gamut/font-floor audits + axe). The `9vw` rate is
+unchanged from the flagship — it continues the same escalating per-tier
+vw progression `tokens-core.css`'s own scale already uses (2.25vw
+section → 3.5vw title → 5.5vw display), one step further for a register
+one step past display. This property is declared inside `broadsheet.css`
+only, never added to `tokens-core.css` — it is local arithmetic on
+existing core tokens, not a new one.
+
+Everywhere else in the pattern, an existing token already covers the
+register: `.remarque-lead-title` uses `--text-display` as-is (its
+2.75–5rem range covers the flagship's 2.25–3.75rem closely enough that
+no exception is warranted), and `.remarque-entry-title` uses
+`--text-section` as-is (1.375–2rem vs. the flagship's 1.5–1.875rem).
+
+### When to use
+
+Landing/archive contexts only — a Landing page's masthead, or an
+archive/tag-listing page's lead-plus-entry-list. Typography-maximalist:
+this is the one pattern in Remarque where a title is allowed to outgrow
+`--text-display`, and it is deliberately reserved for exactly one
+register, not a general-purpose "big heading" utility. The post-header
+kicker is the one primitive meant for individual post pages rather than
+the archive itself.
 
 ---
 
