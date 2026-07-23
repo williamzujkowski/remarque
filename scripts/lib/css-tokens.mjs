@@ -95,3 +95,74 @@ export const isDarkBlock = (b) =>
     parts(b.prelude).some((s) => ROOTISH.test(s) && !DARKISH.test(s))) ||
   (b.context === '' &&
     parts(b.prelude).some((s) => DARKISH.test(s) && (ROOTISH.test(s) || s.startsWith('.') || s.startsWith('['))));
+
+/* ── light-dark() support (issue #95) ──────────────────────────────────
+ * The migration collapses a token's light AND dark values into ONE
+ * declaration — `--color-x: light-dark(<light>, <dark>);` — living in the
+ * top-level `:root` block (isLightRoot territory), rather than two
+ * declarations split across the :root/dark-block convention above. The
+ * conventional two-block form is NOT going away (mixed-form palettes are
+ * supported — a consumer may migrate some tokens and leave others in the
+ * old convention, and the bridge's own generated output keeps emitting
+ * the old convention indefinitely; see REMARQUE.md "Color Scheme &
+ * light-dark()"), so both forms must parse side by side.
+ *
+ * splitLightDark() does the actual splitting: depth-aware (so a light or
+ * dark side that is itself a function call — `oklch(...)`, `var(...)` —
+ * doesn't confuse the single top-level comma this looks for). Returns
+ * null for any value that isn't a light-dark() call, so callers can
+ * treat it as a plain passthrough. */
+export function splitLightDark(value) {
+  const v = value.trim();
+  const m = v.match(/^light-dark\(\s*/i);
+  if (!m || !v.endsWith(')')) return null;
+  const inner = v.slice(m[0].length, -1);
+  let depth = 0, splitAt = -1;
+  for (let i = 0; i < inner.length; i++) {
+    const c = inner[i];
+    if (c === '(') depth++;
+    else if (c === ')') depth--;
+    else if (c === ',' && depth === 0) { splitAt = i; break; }
+  }
+  if (splitAt === -1) return null;
+  return { light: inner.slice(0, splitAt).trim(), dark: inner.slice(splitAt + 1).trim() };
+}
+
+/* Resolve a flat decls map (as returned by declsOf) to one theme "side".
+ * A `light-dark(a, b)` value collapses to `a` (side 'light') or `b` (side
+ * 'dark'); every other value — a plain oklch() literal, a var() alias, a
+ * non-color token like --weight-display — passes through UNCHANGED. That
+ * makes this a no-op over a palette that hasn't adopted light-dark() at
+ * all, which is exactly the backward-compat property the parser needs:
+ * every existing conventional-form fixture keeps resolving identically. */
+export function resolveSide(decls, side) {
+  const out = {};
+  for (const [name, value] of Object.entries(decls)) {
+    const ld = splitLightDark(value);
+    out[name] = ld ? ld[side] : value;
+  }
+  return out;
+}
+
+/* Compute the merged "dark override" map the four parser consumers each
+ * need, from the two raw declsOf() extractions:
+ *   - rawLightRootDecls: declsOf(blocks, isLightRoot) — the top-level
+ *     :root block, where a light-dark() declaration's DARK side now
+ *     lives (alongside its light side).
+ *   - rawDarkBlockDecls: declsOf(blocks, isDarkBlock) — the conventional
+ *     dark-block override (@media prefers-color-scheme:dark and/or
+ *     [data-theme="dark"]/:root.dark), still used for non-color tokens
+ *     (--weight-display) and any token a palette hasn't migrated yet.
+ *
+ * Precedence matches real CSS cascade: when the SAME token is declared
+ * both ways (a light-dark() value in :root AND an explicit override in a
+ * later dark block), the dark block — which appears later in the
+ * stylesheet at equal specificity — wins, so it is spread last here. */
+export function darkOverridesOf(rawLightRootDecls, rawDarkBlockDecls) {
+  const fromLightDark = {};
+  for (const [name, value] of Object.entries(rawLightRootDecls)) {
+    const ld = splitLightDark(value);
+    if (ld) fromLightDark[name] = ld.dark;
+  }
+  return { ...fromLightDark, ...resolveSide(rawDarkBlockDecls, 'dark') };
+}

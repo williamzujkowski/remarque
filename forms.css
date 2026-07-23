@@ -358,6 +358,54 @@ textarea.remarque-input {
   }
 }
 
+/* ─── `:has()` zero-JS validation enhancement layer (issue #97) ──────────
+ * A second, purely additive progressive-enhancement layer over the
+ * `:user-invalid` layer just above — same native-first shape, one step
+ * further. `:user-invalid` alone can only style the INPUT it matches;
+ * CSS has no "parent selector" without `:has()`, so it has no way to
+ * reach the field's label or wrapper. `:has()` is exactly the piece that
+ * closes that gap: `.remarque-field` can react to a descendant control's
+ * validity/focus state directly, with no `data-state` attribute and no
+ * JavaScript. Guarded with `@supports selector(:has(...))` — the same
+ * "degrades to the no-JS/no-support baseline" shape the `:user-invalid`
+ * block above uses — so a browser missing either pseudo-class in the
+ * compound query falls back cleanly to whatever `data-state`/
+ * `aria-invalid` (and, where supported, the plain `:user-invalid` layer
+ * above) already provide. `data-state` remains the CANONICAL contract;
+ * neither block below replaces authoring `data-state="error"` explicitly
+ * — see REMARQUE.md "State wiring".
+ *
+ * Like the bare `:user-invalid` layer above, this is a bonus visual cue,
+ * not one of the canonical `data-state` states the forced-colors
+ * reinforcement below was scoped to fix (REMARQUE.md "Forced Colors &
+ * Contrast Preferences") — it is not itself a new color-only-affordance
+ * regression, since the real accessible signal (`aria-invalid`, the
+ * `data-state` border/message wiring) is unchanged and unaffected by
+ * whether this bonus layer's color survives forced-colors mode.
+ */
+@supports selector(:has(:user-invalid)) {
+  /* Extends the :user-invalid border recolor (input only, above) up to
+     the field's label — the one thing plain :user-invalid cannot reach
+     on its own. */
+  .remarque-field:has(.remarque-input:user-invalid) .remarque-field-label {
+    color: var(--color-error);
+  }
+}
+
+/* Field-level focus affordance — a quiet secondary cue, NOT a
+   replacement for the control's own native `:focus-visible` outline
+   (tokens-core.css), which already renders on the control itself and is
+   forced-colors-safe by construction. Brightens the label from
+   `--color-muted` to `--color-fg` while any control inside the field has
+   keyboard focus — a restrained color wash, not a new border/background,
+   matching this module's "no component should be visually louder than
+   the content it contains" rule (AGENT_RULES.md Components). */
+@supports selector(:has(:focus-visible)) {
+  .remarque-field:has(.remarque-input:focus-visible) .remarque-field-label {
+    color: var(--color-fg);
+  }
+}
+
 /* ─── Forced-colors reinforcement (issue #93) ────────────────────────────
  * The validation-state wiring above is the textbook color-only-affordance
  * case the issue names explicitly: error/success/warning are distinguished

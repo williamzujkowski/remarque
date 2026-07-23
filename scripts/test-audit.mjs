@@ -88,6 +88,70 @@ const DARK_DECLS = `
   --color-viz-6: oklch(0.697 0.119 194.8);
 `;
 
+/* ── light-dark() fixture builder (issue #95) ────────────────────────
+ * Mechanically re-expresses the LIGHT/DARK_DECLS pair above as
+ * `light-dark(<light>, <dark>)` single declarations under one :root
+ * block, instead of two selectors — same token names, same values, so
+ * any pass/fail outcome comparison against the conventional-form
+ * fixtures above is apples-to-apples. `names` restricts which tokens get
+ * wrapped (the rest are emitted as plain light-only declarations,
+ * unwrapped) — used below to build a MIXED-form fixture where some
+ * tokens use light-dark() and others still use the old two-block
+ * convention in the same file. */
+function parseDecls(css) {
+  const out = {};
+  for (const m of css.matchAll(/--([a-z0-9-]+):\s*([^;]+);/g)) out[m[1]] = m[2].trim();
+  return out;
+}
+const LIGHT_DECLS_MAP = parseDecls(LIGHT);
+const DARK_DECLS_MAP = parseDecls(DARK_DECLS);
+
+function buildLightDarkRoot(names) {
+  // A name with no distinct dark value in DARK_DECLS_MAP (e.g. the test
+  // fixture's --color-bg-subtle/--color-border, which the LIGHT/
+  // DARK_DECLS pair above never redeclares) is emitted as a plain light-
+  // only declaration, exactly like a real palette's pure var() aliases —
+  // no override means the dark theme inherits the light value via the
+  // ordinary cascade, the same fallback darkOverridesOf() already
+  // implements for a token that's declared once.
+  const lines = names.map((name) =>
+    name in DARK_DECLS_MAP
+      ? `  --${name}: light-dark(${LIGHT_DECLS_MAP[name]}, ${DARK_DECLS_MAP[name]});`
+      : `  --${name}: ${LIGHT_DECLS_MAP[name]};`
+  );
+  return `:root {\n  color-scheme: light dark;\n${lines.join('\n')}\n}`;
+}
+
+const ALL_NAMES = Object.keys(LIGHT_DECLS_MAP);
+const LIGHT_DARK_FORM_CSS = buildLightDarkRoot(ALL_NAMES);
+
+// Mixed-form: the first half of the tokens migrated to light-dark(), the
+// second half left in the OLD :root + [data-theme="dark"] two-block
+// convention, both in the SAME file — proves the parser handles a
+// palette mid-migration, not just an all-or-nothing one.
+const MIXED_LIGHT_NAMES = ALL_NAMES.slice(0, Math.ceil(ALL_NAMES.length / 2));
+const MIXED_CONVENTIONAL_NAMES = ALL_NAMES.slice(Math.ceil(ALL_NAMES.length / 2));
+const MIXED_CONVENTIONAL_WITH_DARK = MIXED_CONVENTIONAL_NAMES.filter((n) => n in DARK_DECLS_MAP);
+const MIXED_FORM_CSS =
+  buildLightDarkRoot(MIXED_LIGHT_NAMES) +
+  `\n:root {\n${MIXED_CONVENTIONAL_NAMES.map((n) => `  --${n}: ${LIGHT_DECLS_MAP[n]};`).join('\n')}\n}` +
+  `\n[data-theme="dark"] {\n${MIXED_CONVENTIONAL_WITH_DARK.map((n) => `  --${n}: ${DARK_DECLS_MAP[n]};`).join('\n')}\n}`;
+
+// Must-fail via light-dark(): --color-fg-muted's DARK side (only) is
+// perturbed to a value that cannot hold the 7:1 AAA line against
+// --color-bg in the dark theme — proves the dark side of a light-dark()
+// declaration is actually extracted into darkDecls and enforced, not
+// silently accepted or ignored.
+const LIGHT_DARK_FAILS_NAMES = ALL_NAMES.filter((n) => n !== 'color-fg-muted');
+const LIGHT_DARK_FAILS_CSS =
+  buildLightDarkRoot(LIGHT_DARK_FAILS_NAMES) +
+  // Dark bg is oklch(0.16 ...) — the real dark --color-fg-muted (0.70)
+  // holds 7.26:1; moving it much closer to bg's own lightness (0.30,
+  // still lighter than bg but nowhere near enough) drops well under the
+  // 7:1 AAA line, the dark-theme mirror of how light-fails.css fails
+  // the light theme.
+  `\n:root {\n  --color-fg-muted: light-dark(${LIGHT_DECLS_MAP['color-fg-muted']}, oklch(0.30 0.01 80));\n}`;
+
 const cases = [
   ['attr-convention.css', `${LIGHT}\n[data-theme="dark"] {${DARK_DECLS}}`, true],
   ['class-convention.css', `${LIGHT}\n:root.dark {${DARK_DECLS}}`, true],
@@ -149,6 +213,22 @@ const cases = [
     `${LIGHT}\n[data-theme="dark"] {${DARK_DECLS}}\n@media (prefers-color-scheme: dark) and (prefers-contrast: more) { :root { --color-fg-muted: oklch(0.99 0.01 80); } }`,
     true,
   ],
+  // light-dark() form (issue #95) — every token from the same
+  // LIGHT/DARK_DECLS pair every conventional-form fixture above uses,
+  // re-expressed as light-dark(<light>, <dark>) single declarations.
+  // Same values, so this must pass exactly like attr-convention.css.
+  ['light-dark-form.css', LIGHT_DARK_FORM_CSS, true],
+  // Mixed-form (issue #95) — half the tokens migrated to light-dark(),
+  // half still in the old :root + [data-theme="dark"] two-block
+  // convention, in the SAME file. Proves a palette mid-migration parses
+  // correctly, not just an all-light-dark or all-conventional file.
+  ['mixed-form.css', MIXED_FORM_CSS, true],
+  // Must-fail via light-dark() (issue #95) — --color-fg-muted's DARK
+  // side (only) is perturbed to a value that cannot hold 7:1 AAA against
+  // --color-bg in the dark theme. Proves the parser actually extracts
+  // and enforces the dark side of a light-dark() declaration, not just
+  // the light side or nothing at all.
+  ['light-dark-fails.css', LIGHT_DARK_FAILS_CSS, false],
 ];
 
 let bad = 0;

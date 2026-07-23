@@ -36,7 +36,7 @@
 
 import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
-import { extractBlocks, declsOf, isLightRoot, isDarkBlock } from './lib/css-tokens.mjs';
+import { extractBlocks, declsOf, isLightRoot, isDarkBlock, resolveSide, darkOverridesOf } from './lib/css-tokens.mjs';
 
 const args = process.argv.slice(2);
 function argOf(flag, dflt) {
@@ -115,8 +115,13 @@ function isDocumented(tokenName) {
 /* ── Parse the consumer stylesheet ─────────────────────────────────── */
 
 const blocks = extractBlocks(readFileSync(CSS_FILE, 'utf8'));
-const lightDecls = declsOf(blocks, isLightRoot);
-const darkOverrides = declsOf(blocks, isDarkBlock);
+// resolveSide/darkOverridesOf (issue #95) — a consumer stylesheet may
+// declare an override token via light-dark() as well as (or instead of)
+// the conventional two-block form; both must classify identically.
+const rawLightRoot = declsOf(blocks, isLightRoot);
+const rawDarkBlock = declsOf(blocks, isDarkBlock);
+const lightDecls = resolveSide(rawLightRoot, 'light');
+const darkOverrides = darkOverridesOf(rawLightRoot, rawDarkBlock);
 
 const norm = (v) => String(v).trim().replace(/\s+/g, ' ');
 

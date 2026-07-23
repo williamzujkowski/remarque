@@ -188,7 +188,7 @@ Three further archetypes — Reference/Docs, Changelog, Gallery — are specifie
 
 2. **Prose alignment:** The essay header and prose body must BOTH use centered max-width (`max-w-reading mx-auto`) to prevent misalignment. The `.content-reading` class auto-centers; match headers with `mx-auto`.
 
-3. **Dark mode specificity:** Define `[data-theme="light"]` and `[data-theme="dark"]` overrides in addition to the `:root` defaults. Without an explicit light override, users with `prefers-color-scheme: dark` cannot toggle to light mode.
+3. **Dark mode specificity:** Define `[data-theme="light"]` and `[data-theme="dark"]` overrides in addition to the `:root` defaults. Without an explicit light override, users with `prefers-color-scheme: dark` cannot toggle to light mode. Since 0.24.0 (`light-dark()` + `color-scheme`, REMARQUE.md "Color Scheme & light-dark()"), the shipped default palette's own `[data-theme="light"]` override is just `color-scheme: light` — a consumer palette that still authors the older two-declaration convention needs the fuller override this rule originally describes.
 
 4. **Self-hosted fonts:** Replace the Google Fonts CDN link with self-hosted woff2 files + `@font-face` declarations. Use `font-display: swap` and `<link rel="preload">` for performance.
 

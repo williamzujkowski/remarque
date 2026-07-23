@@ -25,6 +25,18 @@
  *     then validate — lightness carries the contrast, hue carries the
  *     personality. Not every hue passes at every lightness (yellows/
  *     cyans behave differently than blues); the audit is the gate.
+ *
+ * AUTHORING FORM (issue #95): every --color-* token below is a single
+ * `light-dark(<light>, <dark>)` declaration, not two separate light/dark
+ * declarations — see "Color: light-dark() palette" below and
+ * REMARQUE.md "Color Scheme & light-dark()" for the full mechanism,
+ * the browser-support floor this raises, and why --weight-display (a
+ * font-weight, not a color) is the one token that keeps the older
+ * @media/[data-theme] mechanism. A palette override may still use the
+ * OLD two-declaration convention instead — scripts/audit.mjs and every
+ * other parser consumer accept both forms, including mixed within the
+ * same file, so this is a purely additive authoring option, not a
+ * requirement.
  */
 
 /* ─── Font Slots ────────────────────────────────────────── */
@@ -41,232 +53,194 @@
   /* Display weight — palette-tier because it is theme-conditional:
      light-on-dark text renders optically thinner (halation), so dark
      mode bumps display faces one step to keep serif hairlines alive.
-     (issue #59) */
+     (issue #59) NOT expressed as light-dark() below with the rest of
+     the palette — light-dark() is a <color> function and this is a
+     font-weight; see "Theme selection mechanism" for where its dark
+     value actually lives. */
   --weight-display: 400;
 }
 
-/* ─── Color: Light theme (default) ──────────────────────── */
+/* ─── Color: light-dark() palette (issue #95) ──────────── */
 /*
- * Colors use OKLCH for perceptual uniformity.
+ * Colors use OKLCH for perceptual uniformity, expressed as single
+ * `light-dark(<light>, <dark>)` declarations under `color-scheme: light
+ * dark` — the platform mechanism this file previously named as "the
+ * endgame to watch." Baseline-stable (Chrome 123+, Firefox 120+, Safari
+ * 17.5+) — see REMARQUE.md "Color Scheme & light-dark()" for the full
+ * migration rationale and the browser-floor bump this raises for the
+ * package (stated prominently there and in CHANGELOG.md, per
+ * "Governance & Deprecation").
+ *
+ * How theme selection works now:
+ *   - System preference (no explicit choice) — `color-scheme: light
+ *     dark` on :root lets the UA resolve every light-dark() call
+ *     directly from `prefers-color-scheme`. No `@media
+ *     (prefers-color-scheme: dark)` block is needed for colors anymore
+ *     — that block, and its full duplicated color list, is RETIRED.
+ *   - Explicit user choice — `[data-theme="light"]`/`[data-theme=
+ *     "dark"]` (see "Theme selection mechanism" below) override
+ *     `color-scheme` itself, once, rather than re-listing every token's
+ *     dark value a second time under the attribute selector. Same for
+ *     the `:root.dark` compatibility bridge.
+ *
  * The palette is deliberately narrow: warm neutrals + one accent.
  *
  * Accent rule: used for inline links and ONE interactive element per
  * viewport. No accent backgrounds, no accent borders, no accent fills.
  *
- * Contrast ratios in comments are computed WCAG 2.x values
- * (OKLCH → linear sRGB → relative luminance); the audit script
- * (scripts/audit.mjs) recomputes and enforces them in CI.
+ * Contrast ratios in comments are computed WCAG 2.x values (OKLCH →
+ * linear sRGB → relative luminance) for EACH side of a light-dark()
+ * pair — light ratio first, dark ratio second — recomputed and enforced
+ * in CI by scripts/audit.mjs, which extracts both values from one
+ * declaration (scripts/lib/css-tokens.mjs, `splitLightDark`).
+ *
+ * A slot that is a pure `var()` alias to an already theme-aware slot
+ * (`--color-link`, `--color-focus-ring`, `--color-syntax-link`,
+ * `--color-disabled`, …) is declared ONCE, not wrapped in light-dark() —
+ * the var() indirection already re-resolves per theme through the slot
+ * it points at, so wrapping it would be inert token clutter.
  */
 
 :root {
-  --color-bg:          oklch(0.975 0.005 80);    /* warm off-white, not pure white */
-  --color-bg-subtle:   oklch(0.955 0.005 80);    /* slightly darker for alternating sections */
-  --color-fg:          oklch(0.18 0.01 80);       /* near-black, warm undertone */
-  --color-fg-muted:    oklch(0.43 0.015 80);      /* secondary text — 7.55:1 bg / 7.33:1 surface (AAA) */
-  --color-muted:       oklch(0.54 0.01 80);       /* tertiary text — 4.71:1 bg / 4.57:1 surface (AA) */
-  --color-border:      oklch(0.88 0.005 80);      /* quiet borders — DECORATIVE ONLY (1.34:1, below WCAG 1.4.11's 3:1); functional boundaries use --color-border-bold */
-  --color-border-bold: oklch(0.62 0.01 80);       /* functional/emphasized borders — 3.39:1 (meets WCAG 1.4.11) */
-  --color-surface:     oklch(0.965 0.005 80);     /* card/surface backgrounds */
+  color-scheme: light dark;
 
-  --color-accent:      oklch(0.50 0.14 250);      /* muted blue — links and one interactive element */
-  --color-accent-hover: oklch(0.42 0.11 250);     /* darker on hover — 7.87:1, in-gamut (0.14 chroma clipped) */
-  --color-accent-subtle: oklch(0.95 0.02 250);    /* very faint accent background — in-gamut (0.03 chroma clipped) */
+  --color-bg:          light-dark(oklch(0.975 0.005 80), oklch(0.16 0.01 80));   /* warm off-white / warm charcoal, never pure white or black */
+  --color-bg-subtle:   light-dark(oklch(0.955 0.005 80), oklch(0.19 0.01 80));   /* slightly darker (light) / lighter (dark) for alternating sections */
+  --color-fg:          light-dark(oklch(0.18 0.01 80), oklch(0.90 0.005 80));    /* near-black warm undertone / soft white, not pure */
+  --color-fg-muted:    light-dark(oklch(0.43 0.015 80), oklch(0.70 0.01 80));    /* secondary text — 7.55:1 bg / 7.33:1 surface light (AAA); 7.26:1 bg dark (AAA) */
+  --color-muted:       light-dark(oklch(0.54 0.01 80), oklch(0.60 0.01 80));     /* tertiary text — 4.71:1 bg / 4.57:1 surface light (AA); 4.92:1 bg / 4.68:1 surface dark (AA, with margin) */
+  --color-border:      light-dark(oklch(0.88 0.005 80), oklch(0.25 0.005 80));   /* quiet borders — DECORATIVE ONLY (below WCAG 1.4.11's 3:1 in both themes); functional boundaries use --color-border-bold */
+  --color-border-bold: light-dark(oklch(0.62 0.01 80), oklch(0.50 0.01 80));     /* functional/emphasized borders — 3.39:1 light / 3.23:1 dark (meets WCAG 1.4.11) */
+  --color-surface:     light-dark(oklch(0.965 0.005 80), oklch(0.19 0.01 80));   /* card/surface backgrounds */
 
-  /* Semantic mappings */
+  --color-accent:       light-dark(oklch(0.50 0.14 250), oklch(0.68 0.12 250));  /* muted blue light / brighter in dark for contrast — links and one interactive element */
+  --color-accent-hover: light-dark(oklch(0.42 0.11 250), oklch(0.75 0.12 250));  /* darker (light) / lighter (dark) on hover — 7.87:1 light, in-gamut both (chroma clipped) */
+  --color-accent-subtle: light-dark(oklch(0.95 0.02 250), oklch(0.22 0.04 250)); /* very faint accent background — in-gamut both (chroma clipped) */
+
+  /* Semantic mappings — pure var() aliases, declared once (see the
+     header note above: the aliased slot is already theme-aware). */
   --color-link:        var(--color-accent);
   --color-link-hover:  var(--color-accent-hover);
   --color-focus-ring:  var(--color-accent);
-  --color-selection-bg: oklch(0.92 0.04 250);
-  --color-selection-fg: var(--color-fg);
-  --color-code-bg:     oklch(0.945 0.005 80);     /* inline code background */
-  --color-code-fg:     var(--color-fg);
+  --color-selection-bg: light-dark(oklch(0.92 0.04 250), oklch(0.30 0.06 250));
+  --color-selection-fg: light-dark(var(--color-fg), oklch(0.92 0.005 80));
+  --color-code-bg:     light-dark(oklch(0.945 0.005 80), oklch(0.20 0.005 80));  /* inline code background */
+  --color-code-fg:     light-dark(var(--color-fg), oklch(0.88 0.005 80));
 
   /* Syntax highlighting (issue #53) — quiet, low-chroma slots derived
-     from remarque-light's ANSI colors (scripts/theme.mjs), serialized
-     as round numbers (golden-gated: scripts/palette-golden.mjs). Every
-     slot ≥ 4.5:1 on --color-code-bg. Mapping recipe (Shiki css-variables
-     + Prism) is documented in REMARQUE.md's "Syntax Highlighting"
-     section. */
-  --color-syntax-keyword:     oklch(0.51 0.12 250);   /* ANSI blue — 4.88:1 on code-bg */
-  --color-syntax-string:      oklch(0.50 0.12 145);   /* ANSI green — 4.85:1 */
-  --color-syntax-constant:    oklch(0.51 0.105 85);   /* ANSI yellow (numbers/booleans convention) — 4.94:1 */
-  --color-syntax-comment:     oklch(0.52 0.01 80);    /* solved muted neutral (fg hue) — brightBlack is too pale on code-bg here — 4.69:1 */
-  --color-syntax-function:    oklch(0.52 0.12 310);   /* ANSI purple — 4.96:1 */
-  --color-syntax-type:        oklch(0.50 0.085 196);  /* ANSI cyan — 4.90:1 */
-  --color-syntax-punctuation: oklch(0.52 0.01 80);    /* derived neutral, muted family — 4.69:1 */
-  --color-syntax-variable:    oklch(0.26 0.01 80);    /* fg-adjacent (slight L offset) — 13.23:1 */
-  --color-syntax-link:        var(--color-accent);    /* accent already clears code-bg — 4.5:1+ */
+     from remarque-light/remarque-dark's ANSI colors (scripts/theme.mjs),
+     serialized as round numbers (golden-gated: scripts/palette-golden.mjs).
+     Every slot ≥ 4.5:1 on --color-code-bg, both themes. Mapping recipe
+     (Shiki css-variables + Prism) is documented in REMARQUE.md's "Syntax
+     Highlighting" section. */
+  --color-syntax-keyword:     light-dark(oklch(0.51 0.12 250), oklch(0.61 0.11 250));   /* ANSI blue — 4.88:1 light / 4.80:1 dark on code-bg */
+  --color-syntax-string:      light-dark(oklch(0.50 0.12 145), oklch(0.60 0.11 145));   /* ANSI green — 4.85:1 / 4.80:1 */
+  --color-syntax-constant:    light-dark(oklch(0.51 0.105 85), oklch(0.61 0.11 84));    /* ANSI yellow (numbers/booleans convention) — 4.94:1 / 4.73:1 */
+  --color-syntax-comment:     light-dark(oklch(0.52 0.01 80), oklch(0.60 0.005 80));    /* solved muted neutral (light) / ANSI brightBlack (dark) — 4.69:1 / 4.59:1 */
+  --color-syntax-function:    light-dark(oklch(0.52 0.12 310), oklch(0.62 0.11 310));   /* ANSI purple — 4.96:1 / 4.75:1 */
+  --color-syntax-type:        light-dark(oklch(0.50 0.085 196), oklch(0.60 0.10 195));  /* ANSI cyan — 4.90:1 / 4.81:1 */
+  --color-syntax-punctuation: light-dark(oklch(0.52 0.01 80), oklch(0.60 0.005 80));    /* derived neutral, muted family — 4.69:1 / 4.59:1 */
+  --color-syntax-variable:    light-dark(oklch(0.26 0.01 80), oklch(0.82 0.005 80));    /* fg-adjacent (slight L offset) — 13.23:1 / 10.37:1 */
+  --color-syntax-link:        var(--color-accent);    /* accent already clears code-bg in both themes — alias, declared once */
 
   /* Semantic state colors (issue #26) — feedback moments (error/success/
      warning banners, disabled controls), NOT decoration; the one-accent
      rule still governs expressive color. Hand-authored from the house
      ANSI hue conventions (scripts/theme.mjs derives error/success/warning
-     from a theme's red/green/yellow ANSI slots): error hue 25, success
-     hue 145, warning hue 85 — restrained chroma, keep-if-passing lightness
-     checked against the STRICTER of --color-bg/--color-surface (surface
-     is stricter in both themes here, same as --color-muted). Warning at
-     hue 85 is the hard case in light mode (low luminance-contrast yellow)
-     — solved dark, same register as --color-syntax-constant. Disabled is
-     neutral-derived (muted family), NOT ANSI — aliased to --color-muted.
-     -subtle companions (error/success/warning only, no disabled-subtle)
-     are derived like --color-accent-subtle: near-bg lightness, state hue,
-     low chroma — verified so --color-fg stays ≥4.5:1 on them, the pairing
-     that matters for callout/banner backgrounds. */
-  --color-error:          oklch(0.52 0.12  25);   /* ANSI red    — 5.44:1 bg / 5.28:1 surface */
-  --color-error-subtle:   oklch(0.95 0.02  25);   /* faint red banner background */
-  --color-success:        oklch(0.51 0.12  145);  /* ANSI green  — 5.08:1 bg / 4.93:1 surface */
-  --color-success-subtle: oklch(0.95 0.02  145);  /* faint green banner background */
-  --color-warning:        oklch(0.52 0.105 85);   /* ANSI yellow — 5.17:1 bg / 5.02:1 surface */
-  --color-warning-subtle: oklch(0.95 0.02  85);   /* faint yellow banner background */
-  --color-disabled:       var(--color-muted);     /* muted family, not ANSI-derived */
+     from a theme's red/green/yellow ANSI slots): error hue 25/26,
+     success hue 145, warning hue 85 — restrained chroma, keep-if-passing
+     lightness checked against the STRICTER of --color-bg/--color-surface
+     (surface is stricter in both themes here, same as --color-muted).
+     Disabled is neutral-derived (muted family), NOT ANSI — aliased to
+     --color-muted, declared once. -subtle companions (error/success/
+     warning only, no disabled-subtle) are derived like
+     --color-accent-subtle: near-bg lightness, state hue, low chroma —
+     verified so --color-fg stays ≥4.5:1 on them, the pairing that
+     matters for callout/banner backgrounds. */
+  --color-error:          light-dark(oklch(0.52 0.12  25), oklch(0.62 0.11 26));    /* ANSI red — 5.44:1 bg / 5.28:1 surface light; 5.07:1 bg / 4.82:1 surface dark */
+  --color-error-subtle:   light-dark(oklch(0.95 0.02  25), oklch(0.22 0.04 25));    /* faint red banner background */
+  --color-success:        light-dark(oklch(0.51 0.12  145), oklch(0.61 0.11 145)); /* ANSI green — 5.08:1 bg / 4.93:1 surface light; 5.36:1 bg / 5.10:1 surface dark */
+  --color-success-subtle: light-dark(oklch(0.95 0.02  145), oklch(0.22 0.04 145)); /* faint green banner background */
+  --color-warning:        light-dark(oklch(0.52 0.105 85), oklch(0.62 0.11 85)); /* ANSI yellow — 5.17:1 bg / 5.02:1 surface light; 5.29:1 bg / 5.03:1 surface dark */
+  --color-warning-subtle: light-dark(oklch(0.95 0.02  85), oklch(0.22 0.04 85));  /* faint yellow banner background */
+  --color-disabled:       var(--color-muted);     /* muted family, not ANSI-derived — alias, declared once */
 
   /* Dataviz categorical ramp (issue #94) — hand-authored from
-     remarque-light's dataviz.categorical block (scripts/theme.mjs),
-     serialized as round numbers (golden-gated: scripts/palette-golden.mjs).
-     6 slots, not 8 — the dataset's own floor (516/633 corpus themes ship
-     exactly 6; shipping 8 would leave 2 unfillable on most themes). Every
-     slot ≥ 3:1 on --color-bg — Carbon's mark-on-background line, NOT
-     text's 4.5:1 (these are chart marks read at a glance, never prose).
-     Order is the dataset's own — NOT reconciled hue-for-hue against the
-     dark block below (dark mode is independently tuned, same stance as
-     every other slot; see REMARQUE.md "Dataviz Tokens"). Pair with a
-     non-color redundancy (shape, pattern, or a direct label) — never
-     color alone, per the same Carbon precedent. */
-  --color-viz-1: oklch(0.538 0.121 250.5);  /* 4.74:1 on bg */
-  --color-viz-2: oklch(0.541 0.111 85.5);   /* 4.73:1 on bg */
-  --color-viz-3: oklch(0.524 0.12  24.6);   /* 5.35:1 on bg */
-  --color-viz-4: oklch(0.499 0.12  144.8);  /* 5.32:1 on bg */
-  --color-viz-5: oklch(0.524 0.121 309.6);  /* 5.33:1 on bg */
-  --color-viz-6: oklch(0.528 0.09  195.8);  /* 4.74:1 on bg */
+     remarque-light's/remarque-dark's dataviz.categorical block
+     (scripts/theme.mjs), serialized as round numbers (golden-gated:
+     scripts/palette-golden.mjs). 6 slots, not 8 — the dataset's own
+     floor (516/633 corpus themes ship exactly 6; shipping 8 would leave
+     2 unfillable on most themes). Every slot ≥ 3:1 on --color-bg —
+     Carbon's mark-on-background line, NOT text's 4.5:1 (these are chart
+     marks read at a glance, never prose). Order is the dataset's own —
+     NOT reconciled hue-for-hue between the light and dark side of a
+     given slot (dark mode is independently tuned, same stance as every
+     other slot; see REMARQUE.md "Dataviz Tokens") — --color-viz-3's
+     light value (hue ≈25, red) and dark value (hue ≈310, purple) are
+     deliberately different hues, for example; do not "fix" this into
+     matching hues. Pair with a non-color redundancy (shape, pattern, or
+     a direct label) — never color alone, per the same Carbon precedent. */
+  --color-viz-1: light-dark(oklch(0.538 0.121 250.5), oklch(0.708 0.129 249.5));  /* 4.74:1 light / 7.53:1 dark on bg */
+  --color-viz-2: light-dark(oklch(0.541 0.111 85.5), oklch(0.712 0.13  85.3));     /* 4.73:1 / 7.54:1 */
+  --color-viz-3: light-dark(oklch(0.524 0.12  24.6), oklch(0.724 0.129 310.2));    /* 5.35:1 / 7.55:1 */
+  --color-viz-4: light-dark(oklch(0.499 0.12  144.8), oklch(0.725 0.129 25.4));    /* 5.32:1 / 7.55:1 */
+  --color-viz-5: light-dark(oklch(0.524 0.121 309.6), oklch(0.696 0.129 144.9));  /* 5.33:1 / 7.53:1 */
+  --color-viz-6: light-dark(oklch(0.528 0.09  195.8), oklch(0.697 0.119 194.8));   /* 4.74:1 / 7.57:1 */
 }
 
-/* ─── Color: Dark theme ─────────────────────────────────── */
+/* ─── Theme selection mechanism ──────────────────────────── */
 /*
- * Dark mode is NOT an inverted light mode.
- * It is independently tuned for readability on dark backgrounds.
- * Key differences:
- *   - Background is warm dark gray, never pure black
- *   - Text is softened to reduce glare (not pure white)
- *   - Accent is brighter to maintain contrast
- *   - Borders are subtler
+ * Three rules, replacing the pre-0.24.0 shape (a full @media
+ * (prefers-color-scheme: dark) color block + a full [data-theme="dark"],
+ * :root.dark color block, each re-listing every --color-* value) — under
+ * light-dark(), a theme choice is a `color-scheme` override, not a
+ * second copy of the palette:
+ *
+ *   1. System-preference default needs NO rule here at all for colors —
+ *      the :root block above already declared `color-scheme: light
+ *      dark`, which is sufficient for every light-dark() call to track
+ *      `prefers-color-scheme` on its own.
+ *   2. --weight-display is NOT a color, so it cannot be part of a
+ *      light-dark() call (the CSS spec restricts light-dark() to
+ *      color-valued contexts) — it keeps the pre-migration mechanism
+ *      below, now carrying only this one token instead of the whole
+ *      palette.
+ *   3. Explicit choice ([data-theme]) and the :root.dark compatibility
+ *      bridge (ratified sunset: 1.0 — see "Governance & Deprecation")
+ *      override `color-scheme` itself once, which is what makes every
+ *      light-dark() declaration above re-resolve for that subtree.
+ *
+ * Specificity note (carried over from the pre-migration file): `[data-
+ * theme="dark"]` is (0,1,0) but `:root.dark` is (0,2,0) — a site
+ * override of `--weight-display` at lower specificity than (0,2,0) can
+ * still lose to the bridge selector. This asymmetry now affects exactly
+ * one non-alias token instead of the whole palette.
  */
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg:          oklch(0.16 0.01 80);     /* warm charcoal, not black */
-    --color-bg-subtle:   oklch(0.19 0.01 80);
-    --color-fg:          oklch(0.90 0.005 80);    /* soft white, not pure */
-    --weight-display: 500;                        /* compensate thin serif hairlines on dark */
-    --color-fg-muted:    oklch(0.70 0.01 80);    /* 7.26:1 bg (AAA) */
-    --color-muted:       oklch(0.60 0.01 80);    /* 4.92:1 bg / 4.68:1 surface (AA with margin) */
-    --color-border:      oklch(0.25 0.005 80);   /* decorative only — see light-theme note */
-    --color-border-bold: oklch(0.50 0.01 80);    /* functional borders — 3.23:1 (meets WCAG 1.4.11) */
-    --color-surface:     oklch(0.19 0.01 80);
-
-    --color-accent:      oklch(0.68 0.12 250);    /* brighter in dark mode for contrast */
-    --color-accent-hover: oklch(0.75 0.12 250);
-    --color-accent-subtle: oklch(0.22 0.04 250);
-
-    --color-selection-bg: oklch(0.30 0.06 250);
-    --color-selection-fg: oklch(0.92 0.005 80);
-    --color-code-bg:     oklch(0.20 0.005 80);
-    --color-code-fg:     oklch(0.88 0.005 80);
-
-    /* Syntax highlighting (issue #53) — derived from remarque-dark's
-       ANSI colors; see the light block above for the full rationale. */
-    --color-syntax-keyword:     oklch(0.61 0.11 250);   /* ANSI blue — 4.80:1 on code-bg */
-    --color-syntax-string:      oklch(0.60 0.11 145);   /* ANSI green — 4.80:1 */
-    --color-syntax-constant:    oklch(0.61 0.11 84);    /* ANSI yellow — 4.73:1 */
-    --color-syntax-comment:     oklch(0.60 0.005 80);   /* ANSI brightBlack — 4.59:1 */
-    --color-syntax-function:    oklch(0.62 0.11 310);   /* ANSI purple — 4.75:1 */
-    --color-syntax-type:        oklch(0.60 0.10 195);   /* ANSI cyan — 4.81:1 */
-    --color-syntax-punctuation: oklch(0.60 0.005 80);   /* derived neutral, muted family — 4.59:1 */
-    --color-syntax-variable:    oklch(0.82 0.005 80);   /* fg-adjacent (slight L offset) — 10.37:1 */
-    --color-syntax-link:        var(--color-accent);    /* accent already clears code-bg */
-
-    /* Semantic state colors (issue #26) — see the light-theme block above
-       for the full rationale. Same hues (red 25 / green 145 / yellow 85),
-       lightened for a dark background; keep-if-passing checked against
-       the stricter of bg/surface (surface, here too). */
-    --color-error:          oklch(0.62 0.11 26);    /* 5.07:1 bg / 4.82:1 surface */
-    --color-error-subtle:   oklch(0.22 0.04 25);
-    --color-success:        oklch(0.61 0.11 145);   /* 5.36:1 bg / 5.10:1 surface */
-    --color-success-subtle: oklch(0.22 0.04 145);
-    --color-warning:        oklch(0.62 0.11 85);    /* 5.29:1 bg / 5.03:1 surface */
-    --color-warning-subtle: oklch(0.22 0.04 85);
-    --color-disabled:       var(--color-muted);
-
-    /* Dataviz categorical ramp (issue #94) — derived from remarque-dark's
-       dataviz.categorical block; see the light block above for the full
-       rationale. Every slot ≥ 3:1 on --color-bg. */
-    --color-viz-1: oklch(0.708 0.129 249.5);  /* 7.53:1 on bg */
-    --color-viz-2: oklch(0.712 0.13  85.3);   /* 7.54:1 on bg */
-    --color-viz-3: oklch(0.724 0.129 310.2);  /* 7.55:1 on bg */
-    --color-viz-4: oklch(0.725 0.129 25.4);   /* 7.55:1 on bg */
-    --color-viz-5: oklch(0.696 0.129 144.9);  /* 7.53:1 on bg */
-    --color-viz-6: oklch(0.697 0.119 194.8);  /* 7.57:1 on bg */
+    --weight-display: 500;
   }
 }
 
-/* Manual dark mode toggle support.
-   CANONICAL convention: [data-theme="dark"] — use it for new sites.
-   :root.dark is a compatibility bridge for class-keyed consumers
-   (sunset target: 1.0). NOTE the specificity asymmetry: [data-theme]
-   is (0,1,0) but :root.dark is (0,2,0) — site overrides that beat one
-   can lose to the other; always override with at least (0,2,0) or use
-   cascade order. Platform endgame worth tracking: color-scheme +
-   light-dark(), which obsoletes both selectors. */
 [data-theme="dark"],
 :root.dark {
+  color-scheme: dark;
   --weight-display: 500;
-  --color-bg:          oklch(0.16 0.01 80);
-  --color-bg-subtle:   oklch(0.19 0.01 80);
-  --color-fg:          oklch(0.90 0.005 80);
-  --color-fg-muted:    oklch(0.70 0.01 80);
-  --color-muted:       oklch(0.60 0.01 80);
-  --color-border:      oklch(0.25 0.005 80);
-  --color-border-bold: oklch(0.50 0.01 80);
-  --color-surface:     oklch(0.19 0.01 80);
+  /* Pre-migration, these two aliases were (redundantly) re-declared in
+     the dark block even though their value never changes — everywhere
+     else an unchanging alias was simply declared once (--color-link,
+     --color-link-hover, --color-focus-ring). Kept here, still redundant,
+     so tokens.json's palette entries for these two continue reporting
+     an explicit dark side rather than `inheritedFromLight` — a
+     tokens.json content change unrelated to the light-dark() migration
+     itself is out of scope for this release. */
+  --color-syntax-link: var(--color-accent);
+  --color-disabled: var(--color-muted);
+}
 
-  --color-accent:      oklch(0.68 0.12 250);
-  --color-accent-hover: oklch(0.75 0.12 250);
-  --color-accent-subtle: oklch(0.22 0.04 250);
-
-  --color-selection-bg: oklch(0.30 0.06 250);
-  --color-selection-fg: oklch(0.92 0.005 80);
-  --color-code-bg:     oklch(0.20 0.005 80);
-  --color-code-fg:     oklch(0.88 0.005 80);
-
-  /* Syntax highlighting (issue #53) — derived from remarque-dark's
-     ANSI colors; see the light block above for the full rationale. */
-  --color-syntax-keyword:     oklch(0.61 0.11 250);
-  --color-syntax-string:      oklch(0.60 0.11 145);
-  --color-syntax-constant:    oklch(0.61 0.11 84);
-  --color-syntax-comment:     oklch(0.60 0.005 80);
-  --color-syntax-function:    oklch(0.62 0.11 310);
-  --color-syntax-type:        oklch(0.60 0.10 195);
-  --color-syntax-punctuation: oklch(0.60 0.005 80);
-  --color-syntax-variable:    oklch(0.82 0.005 80);
-  --color-syntax-link:        var(--color-accent);
-
-  /* Semantic state colors (issue #26) — see the light-theme :root block
-     for the full rationale. */
-  --color-error:          oklch(0.62 0.11 26);
-  --color-error-subtle:   oklch(0.22 0.04 25);
-  --color-success:        oklch(0.61 0.11 145);
-  --color-success-subtle: oklch(0.22 0.04 145);
-  --color-warning:        oklch(0.62 0.11 85);
-  --color-warning-subtle: oklch(0.22 0.04 85);
-  --color-disabled:       var(--color-muted);
-
-  /* Dataviz categorical ramp (issue #94) — see the light :root block
-     above for the full rationale. */
-  --color-viz-1: oklch(0.708 0.129 249.5);
-  --color-viz-2: oklch(0.712 0.13  85.3);
-  --color-viz-3: oklch(0.724 0.129 310.2);
-  --color-viz-4: oklch(0.725 0.129 25.4);
-  --color-viz-5: oklch(0.696 0.129 144.9);
-  --color-viz-6: oklch(0.697 0.119 194.8);
+[data-theme="light"] {
+  color-scheme: light;
 }
 
 /* ─── prefers-contrast: more ────────────────────────────────
@@ -280,57 +254,44 @@
  * (the AAA 7:1 secondary-text floor) — one step further toward
  * `--color-fg`, not a second palette. `--color-border` stays untouched:
  * it is decorative BY DESIGN (documented sub-3:1), and `prefers-
- * contrast` users who want its 1.34:1 hairlines to read as structure
- * are exactly the `forced-colors: active` audience already covered
- * above — conflating the two would blur why each exists.
+ * contrast` users who want its hairlines to read as structure are
+ * exactly the `forced-colors: active` audience already covered above —
+ * conflating the two would blur why each exists.
+ *
+ * ONE block, not three (issue #95 simplification): pre-migration this
+ * needed a plain `:root` override, a `[data-theme="dark"], :root.dark`
+ * override, AND a compound `@media (prefers-contrast: more) and
+ * (prefers-color-scheme: dark)` override to cover system-default,
+ * explicit-dark, and system-dark-without-an-explicit-choice respectively
+ * — three copies of two tokens. Under light-dark(), a single un-scoped
+ * `light-dark(<light>, <dark>)` override per token replaces its WHOLE
+ * value at once and re-resolves per element from whatever `color-scheme`
+ * that element already has (system, explicit, or bridge) — exactly the
+ * same mechanism the base palette above relies on. There is no dark-
+ * specific selector left to write.
  *
  * ARCHITECTURAL HOME: tokens-palette.css, not tokens-core.css. These are
- * `--color-*` values — palette tier by the Token Tiers contract, the
- * same tier that already carries the `@media (prefers-color-scheme:
- * dark)` override immediately above using the identical mechanism (a
- * media-gated `:root` block cascading over the unconditional light
- * values). A `prefers-contrast` override belongs wherever its sibling
- * `prefers-color-scheme` override already lives, not in core, which
- * would first require inventing a NEW non-color-tier concept for a
- * color-tier problem.
+ * `--color-*` values, palette tier by the Token Tiers contract, the same
+ * tier that already carries the base light-dark() color-scheme regime
+ * immediately above.
  *
- * AUDIT-PARSER COMPATIBILITY (scripts/lib/css-tokens.mjs): a plain
- * `@media (prefers-contrast: more)` block does not match `isLightRoot`
- * (which requires `context === ''`, i.e. no enclosing at-rule at all)
- * or `isDarkBlock` (which requires the context to mention
- * `prefers-color-scheme`) — so `scripts/audit.mjs` and `scripts/
- * tokens-json.mjs` both silently SKIP these declarations rather than
- * misclassifying them as light or dark base values. That is the
- * correct behavior (verified 2026-07 against the current parser): this
- * block only ever WIDENS an already-passing contrast margin, so it has
- * nothing to gate on — the light/dark values above remain the ones CI
- * enforces, and a `prefers-contrast: more` visitor only ever sees a
- * result that is contrast-equal-or-better. Values below are still
- * hand-verified in-gamut and re-computed against the same OKLCH → sRGB
- * → WCAG luminance math `scripts/audit.mjs` uses (see the ratios in
- * each comment) — just not by the automated gate, since there is
- * nothing to gate on the fact that this is a strictly-improving branch.
+ * AUDIT-PARSER COMPATIBILITY (scripts/lib/css-tokens.mjs): `isLightRoot`
+ * requires `context === ''` (no enclosing at-rule at all) — a `@media
+ * (prefers-contrast: more)` block's context is that at-rule itself, so
+ * it matches neither `isLightRoot` nor `isDarkBlock`, and
+ * `scripts/audit.mjs`/`scripts/tokens-json.mjs` silently SKIP these
+ * declarations, same as before the migration. That is still correct:
+ * this block only ever WIDENS an already-passing contrast margin (there
+ * is nothing for the automated gate to enforce beyond what the base
+ * palette above already guarantees). Values are still hand-verified
+ * in-gamut and re-computed against the same OKLCH → sRGB → WCAG
+ * luminance math `scripts/audit.mjs` uses (see the ratios in each
+ * comment) — just not by the automated gate, since there is nothing to
+ * gate on a strictly-improving branch.
  */
 @media (prefers-contrast: more) {
   :root {
-    --color-border-bold: oklch(0.55 0.01 80);  /* 3.39:1 -> 4.52:1 on bg */
-    --color-fg-muted:     oklch(0.36 0.015 80); /* 7.55:1 -> 10.11:1 on bg (9.82:1 on surface) */
-  }
-
-  [data-theme="dark"],
-  :root.dark {
-    --color-border-bold: oklch(0.58 0.01 80);  /* 3.23:1 -> 4.53:1 on bg */
-    --color-fg-muted:     oklch(0.78 0.01 80);  /* 7.26:1 -> 9.70:1 on bg (9.22:1 on surface) */
-  }
-}
-
-/* System dark preference (no explicit [data-theme] toggle set) needs its
-   own compound query — mirrors the plain dark-mode block's split between
-   `@media (prefers-color-scheme: dark)` and the `[data-theme="dark"]` /
-   `:root.dark` bridge above. */
-@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
-  :root {
-    --color-border-bold: oklch(0.58 0.01 80);
-    --color-fg-muted:     oklch(0.78 0.01 80);
+    --color-border-bold: light-dark(oklch(0.55 0.01 80), oklch(0.58 0.01 80));   /* 3.39:1 → 4.52:1 light; 3.23:1 → 4.53:1 dark */
+    --color-fg-muted:     light-dark(oklch(0.36 0.015 80), oklch(0.78 0.01 80)); /* 7.55:1 → 10.11:1 light (9.82:1 surface); 7.26:1 → 9.70:1 dark (9.22:1 surface) */
   }
 }
