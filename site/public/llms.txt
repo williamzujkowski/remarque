@@ -1,0 +1,29 @@
+# Remarque
+
+> A typography-first design system for editorial, technical, and personal web projects — book-typography discipline (17px body floor, three-font system, a two-tier token contract) shipped as `remarque-tokens` on npm. This file is a short machine-readable pointer, not the spec itself.
+
+Served at `/remarque/llms.txt` — this is a GitHub Pages project site, so `/remarque/` is the achievable "root" path here, not the bare domain.
+
+## Full documentation
+
+- [REMARQUE.md](https://raw.githubusercontent.com/williamzujkowski/remarque/main/REMARQUE.md): the full specification — philosophy, token tiers, page archetypes, accessibility contract, governance.
+- [AGENT_RULES.md](https://raw.githubusercontent.com/williamzujkowski/remarque/main/AGENT_RULES.md): the implementation contract for coding agents — build order, non-negotiable rules, disallowed patterns, quality checklist.
+- [CHANGELOG.md](https://raw.githubusercontent.com/williamzujkowski/remarque/main/CHANGELOG.md): every token/value change with its rationale and, since 0.5.0, its consensus-vote record.
+
+## Machine-readable surface
+
+- [tokens.json](https://williamzujkowski.github.io/remarque/tokens.json): every token, both themes, as `$value`/`$type` pairs; `$schema` points at the schema below.
+- [tokens.schema.json](https://williamzujkowski.github.io/remarque/tokens.schema.json): JSON Schema (draft 2020-12) describing tokens.json's shape.
+- `tokens.d.ts`: TypeScript types for every token name, shipped in the npm package.
+- `npx remarque-audit --json` / `npx remarque-drift --json`: contrast/gamut/font-floor/drift checks, one JSON document to stdout — built for a parser, not a human reading colored console output.
+- `remarque-tokens/agent-rules`, `remarque-tokens/spec`: npm subpath exports resolving straight to AGENT_RULES.md / REMARQUE.md, so a consumer's own tooling can read the contract without a separate fetch.
+
+## Enforcement gates
+
+- Contrast (WCAG 2.1 AA/AAA per token role), OKLCH gamut, the 17px body-copy floor, no hardcoded colors — `npx remarque-audit`.
+- Visual regression + computed-style assertions (forced-colors, focus rings, form validation states) — Playwright, blocking on every PR.
+- Token drift between an installed package version and a consumer's own overrides — `npx remarque-drift`.
+
+## What this file is not
+
+A pointer, not the surface. An agent building or reviewing a Remarque page should load AGENT_RULES.md — or this repo's `remarque` skill, where available — before writing any code. This file exists because some tooling auto-probes `/llms.txt`; it is not a substitute for reading the actual contract.
