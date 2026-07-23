@@ -48,6 +48,14 @@ const ogImageURL = ogImage || `${Astro.site?.origin || ''}${base}og-image.svg`;
     <link rel="preload" href={`${base}fonts/newsreader-latin.woff2`} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={`${base}fonts/jetbrains-mono-latin.woff2`} as="font" type="font/woff2" crossorigin />
 
+    <!-- Palette Deck (remarque-tokens/deck, issue #56) — scoped palette
+         stylesheets, generated at build time by scripts/build-palette-deck.mjs
+         into public/palettes/*.css. Loaded sitewide (like the fonts above) so
+         a palette picked on one page stays applied across navigation; each
+         is inert ([data-palette="…"]-scoped) unless data-palette matches. -->
+    <link rel="stylesheet" href={`${base}palettes/gruvbox.css`} />
+    <link rel="stylesheet" href={`${base}palettes/rose-pine.css`} />
+
     <!-- Theme detection BEFORE first paint — prevents wrong-theme flash when
          the stored preference differs from prefers-color-scheme -->
     <script is:inline>
@@ -55,6 +63,18 @@ const ogImageURL = ogImage || `${Astro.site?.origin || ''}${base}og-image.svg`;
         var stored = localStorage.getItem('theme');
         var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.documentElement.setAttribute('data-theme', stored || (prefersDark ? 'dark' : 'light'));
+      })();
+    </script>
+
+    <!-- Palette Deck restore BEFORE first paint — same FOUC-guard shape as
+         the theme script above: synchronous, render-blocking classic script
+         in <head>, duplicating the ~3-line read-and-apply rather than
+         importing deck.js (an ESM module script would defer past first
+         paint). See REMARQUE.md "Palette Deck". -->
+    <script is:inline>
+      (function() {
+        var p = localStorage.getItem('remarque-palette');
+        if (p) document.documentElement.setAttribute('data-palette', p);
       })();
     </script>
   </head>

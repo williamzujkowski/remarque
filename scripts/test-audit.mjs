@@ -82,6 +82,19 @@ const cases = [
   ['media-convention.css', `${LIGHT}\n@media (prefers-color-scheme: dark) { :root {${DARK_DECLS}} }`, true],
   ['leading-import.css', `@import './fonts.css';\n@charset "utf-8";\n${LIGHT}\n[data-theme="dark"] {${DARK_DECLS}}`, true],
   ['qualified-selectors.css', `${LIGHT.replace(':root {', 'html:root {')}\nhtml[data-theme="dark"] {${DARK_DECLS}}`, true],
+  // Palette-deck scope convention (remarque-tokens/deck, issue #56):
+  // [data-palette="name"] plays :root's role, [data-palette="name"][data-theme="dark"]
+  // plays [data-theme="dark"]'s — proves the isLightRoot/PALETTE_SCOPE_LIGHT
+  // addition in scripts/lib/css-tokens.mjs actually classifies scoped
+  // output, so a --scope'd file is directly auditable without an
+  // unscoped-first workaround. See REMARQUE.md "Palette Deck".
+  ['palette-deck-convention.css', `${LIGHT.replace(':root {', '[data-palette="deck"] {')}\n[data-palette="deck"][data-theme="dark"] {${DARK_DECLS}}`, true],
+  // A bare [data-palette] selector unrelated to any theme attribute must
+  // NOT be misread as a dark override — mirrors the :root.dark leak test
+  // just below, for the scoped convention: light fg-muted fails AAA here,
+  // so if the scoped dark block's values leaked into the scoped light
+  // parse, the failure would disappear.
+  ['palette-deck-light-fails.css', `${LIGHT.replace(':root {', '[data-palette="deck"] {').replace('--color-fg-muted: oklch(0.43 0.015 80);', '--color-fg-muted: oklch(0.55 0.015 80);')}\n[data-palette="deck"][data-theme="dark"] {${DARK_DECLS}}`, false],
   // :root.dark must NOT pollute the light theme: light fg-muted here fails AAA,
   // so if dark values leaked into light (the old .includes(':root') bug hid
   // this), the failure would disappear. Expect FAIL for the light theme.
