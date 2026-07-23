@@ -4,6 +4,56 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.9.0 — 2026-07-22
+
+Color-provider bridge release (consensus-ratified 7-0, higher_order panel;
+closes #75 — Phase 1 of the color-provider integration; Phase 2/3 tracked
+in #76).
+
+### Added
+- **`remarque-theme` bin** (#75): `npx remarque-theme <light-slug> --dark
+  <dark-slug> [-o out.css]` derives a full 15-slot palette-tier override
+  from an `@williamzujkowski/oklch-terminal-themes` light+dark pair.
+  Terminal themes carry only `background/foreground/cursor/selection` +
+  16 ANSI slots — most of Remarque's semantic slots don't map directly,
+  and most themes fail the AAA `fg-muted` 7:1 line as authored. The bridge
+  derives instead: hue + chroma come from the theme, lightness is solved
+  per slot by binary search against the exact Enforcement Checklist
+  targets (in-gamut chroma clamping inside the solver, round-then-verify
+  to avoid float rounding pushing a borderline value back out of gamut).
+  Output passes `remarque-audit` **by construction** — the script
+  self-verifies the same contrast + gamut checks in-process before it
+  will emit anything.
+- **Security hardening** (#75, panel security review): both slugs are
+  validated against the package's own `index.json` *before* any path is
+  built from them (the actual guard against path traversal, not the slug
+  regex, which is defense-in-depth); every OKLCH triplet read from theme
+  JSON is validated as finite numbers before use; CSS is never built by
+  string-interpolating raw JSON — every emitted number has passed through
+  our own rounding + validation. Light/dark polarity (`isDark`) is
+  enforced against the requested slugs.
+- **`scripts/test-theme.mjs`** (#75): a corpus property test enumerating
+  every light+dark pair in the installed `oklch-terminal-themes` package
+  by name-stem (47 pairs at the pinned 0.1.0 dataset) — every pair must
+  derive AND pass the real `audit.mjs`, not a sample. Also covers unknown
+  slugs, polarity mismatches, traversal-looking slugs, and that the
+  output declares only palette-tier custom properties. Wired into CI
+  alongside `test-audit.mjs`/`test-drift.mjs`.
+- **`@williamzujkowski/oklch-terminal-themes`** pinned exact at `0.1.0` in
+  `devDependencies`, and listed as an optional `^0.1.0` peerDependency —
+  consumers who want `remarque-theme` install it themselves; it is never
+  required to use the rest of the package.
+- REMARQUE.md: new "Color Providers" section positioning the palette tier
+  as theme-suppliable, with `oklch-terminal-themes` as the reference
+  provider and the pairing contract stated explicitly (`--dark` is
+  required; upstream pairing metadata tracked in
+  `oklch-terminal-themes#128`). AGENT_RULES.md: a rule against hand-editing
+  a generated palette — regenerate it instead.
+
+No core-tier token values changed in this release. `tokens-palette.css`
+(the shipped default palette) is also unchanged — `remarque-theme` is an
+opt-in alternate source for the palette tier, not a replacement for it.
+
 ## 0.8.0 — 2026-07-21
 
 Archetype-vocabulary and AI-agent-packaging release (design review; closes
