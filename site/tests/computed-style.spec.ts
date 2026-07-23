@@ -85,14 +85,26 @@ test.describe('interactive target size (>= 44x44 CSS px)', () => {
           const r = el.getBoundingClientRect();
           return { width: r.width, height: r.height };
         }
+        // `.footer-link--desktop-only` (BaseLayout footer, PR #88 fixup) is
+        // `display: none` below the 40rem breakpoint by design — the mobile
+        // footer row has no slack for a 4th link without text-wrapping, so
+        // extra footer links added after the original three only render on
+        // desktop. A hidden, non-operable element correctly has a 0x0 box;
+        // WCAG 2.5.5 governs visible/operable targets, not ones a page
+        // deliberately doesn't render at a given viewport. `offsetParent ===
+        // null` is the standard "not actually visible" check (also true for
+        // `position: fixed` elements, none of which appear in this nav/footer).
+        function isRendered(el: Element) {
+          return (el as HTMLElement).offsetParent !== null;
+        }
         const out: { label: string; width: number; height: number }[] = [];
         const toggle = document.querySelector('#theme-toggle');
         if (toggle) out.push({ label: 'theme-toggle', ...box(toggle) });
         document.querySelectorAll('.nav-link').forEach((el) => {
-          out.push({ label: `nav-link:${el.textContent?.trim()}`, ...box(el) });
+          if (isRendered(el)) out.push({ label: `nav-link:${el.textContent?.trim()}`, ...box(el) });
         });
         document.querySelectorAll('.footer-link').forEach((el) => {
-          out.push({ label: `footer-link:${el.textContent?.trim()}`, ...box(el) });
+          if (isRendered(el)) out.push({ label: `footer-link:${el.textContent?.trim()}`, ...box(el) });
         });
         return out;
       });

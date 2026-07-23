@@ -978,6 +978,149 @@ the archive itself.
 
 ---
 
+## Forms
+
+Native form-control primitives — field wrapper, text input, checkbox,
+radio, button — shipped as their own subpath, `remarque-tokens/forms`
+(issue #27). Unlike the Essay Module and the Broadsheet pattern, this
+module was not graduated from a downstream site implementation; it is
+spec-native, built directly from the issue rather than re-expressing an
+existing literal.
+
+### Markup contract
+
+```html
+<div class="remarque-field">
+  <label class="remarque-field-label" for="email">Email</label>
+  <input class="remarque-input" type="email" id="email" name="email"
+    aria-describedby="email-help" />
+  <p class="remarque-field-message" id="email-help">
+    We'll never share your email.
+  </p>
+</div>
+
+<div class="remarque-field" data-state="error">
+  <label class="remarque-field-label" for="email2">Email</label>
+  <input class="remarque-input" type="email" id="email2" name="email2"
+    aria-invalid="true" aria-describedby="email2-message" required />
+  <p class="remarque-field-message" id="email2-message" role="alert">
+    Enter a valid email address.
+  </p>
+</div>
+
+<label class="remarque-checkbox">
+  <input type="checkbox" name="subscribe" />
+  <span>Subscribe to updates</span>
+</label>
+
+<label class="remarque-radio">
+  <input type="radio" name="plan" value="a" />
+  <span>Plan A</span>
+</label>
+
+<button class="remarque-button" type="button">Cancel</button>
+<button class="remarque-button remarque-button--primary" type="submit">Submit</button>
+```
+
+| Class | Applies to | Notes |
+|---|---|---|
+| `.remarque-field` | wrapping `<div>` | Label + control + message vertical stack. Layout only — no border/background of its own. |
+| `.remarque-field-label` | `<label>` | Meta voice (mono, small caps, `--color-muted`) — same declarations as `.text-label`, repeated per the non-mixin precedent essay.css/broadsheet.css already set. |
+| `.remarque-field-required` | `<span aria-hidden="true">` inside the label | Accent-colored asterisk. `aria-hidden` — the input's own `required` attribute is the real signal a screen reader announces. |
+| `.remarque-field-message` | `<p>` after the control | Help text by default; recolored by the parent's `data-state`. Wire `aria-describedby` on the input to this element's `id` in every case, valid or not. |
+| `.remarque-input` | `<input>` / `<textarea>` / `<select>` | Body-voice text, `--color-border-bold` boundary, `--radius-sm`, ≥44px tall. |
+| `.remarque-checkbox` / `.remarque-radio` | wrapping `<label>` | `accent-color` on the native control — no `appearance: none`, no hand-drawn replacement. The wrapping label carries the 44px touch target; the control itself stays at its natural (enlarged) size. |
+| `.remarque-button` | `<button>` | Quiet default: bordered, transparent, body-voice text. |
+| `.remarque-button--primary` | `<button>` | The one sanctioned accent placement per viewport (Visual Rules) — accent text + accent border, never a solid accent fill. Hover washes in `--color-accent-subtle`, it does not darken to a filled block. |
+
+### State wiring
+
+`data-state="error"` / `"success"` / `"warning"` on `.remarque-field`
+recolors both the input's border and the message text from the 0.17.0
+state-color tokens (`--color-error`/`--color-success`/`--color-warning`).
+`data-state` is the PAINT layer only — always pair it with the real
+accessibility signal on the input itself: `aria-invalid="true"` (screen
+readers announce this; `data-state` alone is invisible to them) and
+`aria-describedby` pointing at the `.remarque-field-message` id. A
+disabled control never gets a `data-state` — it uses the native
+`:disabled`/`disabled` state and `--color-disabled`, which is a muted
+register, not one of the three feedback hues (REMARQUE.md "State Colors":
+disabled is deliberately not ANSI-derived).
+
+As a zero-JS bonus layer, `.remarque-input:user-invalid` (guarded with
+`@supports selector(:user-invalid)`) picks up the same error border once
+a browser supports the pseudo-class and the user has actually interacted
+with an invalid field — it never replaces authoring `data-state="error"`
+explicitly, since `:user-invalid` alone has no matching text-message
+recolor and no `aria-invalid` wiring of its own.
+
+### Restraint rules restated
+
+- **Border radius**: form controls cap at `--radius-sm` (4px) — a
+  tighter ceiling than AGENT_RULES.md's general `--radius-md` (8px)
+  maximum for other chrome. A smaller, more precise-reading radius suits
+  a control the user directly manipulates.
+- **Touch targets**: every interactive control — input, textarea,
+  select, button, and the `<label>` wrapping a checkbox/radio — is
+  ≥44×44px (WCAG 2.5.5 AAA, USWDS floor; see "Touch Targets" above and
+  `.nav-link`'s identical convention in the demo site's `globals.css`).
+- **No fake replacements**: checkboxes and radios stay native elements
+  recolored with `accent-color` only. No `appearance: none` plus a
+  hand-drawn box/dot — that would trade away native keyboard behavior,
+  forced-colors-mode support, and screen-reader state announcements for
+  a purely cosmetic win this system doesn't need.
+- **Buttons stay quiet**: text-only or bordered, never filled/solid by
+  default — the primary variant included. Accent appears as text/border
+  color, never as a background fill (Visual Rules' one-accent rule and
+  Components' "never filled/solid as default" both still govern the
+  emphasized variant).
+- **Placeholder contrast**: `--color-muted` (4.5:1 on `--color-bg`/
+  `--color-surface`), a conscious choice — placeholder text is
+  supplementary hint copy, never the field's only label, so AA is the
+  correct tier rather than `--color-fg-muted`'s AAA.
+
+### Standalone tables
+
+`forms.css` also ships `.remarque-table` / `.remarque-table-wrap`
+(issue #30) — the same visual language as `.remarque-prose table`
+(mono `th` voice, 2px header rule, 1px row rules, `.num` for tabular-
+lining right-aligned numeric columns), re-scoped under a top-level
+class so a standalone data grid doesn't have to wrap itself in the full
+`.remarque-prose` container (which also applies oldstyle proportional
+numerals and prose spacing rhythm a data table doesn't want):
+
+```html
+<div class="remarque-table-wrap">
+  <table class="remarque-table">
+    <caption>Example</caption>
+    <thead>
+      <tr><th>Name</th><th class="num">Count</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Rows</td><td class="num">42</td></tr>
+    </tbody>
+  </table>
+</div>
+```
+
+Lives in `forms.css` rather than its own subpath — AGENT_RULES.md's
+build order already groups tables with buttons/cards/code blocks as one
+"supplementary UI" step, and this table variant is a small re-scoping,
+not enough surface area to justify a fourth optional module.
+
+### When NOT to use
+
+Remarque is editorial-first. This module exists for the handful of
+form moments a written-word site actually needs — a contact form, a
+site search box, a newsletter signup — not for building application
+UIs. If a page needs more than a few fields, conditional multi-step
+logic, inline data tables of editable rows, or anything that starts to
+resemble a settings/dashboard screen, that is out of scope for
+Remarque's forms primitives; reach for a dedicated UI/form library
+instead and keep Remarque to the page's editorial chrome around it.
+
+---
+
 ## Signature Moves
 
 These are the repeatable visual tells that make a Remarque site recognizable:

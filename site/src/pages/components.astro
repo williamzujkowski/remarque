@@ -1,0 +1,163 @@
+---
+/**
+ * Components — the visual reference for the forms module
+ * (remarque-tokens/forms, issues #27/#30). Exercises every input state
+ * (default/focus/error/success/disabled), both button variants, checkbox
+ * + radio, and a standalone data table. This page is the visual-regression
+ * coverage for the whole module — see site/tests/helpers.ts's PAGES.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import Input from '../components/Input.astro';
+import Table from '../components/Table.astro';
+
+const tableColumns = [
+  { key: 'token', label: 'Token' },
+  { key: 'role', label: 'Role' },
+  { key: 'size', label: 'Size (px)', num: true },
+];
+
+const tableRows = [
+  { token: '--text-body', role: 'Body copy', size: 17 },
+  { token: '--text-meta', role: 'Metadata', size: 14 },
+  { token: '--text-micro', role: 'Timestamps', size: 13 },
+];
+---
+
+<BaseLayout title="Components" description="Reference form controls, buttons, and a data table built on the Remarque forms module.">
+  <div class="pt-[var(--space-9)]">
+    <h1 class="text-display font-display text-[var(--color-fg)]">Components</h1>
+    <p class="mt-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
+      Reference form controls, from remarque-tokens/forms — every input state, both button variants, and a standalone table.
+    </p>
+  </div>
+
+  <!-- Buttons -->
+  <section class="mt-12 content-reading">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Buttons</h2>
+    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6">
+      Quiet by rule — text-only or bordered, never filled/solid as default. <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">--primary</code> is the one sanctioned accent placement per viewport, and stays unfilled even there.
+    </p>
+    <div class="flex flex-wrap items-center gap-4">
+      <Button>Cancel</Button>
+      <Button variant="primary" type="submit">Submit</Button>
+      <Button disabled>Disabled</Button>
+    </div>
+  </section>
+
+  <!-- Inputs: every field state -->
+  <section class="mt-12 content-reading">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Inputs</h2>
+    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6">
+      Every <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-field</code> state — default, focus, error, success, and disabled. The "Focused" field is autofocused (try loading this page directly) and additionally carries a static ring below so this page's own reference screenshot always shows it — headless full-page capture can transiently drop window focus mid-stitch, which native <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">:focus-visible</code> would miss.
+    </p>
+    <div class="flex flex-col gap-6">
+      <Input
+        id="name"
+        label="Name"
+        placeholder="Ada Lovelace"
+        help="Shown alongside your comment."
+      />
+      <div class="remarque-field">
+        <label class="remarque-field-label" for="focused-field">Focused</label>
+        <input
+          class="remarque-input demo-focus-ring"
+          type="text"
+          id="focused-field"
+          name="focused-field"
+          placeholder="Click elsewhere, then Tab back to see the ring"
+          autofocus
+          aria-describedby="focused-field-message"
+        />
+        <p class="remarque-field-message" id="focused-field-message">
+          Autofocused on load; the ring below is a static reference copy of the real <code>:focus-visible</code> style (tokens-core.css) for this screenshot.
+        </p>
+      </div>
+      <Input
+        id="email-error"
+        label="Email"
+        type="email"
+        value="not-an-email"
+        required
+        error="Enter a valid email address."
+      />
+      <Input
+        id="email-success"
+        label="Email"
+        type="email"
+        value="ada@example.com"
+        success="Looks good."
+      />
+      <Input
+        id="message"
+        label="Message"
+        multiline
+        rows={4}
+        placeholder="What's on your mind?"
+        help="Plain text only — no markdown."
+      />
+      <Input
+        id="disabled-field"
+        label="Disabled"
+        value="Read-only value"
+        disabled
+        help="Disabled controls use --color-disabled."
+      />
+    </div>
+  </section>
+
+  <!-- Checkbox & Radio -->
+  <section class="mt-12 content-reading">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Checkbox &amp; Radio</h2>
+    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6">
+      Native controls, recolored with <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">accent-color</code> only — no fake replacements.
+    </p>
+    <div class="flex flex-col gap-3">
+      <label class="remarque-checkbox">
+        <input type="checkbox" name="subscribe" checked />
+        <span>Subscribe to updates</span>
+      </label>
+      <label class="remarque-checkbox">
+        <input type="checkbox" name="subscribe-disabled" disabled />
+        <span>Disabled option</span>
+      </label>
+      <label class="remarque-radio">
+        <input type="radio" name="plan" value="a" checked />
+        <span>Plan A</span>
+      </label>
+      <label class="remarque-radio">
+        <input type="radio" name="plan" value="b" />
+        <span>Plan B</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- Standalone Table -->
+  <section class="mt-12 mb-12 content-standard">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Table</h2>
+    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">
+      <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-table</code> — the same visual language as a prose table, outside <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-prose</code>.
+    </p>
+    <Table caption="Font size floors" columns={tableColumns} rows={tableRows} />
+  </section>
+</BaseLayout>
+
+<style>
+  /*
+   * Static stand-in for tokens-core.css's real `:focus-visible` outline —
+   * demo-page-only (scoped to this file, not part of the forms.css
+   * package contract). The "Focused" field above is genuinely
+   * autofocused (a real page load does show the native ring, no CSS
+   * trick involved), but headless Chrome's full-page screenshot capture
+   * can transiently drop window focus mid-stitch, which would make
+   * :focus-visible intermittently miss in this page's own VR baseline.
+   * This class reproduces that exact declaration so the reference
+   * screenshot deterministically shows the ring regardless.
+   */
+  .demo-focus-ring {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+</style>
+

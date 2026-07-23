@@ -14,6 +14,7 @@
 @import "remarque-tokens/print.css";
 @import "remarque-tokens/essay.css";
 @import "remarque-tokens/broadsheet.css";
+@import "remarque-tokens/forms.css";
 
 /* ─── Self-hosted Fonts ────────────────────────────────── */
 /* Demo-specific @font-face (not the package's fonts.css) because URLs
@@ -141,6 +142,30 @@
 
 .footer-link:hover {
   color: var(--color-fg);
+}
+
+/* ─── Footer Link — desktop-only variant ─────────────────────────────── */
+/* The mobile footer link row (GitHub / Get Started / RSS) already uses
+   its full width at 375px with no slack: it has no `flex-wrap`, so a 4th
+   item forces flex-shrink to kick in and "Get Started" text-wraps onto
+   two lines, growing every page's footer (and total document height) by
+   ~24px. Rather than touch the existing row's gap/sizing — which would
+   shift GitHub/RSS's pixel positions on every already-baselined page —
+   additional footer links added after the original three are desktop-
+   only, the same trade-off the header nav already makes implicitly
+   (Specimen/Tokens/Start also compete for the same cramped mobile row).
+   Still reachable via direct URL on mobile; unlayered plain CSS (not a
+   Tailwind `hidden`/`sm:` utility) so it isn't at risk of losing to
+   `.footer-link`'s own unlayered `display` under Tailwind v4's
+   layer-precedence rules (AGENT_RULES.md Pitfall #7). */
+.footer-link--desktop-only {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .footer-link--desktop-only {
+    display: inline-flex;
+  }
 }
 
 /* ─── Copy Button ──────────────────────────────────────── */

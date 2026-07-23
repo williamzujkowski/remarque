@@ -1,0 +1,25 @@
+---
+/**
+ * Button — reference component for the forms module (remarque-tokens/forms,
+ * issue #27/#30). Thin wrapper around `.remarque-button` — every native
+ * <button> attribute (type, disabled, name, form, event handlers, ...)
+ * passes through untouched. Demo scaffolding, not package API: the real
+ * contract is the `.remarque-button` / `.remarque-button--primary` CSS
+ * classes documented in REMARQUE.md's "Forms" section, this component is
+ * just one convenient way to author them in Astro.
+ */
+interface Props extends astroHTML.JSX.ButtonHTMLAttributes {
+  /** `primary` is the one sanctioned accent placement per viewport — at most one per page. */
+  variant?: "default" | "primary";
+}
+
+const { variant = "default", class: className, type = "button", ...rest } = Astro.props;
+---
+
+<button
+  type={type}
+  class:list={["remarque-button", { "remarque-button--primary": variant === "primary" }, className]}
+  {...rest}
+>
+  <slot />
+</button>
