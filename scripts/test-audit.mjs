@@ -107,6 +107,30 @@ const cases = [
   // parsed. oklch(0.90 0.105 85) sits far too light on --color-bg
   // (oklch(0.975 0.005 80)) to hold 4.5:1.
   ['state-color-fails.css', `${LIGHT.replace('--color-warning: oklch(0.52 0.105 85);', '--color-warning: oklch(0.90 0.105 85);')}\n[data-theme="dark"] {${DARK_DECLS}}`, false],
+  // issue #93 regression: a `[data-theme="dark"]`/`:root.dark` selector
+  // NESTED inside an unrelated media query (the shape tokens-palette.css's
+  // `@media (prefers-contrast: more)` block uses) must NOT be read as
+  // redefining dark mode — only the real, top-level dark block above
+  // should win. The nested block's absurd --color-fg-muted (oklch(0.99...),
+  // near-white) would fail AAA outright if it leaked into darkOverrides
+  // (declsOf is last-write-wins); expect PASS proves it was correctly
+  // excluded and the real DARK_DECLS value is still what gets checked.
+  [
+    'nested-media-not-dark.css',
+    `${LIGHT}\n[data-theme="dark"] {${DARK_DECLS}}\n@media (prefers-contrast: more) { [data-theme="dark"], :root.dark { --color-fg-muted: oklch(0.99 0.01 80); } }`,
+    true,
+  ],
+  // Same regression, compound-media shape: `@media (prefers-color-scheme:
+  // dark) and (prefers-contrast: more)` — a plain `.includes('prefers-
+  // color-scheme')`/`.includes('dark')` substring check on the context
+  // would misread this as THE dark-scheme media block even though it is
+  // gated on a second, unrelated condition too. Expect PASS for the same
+  // reason as above.
+  [
+    'compound-media-not-dark.css',
+    `${LIGHT}\n[data-theme="dark"] {${DARK_DECLS}}\n@media (prefers-color-scheme: dark) and (prefers-contrast: more) { :root { --color-fg-muted: oklch(0.99 0.01 80); } }`,
+    true,
+  ],
 ];
 
 let bad = 0;

@@ -129,12 +129,22 @@
 
 /* Hairline flanking the masthead dateline — decorative only, so a
    1px border-color rule (not -bold) is the right register; nothing
-   depends on it as a boundary. */
+   depends on it as a boundary.
+   Authored as a BORDER, not a `background` fill, on purpose (issue #93
+   forced-colors audit finding): this is a bare, non-semantic `<span>`
+   with no text content and no border of its own otherwise — under
+   `forced-colors: active`, a plain element's `background-color` is
+   generally forced to `Canvas` (the page background), which would make
+   a background-fill divider disappear entirely, while `border-color` on
+   a real border is forced to a visible system border color instead.
+   Same 1px visual result at rest (a zero-height box with a 1px top
+   border reads identically to a 1px-tall filled box); only the forced-
+   colors behavior differs. */
 .remarque-rule {
   display: inline-block;
   width: var(--space-6);
-  height: var(--border-width);
-  background: var(--color-border-bold);
+  height: 0;
+  border-top: var(--border-width) var(--border-style) var(--color-border-bold);
 }
 
 /* Hairline divider between broadsheet sections (masthead/lead/entry-list) */
@@ -263,6 +273,30 @@
 .remarque-entry-title a:hover,
 .remarque-entry-title a:focus-visible {
   background-size: 100% 1px;
+}
+
+/* Forced-colors fallback (issue #93 audit finding — affordance-loss,
+   the clearest one in this file): the underline-grow hover/focus
+   affordance above is painted entirely with `background-image:
+   linear-gradient(...)`. CSS gradients are on the forced list — under
+   `forced-colors: active` a gradient background-image is forced to
+   `none`, so the ENTIRE hover/focus signal for these title links would
+   otherwise disappear (the `:focus-visible` outline from tokens-core.css
+   still fires for keyboard focus, but mouse hover would have no visual
+   affordance at all, and even focus would lose this link-specific cue).
+   `text-decoration: underline` is not on the forced list and needs no
+   override to render visibly, so it stands in as the same "this is a
+   link, and it is the active one" signal the gradient trick provides
+   everywhere else. Scoped to this media query only — the gradient
+   underline-grow stays the sole affordance outside forced-colors mode,
+   unchanged. */
+@media (forced-colors: active) {
+  .remarque-lead-title a:hover,
+  .remarque-lead-title a:focus-visible,
+  .remarque-entry-title a:hover,
+  .remarque-entry-title a:focus-visible {
+    text-decoration: underline;
+  }
 }
 
 .remarque-lead-lede {

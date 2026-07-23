@@ -228,3 +228,69 @@
   --color-warning-subtle: oklch(0.22 0.04 85);
   --color-disabled:       var(--color-muted);
 }
+
+/* ─── prefers-contrast: more ────────────────────────────────
+ * Issue #93 — the cheap sibling of the forced-colors pass (see
+ * REMARQUE.md "Forced Colors & Contrast Preferences"). `prefers-
+ * contrast: more` is a SOFTER, opt-in signal than `forced-colors:
+ * active` (no system-color override — the page keeps painting its own
+ * palette) so the fix is proportionate: bump the two tokens the audit
+ * already treats as "read at a distance" thresholds — `--color-border-
+ * bold` (WCAG 1.4.11's 3:1 non-text floor) and `--color-fg-muted`
+ * (the AAA 7:1 secondary-text floor) — one step further toward
+ * `--color-fg`, not a second palette. `--color-border` stays untouched:
+ * it is decorative BY DESIGN (documented sub-3:1), and `prefers-
+ * contrast` users who want its 1.34:1 hairlines to read as structure
+ * are exactly the `forced-colors: active` audience already covered
+ * above — conflating the two would blur why each exists.
+ *
+ * ARCHITECTURAL HOME: tokens-palette.css, not tokens-core.css. These are
+ * `--color-*` values — palette tier by the Token Tiers contract, the
+ * same tier that already carries the `@media (prefers-color-scheme:
+ * dark)` override immediately above using the identical mechanism (a
+ * media-gated `:root` block cascading over the unconditional light
+ * values). A `prefers-contrast` override belongs wherever its sibling
+ * `prefers-color-scheme` override already lives, not in core, which
+ * would first require inventing a NEW non-color-tier concept for a
+ * color-tier problem.
+ *
+ * AUDIT-PARSER COMPATIBILITY (scripts/lib/css-tokens.mjs): a plain
+ * `@media (prefers-contrast: more)` block does not match `isLightRoot`
+ * (which requires `context === ''`, i.e. no enclosing at-rule at all)
+ * or `isDarkBlock` (which requires the context to mention
+ * `prefers-color-scheme`) — so `scripts/audit.mjs` and `scripts/
+ * tokens-json.mjs` both silently SKIP these declarations rather than
+ * misclassifying them as light or dark base values. That is the
+ * correct behavior (verified 2026-07 against the current parser): this
+ * block only ever WIDENS an already-passing contrast margin, so it has
+ * nothing to gate on — the light/dark values above remain the ones CI
+ * enforces, and a `prefers-contrast: more` visitor only ever sees a
+ * result that is contrast-equal-or-better. Values below are still
+ * hand-verified in-gamut and re-computed against the same OKLCH → sRGB
+ * → WCAG luminance math `scripts/audit.mjs` uses (see the ratios in
+ * each comment) — just not by the automated gate, since there is
+ * nothing to gate on the fact that this is a strictly-improving branch.
+ */
+@media (prefers-contrast: more) {
+  :root {
+    --color-border-bold: oklch(0.55 0.01 80);  /* 3.39:1 -> 4.52:1 on bg */
+    --color-fg-muted:     oklch(0.36 0.015 80); /* 7.55:1 -> 10.11:1 on bg (9.82:1 on surface) */
+  }
+
+  [data-theme="dark"],
+  :root.dark {
+    --color-border-bold: oklch(0.58 0.01 80);  /* 3.23:1 -> 4.53:1 on bg */
+    --color-fg-muted:     oklch(0.78 0.01 80);  /* 7.26:1 -> 9.70:1 on bg (9.22:1 on surface) */
+  }
+}
+
+/* System dark preference (no explicit [data-theme] toggle set) needs its
+   own compound query — mirrors the plain dark-mode block's split between
+   `@media (prefers-color-scheme: dark)` and the `[data-theme="dark"]` /
+   `:root.dark` bridge above. */
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  :root {
+    --color-border-bold: oklch(0.58 0.01 80);
+    --color-fg-muted:     oklch(0.78 0.01 80);
+  }
+}

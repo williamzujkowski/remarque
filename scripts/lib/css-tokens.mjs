@@ -68,8 +68,30 @@ export const isLightRoot = (b) =>
    class-convention :root.dark / html.dark (compatibility bridge). A scoped
    deck palette's dark block ([data-palette="name"][data-theme="dark"])
    already matches unchanged: DARKISH finds the [data-theme="dark"]
-   substring, and the selector starts with "[". */
+   substring, and the selector starts with "[".
+   Both recognition paths are CONTEXT-EXACT (issue #93 fix): a block only
+   counts as "the" dark override when its enclosing at-rule is either
+   absent (top-level) or is the plain, non-compounded `@media
+   (prefers-color-scheme: dark)` query — not some unrelated or compounded
+   at-rule (`@media print`, `@media (prefers-contrast: more)`, `@media
+   (prefers-contrast: more) and (prefers-color-scheme: dark)`, ...) that
+   merely happens to reuse the same selector text or mention the same
+   media-feature name. Before this guard, substring matching on `context`
+   (`.includes('prefers-color-scheme')`) and on `prelude` (DARKISH, with
+   no context check at all) meant ANY nested reuse of `[data-theme=
+   "dark"]`/`:root.dark`, or any compound query merely containing
+   `prefers-color-scheme: dark` as one of several conditions, was
+   misread as an unconditional dark value — silently clobbering the real
+   one (`declsOf` last-write-wins). tokens-palette.css's `@media
+   (prefers-contrast: more)` block is the case that surfaced this: it
+   deliberately reuses the `[data-theme="dark"], :root.dark` selector,
+   scoped to a NARROWER condition, and must NOT be read as redefining
+   dark mode itself. */
+const isPlainDarkSchemeMedia = (context) =>
+  /^@media\s*\(\s*prefers-color-scheme\s*:\s*dark\s*\)$/.test(context.trim());
+
 export const isDarkBlock = (b) =>
-  (b.context.includes('prefers-color-scheme') && b.context.includes('dark') &&
+  (isPlainDarkSchemeMedia(b.context) &&
     parts(b.prelude).some((s) => ROOTISH.test(s) && !DARKISH.test(s))) ||
-  parts(b.prelude).some((s) => DARKISH.test(s) && (ROOTISH.test(s) || s.startsWith('.') || s.startsWith('[')));
+  (b.context === '' &&
+    parts(b.prelude).some((s) => DARKISH.test(s) && (ROOTISH.test(s) || s.startsWith('.') || s.startsWith('['))));

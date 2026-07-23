@@ -6,6 +6,25 @@
  * so consumers with their own prose systems can import the core
  * structural tokens without it. The tokens.css aggregator includes it.
  * Values consumed here come from the core + palette tiers.
+ *
+ * FORCED-COLORS AUDIT (issue #93 — full inventory in REMARQUE.md "Forced
+ * Colors & Contrast Preferences"): every hairline in this file — table
+ * `border-bottom`, `hr`, `dl`'s `border-top`, `details`' `border-top`,
+ * `img`/`kbd`'s `border`, the pullquote's top/bottom rules — is a real
+ * `border-color` declaration with a non-transparent value and a non-zero
+ * `border-style`/width, which `forced-colors: active` forces to a visible
+ * system border color regardless of the authored (sometimes sub-3:1,
+ * decorative-only) value. None of them need an explicit `@media
+ * (forced-colors: active)` override; that is WHY this file has none.
+ * `.remarque-prose mark`'s `background-color` is the one exception worth
+ * naming: it IS subject to standard forcing (there is no confirmed
+ * special-cased `Mark`/`MarkText` UA treatment to rely on), so the
+ * highlight visually disappears under forced-colors — accepted, not
+ * fixed, because the mark's own contract (this file, below) already
+ * requires it to be "a quiet highlight, not a callout background": the
+ * underlying text stays fully legible (Chromium's backplate behavior
+ * guarantees contrast even when a background-color is dropped), so no
+ * information is lost, only an emphasis nuance.
  */
 
 /* ─── Prose Styling ─────────────────────────────────────── */
