@@ -18,10 +18,11 @@
  * markup — a site with different class names should add its own
  * @media print rule for anything this file doesn't catch.
  *
- * Sidenotes: this package does not yet ship a sidenotes module. When
- * one lands, its narrow-viewport "inline" mode is exactly the right
- * print behavior — print should never attempt the wide-margin
- * side-rail layout a sidenotes module might use on desktop screens.
+ * Sidenotes/TOC rail (remarque-tokens/essay.css, issue #52): the "Force
+ * the narrow-viewport mode" rule below is this file making good on the
+ * promise above — the essay module's own default (non-`@media`) CSS
+ * already IS the narrow-viewport inline mode, so this rule only needs to
+ * cancel the `>= 80rem` float, not author a print-specific layout.
  */
 
 @page {
@@ -84,15 +85,41 @@
     display: none !important;
   }
 
+  /* ─── Sidenotes: force the narrow-viewport (inline) mode ───
+   * essay.css's `>= 80rem` float/negative-margin rule has no viewport to
+   * key off of on paper, and some print engines DO evaluate desktop-width
+   * `@media (min-width)` queries against the page box. Cancel it
+   * explicitly rather than relying on that not happening — a floated
+   * margin note next to a 2cm-margin page is exactly the layout the
+   * comment at the top of this file promises never to attempt. */
+  .remarque-sidenote {
+    float: none !important;
+    width: auto !important;
+    margin-inline-start: 0 !important;
+    margin-block: var(--space-3) !important;
+    padding-inline-start: var(--space-3) !important;
+    padding-inline-end: 0 !important;
+    border-inline-start: var(--border-width) var(--border-style) var(--color-border-bold) !important;
+    border-inline-end: none !important;
+  }
+
   /* ─── Full-width reading column ────────────────────────────
    * The page itself is already narrow at 2cm margins — don't also
-   * constrain content to the on-screen reading measure. */
+   * constrain content to the on-screen reading measure. Also collapses
+   * `.remarque-essay` back to plain block flow — same defensive reasoning
+   * as the sidenote float-cancel above, for the grid rather than the
+   * float half of essay.css's wide-viewport rule. */
   .content-reading,
   .content-standard,
   .content-wide,
+  .remarque-essay,
   main {
     max-width: 100% !important;
     margin-inline: 0 !important;
+  }
+
+  .remarque-essay {
+    display: block !important;
   }
 
   body {

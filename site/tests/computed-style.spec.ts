@@ -47,6 +47,33 @@ test.describe('prose measure', () => {
   });
 });
 
+test.describe('essay module — TOC rail never intrudes into the reading column', () => {
+  test('rail sits fully clear of .remarque-prose at the >= 80rem breakpoint', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await gotoWithTheme(page, 'writing/typography-as-interface', 'light');
+
+    const { proseRight, tocLeft, tocRight, viewportWidth } = await page.evaluate(() => {
+      const prose = document.querySelector('.remarque-prose.content-reading');
+      const toc = document.querySelector('.remarque-toc-rail');
+      if (!prose) throw new Error('.remarque-prose.content-reading not found on the Essay page');
+      if (!toc) throw new Error('.remarque-toc-rail not found on the Essay page');
+      return {
+        proseRight: prose.getBoundingClientRect().right,
+        tocLeft: toc.getBoundingClientRect().left,
+        tocRight: toc.getBoundingClientRect().right,
+        viewportWidth: document.documentElement.clientWidth,
+      };
+    });
+
+    // REMARQUE.md "Essay Module": the rail lives OUTSIDE --content-reading —
+    // that is the entire point of the module. It must sit strictly to the
+    // right of the reading column, and stay on-screen (no horizontal
+    // overflow introduced by the grid/float mechanics).
+    expect(tocLeft).toBeGreaterThan(proseRight);
+    expect(tocRight).toBeLessThanOrEqual(viewportWidth);
+  });
+});
+
 test.describe('interactive target size (>= 44x44 CSS px)', () => {
   for (const viewport of VIEWPORTS) {
     test(`theme toggle, nav links, footer links — ${viewport.name}`, async ({ page }) => {

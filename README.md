@@ -139,7 +139,9 @@ exemplar of the third: sanctioned personality that would be diluted by generaliz
 
 **Process (single-maintainer scale, no ceremony):** open an issue with before/after
 screenshots and the token-purity check; record the decision in the changelog. Historical
-examples: measure compensation and the Gallery archetype graduated; the theme deck was
+examples: measure compensation and the Gallery archetype graduated; the essay
+sidenotes/sticky-TOC-rail pair graduated as an optional module
+([#52](https://github.com/williamzujkowski/remarque/issues/52)); the theme deck was
 re-scoped on the way up ([#56](https://github.com/williamzujkowski/remarque/issues/56));
 the zine layer deliberately stayed local.
 

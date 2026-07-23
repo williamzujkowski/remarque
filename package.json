@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "engines": {
     "node": ">=18"
   },
@@ -68,6 +68,8 @@
     "./prose.css": "./prose.css",
     "./print": "./print.css",
     "./print.css": "./print.css",
+    "./essay": "./essay.css",
+    "./essay.css": "./essay.css",
     "./agent-rules": "./AGENT_RULES.md",
     "./spec": "./REMARQUE.md",
     "./package.json": "./package.json"
@@ -92,6 +94,7 @@
     "scripts/tokens-json.mjs",
     "prose.css",
     "print.css",
+    "essay.css",
     "scripts/lib/css-tokens.mjs"
   ]
 }

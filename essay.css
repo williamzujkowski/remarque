@@ -1,0 +1,429 @@
+/*
+ * Remarque — Essay Module (sidenotes + sticky TOC rail)
+ * ───────────────────────────────────────────────────────
+ * Optional Essay-archetype module: footnotes become in-flow margin notes
+ * (Tufte/gwern-style), and an "on this page" table of contents pins to a
+ * sticky rail alongside the reading column. Both are progressive
+ * enhancements over a plain Essay page — CSS-only, no JavaScript required
+ * at either breakpoint.
+ *
+ * PROVENANCE — graduated, not invented here. This module re-expresses, in
+ * Remarque's own token vocabulary, a design first built and shipped on
+ * williamzujkowski.github.io (`astro-site/src/lib/rehype-sidenotes.mjs` +
+ * `global.css`'s "Sidenotes"/"Sticky TOC side rail" blocks). Ratified for
+ * upstreaming in issue #52. No site-specific value (the flagship's literal
+ * `11.5rem`/`13rem`/`14rem`/`1280px` measurements) was copied — every
+ * dimension below is re-derived from tokens already in tokens-core.css /
+ * tokens-palette.css. See REMARQUE.md's "Essay Module" section for the
+ * full markup contract, and this file's inline comments for exactly which
+ * site value maps to which token and why a few mechanics changed shape
+ * (CSS counters instead of a build-time numbering step; `<details open>`
+ * by default instead of a JS breakpoint listener) on the way upstream.
+ *
+ * Own subpath (remarque-tokens/essay, remarque-tokens/essay.css) — NOT
+ * included by the tokens.css aggregator, and not required by prose.css:
+ * plenty of Essay pages want neither sidenotes nor a TOC rail. Import
+ * explicitly, after prose.css:
+ *   @import 'remarque-tokens/prose.css';
+ *   @import 'remarque-tokens/essay.css';
+ * (string form — see AGENT_RULES.md Pitfall #6.)
+ *
+ * ─── MARKUP CONTRACT (summary — full version in REMARQUE.md) ──────────
+ *
+ *   <article class="remarque-essay">
+ *     <header class="content-reading">...</header>
+ *
+ *     <nav class="remarque-toc-rail" aria-label="Table of contents">
+ *       <details open>
+ *         <summary>On this page</summary>
+ *         <ul>
+ *           <li><a href="#section-one">Section One</a></li>
+ *         </ul>
+ *       </details>
+ *     </nav>
+ *
+ *     <div class="remarque-prose content-reading">
+ *       <p>
+ *         A claim worth a citation<a href="#note-1" id="note-1-ref"
+ *           class="remarque-sidenote-ref" aria-describedby="note-1"></a>.
+ *       </p>
+ *       <aside class="remarque-sidenote" id="note-1" role="note">
+ *         The note text, in real DOM order right after the paragraph that
+ *         cites it — not collected into an end-of-document section.
+ *       </aside>
+ *     </div>
+ *
+ *     <footer class="content-reading">...</footer>
+ *   </article>
+ *
+ * DOM order is the accessibility requirement, not a presentational nicety:
+ * a screen reader hits a sidenote's content exactly where its reference
+ * occurs. `.remarque-sidenote-ref` and its matching `.remarque-sidenote`
+ * MUST alternate in strict DOM order (ref, then note, then the next ref,
+ * then its note...) — the counter mechanics below depend on it. `role=
+ * "note"` keeps a page with several sidenotes from scattering that many
+ * unlabeled `complementary` landmarks through the document (`<aside>`'s
+ * implicit role) — the same fix the flagship's rehype plugin documents.
+ *
+ * This module is deliberately silent on HOW that markup gets produced. A
+ * build-time transform (the flagship's rehype-sidenotes.mjs is one worked
+ * example, not a dependency of this package) or hand-authored HTML both
+ * satisfy the contract equally — see REMARQUE.md for the no-build-step
+ * fallback (`.remarque-footnotes`) if you don't have one.
+ *
+ * ─── BREAKPOINT ─────────────────────────────────────────────────────────
+ * Gated on >= 80rem (1280px, at the platform default 16px root) viewport
+ * width — the same threshold the flagship ratified, re-derived here from
+ * this package's own tokens instead of asserted as a bare magic number:
+ * `--content-standard` (72rem) is the widest a Remarque page's content
+ * ever grows, and the rail/gutter tracks below need `--space-11`+
+ * `--space-12` (10-12rem) and `--space-10` (8rem) of clearance on top of
+ * `--content-reading` (46rem default) plus two `--space-6` gaps — call it
+ * roughly 70-76rem of content width before both tracks have their
+ * documented minimum room, plus headroom for a scrollbar and window
+ * chrome. 80rem clears that with margin to spare across every approved
+ * body-face/measure pairing (see REMARQUE.md's Measure Compensation
+ * table) without needing a `--breakpoint-*` token this package doesn't
+ * otherwise have. Below it: sidenotes render as small-print inline blocks
+ * exactly where the plain document flow already places them, and the TOC
+ * is a collapsible `<details>` in the reading column — this is also the
+ * ONLY rendering a consumer who skips this module's `@media` block ever
+ * sees, so nothing here is required for the page to work.
+ */
+
+/* ─── Sidenotes — default / narrow-viewport mode ────────────────────────
+ * `.remarque-sidenote` renders as a bordered small-print block right in
+ * the text flow by default. This IS the narrow-viewport fallback the
+ * spec calls for — zero extra markup, zero JS: the note just isn't
+ * floated into a margin yet.
+ *
+ * Numbering is generated, not authored: `counter-reset` on
+ * `.remarque-prose`, `counter-increment` on `.remarque-sidenote-ref` only,
+ * and `.remarque-sidenote` simply READING that same counter (no increment
+ * of its own — see the comment on that rule) keep the visible number in
+ * sync across the reference and its note with no number typed into
+ * either element — the flagship's rehype plugin injects a literal
+ * `<span class="sidenote-number">1</span>`/text node at build time; this
+ * package ships no build step, so CSS counters do the same job for a
+ * pure-CSS module. A repeat citation of an already-noted footnote should
+ * use `.remarque-sidenote-ref--repeat` (no `.remarque-sidenote` follows
+ * it) so the shared counter isn't advanced for a note that was already
+ * printed — mirrors the flagship's "only the first reference gets a
+ * sidenote" rule.
+ */
+.remarque-prose {
+  counter-reset: remarque-sidenote;
+}
+
+.remarque-sidenote-ref {
+  counter-increment: remarque-sidenote;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  /* USWDS floor rationale: --text-micro is reserved for timestamps/fine
+     print only (tokens-core.css, REMARQUE.md "Font Size Floors") — the
+     flagship's own marker used that size, but this module holds to
+     Remarque's stricter 14px floor for anything read as content. */
+  line-height: 0;
+  vertical-align: super;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.remarque-sidenote-ref::after {
+  content: counter(remarque-sidenote);
+}
+
+.remarque-sidenote-ref:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+.remarque-sidenote-ref--repeat {
+  counter-increment: none;
+}
+
+.remarque-sidenote {
+  /* No counter-increment here: `.remarque-sidenote-ref` already advanced
+     `remarque-sidenote` immediately before this element in DOM order —
+     incrementing again would double-count every pair (ref shows N, the
+     note that follows it would show N+1 instead of N). This element only
+     READS the counter its ref just set. */
+  display: block;
+  margin-block: var(--space-3);
+  padding-inline-start: var(--space-3);
+  /* border-bold: this is the note's ONLY visual separator from running
+     prose at narrow widths, so it must clear the 3:1 functional-border
+     minimum (WCAG 1.4.11) — same reasoning as .remarque-prose blockquote. */
+  border-inline-start: var(--border-width) var(--border-style) var(--color-border-bold);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  color: var(--color-fg-muted);
+}
+
+/* The generated number precedes whatever content the note holds. If that
+   content is a single run of inline text (no wrapping <p>), the number
+   sits inline with the opening words — the flagship's "1 Note text..."
+   pairing. A `<p>`-wrapped note (multi-paragraph notes need it) instead
+   reads as a small label above the paragraph — a pure-CSS module can't
+   reach inside an arbitrary child the way a build-time transform can, so
+   this is the honest degradation: prefer bare text for single-line notes. */
+.remarque-sidenote::before {
+  content: counter(remarque-sidenote) "\2002";
+  color: var(--color-accent);
+  font-weight: var(--weight-semibold);
+}
+
+.remarque-sidenote :where(p) {
+  margin: 0;
+}
+
+.remarque-sidenote :where(p) + :where(p) {
+  margin-top: var(--space-2);
+}
+
+/* ─── Sidenotes — wide-viewport mode: float into the left margin ────────
+ * Classic Tufte CSS technique: `.remarque-sidenote` isn't a grid child
+ * itself (it's nested inside `.remarque-prose`, which IS grid-column 2 —
+ * see `.remarque-essay` below) so grid placement doesn't apply to it
+ * directly. Instead it floats left with a negative inline-start margin
+ * exactly wide enough to clear its own box plus one column-gap unit,
+ * landing in the grid's column-1 gutter. `clear: left` stacks consecutive
+ * notes without any JS-computed offset.
+ *
+ * Width (`--space-10`, 8rem) and pull-out distance (that width plus
+ * `--space-6`, the same gap the grid below uses between tracks) are both
+ * drawn from the core spacing scale rather than asserting a bespoke
+ * sidebar-width value — this is the token-vocabulary re-expression of the
+ * flagship's hand-measured `11.5rem`/`13rem` pair.
+ */
+@media (min-width: 80rem) {
+  .remarque-sidenote {
+    float: left;
+    clear: left;
+    width: var(--space-10);
+    margin-inline-start: calc(-1 * (var(--space-10) + var(--space-6)));
+    margin-block: var(--space-1) var(--space-4);
+    padding-inline-start: 0;
+    padding-inline-end: var(--space-2);
+    border-inline-start: none;
+    /* Decorative-only at this width (the gutter's own whitespace is the
+       real separator now) — `--color-border`, not `-bold`, matching the
+       flagship's own choice to relax the border once it's no longer the
+       sole boundary cue. */
+    border-inline-end: var(--border-width) var(--border-style) var(--color-border);
+    text-align: start;
+  }
+}
+
+/* ─── Footnotes fallback (no relocation build step) ─────────────────────
+ * `.remarque-footnotes` styles a traditional end-of-document footnotes
+ * section — e.g. GFM/mdast-util-to-hast's default
+ * `<section data-footnotes><h2>Footnotes</h2><ol>...</ol></section>`
+ * output — in the same meta voice as `.remarque-sidenote`, for a consumer
+ * who hasn't built (or doesn't want) a DOM-reordering transform. It is a
+ * same-voice fallback, not a lesser feature: use `.remarque-sidenote`
+ * whenever you can relocate notes into DOM reading order (the real a11y
+ * upgrade this module exists for); reach for `.remarque-footnotes` only
+ * when that isn't available yet.
+ *
+ *   <section class="remarque-footnotes">
+ *     <h2>Notes</h2>
+ *     <ol>
+ *       <li id="note-1">The note text. <a href="#note-1-ref">&#8617;</a></li>
+ *     </ol>
+ *   </section>
+ */
+.remarque-footnotes {
+  margin-top: var(--space-7);
+  padding-top: var(--space-3);
+  border-top: var(--border-width) var(--border-style) var(--color-border);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  color: var(--color-fg-muted);
+}
+
+.remarque-footnotes h2 {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-caps);
+  font-variant-caps: all-small-caps;
+  color: var(--color-muted);
+  margin: 0 0 var(--space-3);
+}
+
+.remarque-footnotes ol {
+  padding-inline-start: var(--space-5);
+  margin: 0;
+}
+
+.remarque-footnotes li + li {
+  margin-top: var(--space-2);
+}
+
+.remarque-footnotes a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.remarque-footnotes a:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+/* ─── Sticky TOC rail ────────────────────────────────────────────────────
+ * `.remarque-toc-rail` wraps a plain collapsible `<details>` — the SAME
+ * markup at every viewport, no JS breakpoint listener. Author it
+ * `<details open>` by default: below the rail breakpoint this is an
+ * inline collapsible block a reader can close to save space (native
+ * disclosure behavior, unchanged); at/above it, it reads as an
+ * already-expanded sticky rail. The flagship instead runs a small inline
+ * script that force-opens the native `open` attribute on every breakpoint
+ * crossing — this module holds to "no JS required," so it authors the
+ * open state up front instead of syncing it at runtime. The one
+ * degradation this trades away: a reader who manually collapses the TOC
+ * below the breakpoint and then widens their window keeps it collapsed
+ * until they click it again — a fully static, CSS-only cost worth paying
+ * for not requiring a script tag.
+ *
+ * Marker: reuses the same quiet mono disclosure triangle as
+ * `.remarque-prose details summary::before` (prose.css) rather than
+ * asking consumers to embed an inline SVG chevron, as the flagship's
+ * TableOfContents.astro does.
+ */
+.remarque-toc-rail {
+  margin-block: var(--space-5);
+}
+
+.remarque-toc-rail details {
+  border: none;
+  padding: 0;
+}
+
+.remarque-toc-rail summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-block: var(--space-2);
+  border-bottom: var(--border-width) var(--border-style) var(--color-border);
+  /* Mono meta voice — same declarations as .text-label (tokens-core.css),
+     repeated rather than shared because .text-label isn't a mixin: true
+     small caps, never text-transform: uppercase (REMARQUE.md "Small
+     Caps"). The flagship predates that rule and used `text-transform:
+     uppercase`; this is the one place the re-expression corrects the
+     source rather than just relocating it. */
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-caps);
+  color: var(--color-muted);
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-toc-rail summary::-webkit-details-marker {
+  display: none;
+}
+
+.remarque-toc-rail summary::before {
+  content: "\25B8";
+  display: inline-block;
+  color: var(--color-muted);
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-toc-rail details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.remarque-toc-rail summary:hover {
+  color: var(--color-fg);
+}
+
+.remarque-toc-rail ul {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-3) 0 0;
+}
+
+.remarque-toc-rail li + li {
+  margin-top: var(--space-1);
+}
+
+.remarque-toc-rail a {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-toc-rail a:hover {
+  color: var(--color-fg);
+}
+
+/* ─── Essay grid shell — wide-viewport rail layout ───────────────────────
+ * `.remarque-essay` is the opt-in grid container an Essay page's <article>
+ * adds to place a sticky TOC rail beside the reading column, mirroring
+ * this module's sidenote gutter on the OTHER side (right rail = TOC, left
+ * gutter = sidenotes — never the same side, so the two mechanisms never
+ * fight over space). Below the breakpoint it is a no-op: every child
+ * keeps whatever block-flow centering it already had from `.content-
+ * reading` / `.remarque-prose` — this rule only exists inside the
+ * `@media` block.
+ *
+ * Track widths: the center track is `minmax(0, var(--content-reading))` —
+ * IDENTICAL to the plain `max-width: content-reading; margin-inline:
+ * auto` centering used everywhere else (same visual column, just a grid
+ * track instead of block flow), so nothing here changes the reading
+ * measure the "prose measure" computed-style check already covers. The
+ * right track (`minmax(--space-11, --space-12)`, 10-12rem) is this
+ * module's re-expression of the flagship's bespoke `minmax(12rem, 14rem)`
+ * rail — same shape (a comfortable range, not a fixed width), core
+ * spacing tokens instead of asserted rem literals.
+ *
+ * Children are placed by exclusion (`:not(.remarque-toc-rail)` -> column
+ * 2) rather than an explicit tag list, deliberately: nothing about this
+ * rule touches `max-width` or `margin-inline` on any child, so each
+ * element's own `.content-reading` / `.remarque-prose` centering keeps
+ * working exactly as it does outside a grid — the grid track is already
+ * sized to match it.
+ */
+@media (min-width: 80rem) {
+  .remarque-essay {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, var(--content-reading))
+      minmax(var(--space-11), var(--space-12));
+    column-gap: var(--space-6);
+  }
+
+  .remarque-essay > :not(.remarque-toc-rail) {
+    grid-column: 2;
+  }
+
+  .remarque-essay > .remarque-toc-rail {
+    grid-column: 3;
+    /* `1 / -1` resolves to row 1 ONLY when the grid has no explicit
+       `grid-template-rows` (as here) — `-1` means "the last explicit
+       row line," which with zero explicit rows IS row 1. That inflates
+       row 1 to the rail's own height instead of spanning the real
+       content rows, shoving everything after it down a gap the height
+       of the TOC. (Exactly the bug the flagship shipped and fixed,
+       2026-07-20 — captured here so this module doesn't reintroduce
+       it.) A generous explicit span covers any Essay's block count;
+       empty implicit rows stay 0-height. */
+    grid-row: 1 / span 999;
+    align-self: start;
+    justify-self: start;
+    position: sticky;
+    top: var(--space-6);
+    width: 100%;
+    max-height: calc(100vh - var(--space-8));
+    overflow-y: auto;
+  }
+}
