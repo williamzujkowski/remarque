@@ -51,24 +51,20 @@ try {
 }
 const index = JSON.parse(readFileSync(indexPath, 'utf8'));
 
-/* ── Build the corpus of light+dark pairs by name-stem ───────────── */
+/* ── Build the corpus from the dataset's counterpart field ─────────
+ * (authoritative pairing metadata, dataset 0.2.0+ — replaced the
+ * name-stem heuristic this test originally shipped with). Every light
+ * theme that declares a counterpart yields one pair. */
 
-const SUFFIXES = ['-dark', '-light', '-day', '-night', '-dawn', '-moon', '-latte', '-mocha', '-storm', '-med', '-hard', '-soft'];
-function stem(slug) {
-  for (const s of SUFFIXES) if (slug.endsWith(s)) return slug.slice(0, -s.length);
-  return slug;
-}
-const families = new Map();
-for (const t of index.themes || []) {
-  const st = stem(t.slug);
-  if (!families.has(st)) families.set(st, { light: [], dark: [] });
-  (t.isDark ? families.get(st).dark : families.get(st).light).push(t.slug);
-}
 const pairs = [];
-for (const g of families.values()) {
-  if (g.light.length && g.dark.length) pairs.push([g.light[0], g.dark[0]]);
+for (const t of index.themes || []) {
+  if (!t.isDark && typeof t.counterpart === 'string') pairs.push([t.slug, t.counterpart]);
 }
-console.log(`corpus: ${index.themes.length} themes, ${families.size} name-stem families, ${pairs.length} light+dark pairs`);
+if (!pairs.length) {
+  console.error('no counterpart pairs in the installed dataset — is the devDependency older than 0.2.0?');
+  process.exit(1);
+}
+console.log(`corpus: ${index.themes.length} themes, ${pairs.length} counterpart-paired light themes`);
 
 /* ── Corpus property test: every pair must derive AND pass the real audit */
 
@@ -97,6 +93,24 @@ expect(
   corpusFailures.length === 0,
   corpusFailures.slice(0, 10).join('\n')
 );
+
+/* ── Counterpart default: --dark is optional when the dataset pairs ── */
+
+// Omitting --dark uses the light theme's counterpart.
+{
+  const [lightSlug, darkSlug] = pairs.find(([l]) => l === 'remarque-light') || pairs[0];
+  const r = run(['scripts/theme.mjs', lightSlug]);
+  expect(`omitted --dark defaults to counterpart (${lightSlug} → ${darkSlug})`, r.code === 0 && r.stdout.includes(`dark = "${darkSlug}"`), r.code !== 0 ? r.stderr.trim().slice(0, 200) : 'counterpart slug missing from provenance header');
+}
+
+// A light theme without a counterpart still requires --dark explicitly.
+{
+  const unpaired = (index.themes || []).find((t) => !t.isDark && t.counterpart === undefined);
+  if (unpaired) {
+    const r = run(['scripts/theme.mjs', unpaired.slug]);
+    expect(`unpaired light theme (${unpaired.slug}) without --dark is rejected (nonzero exit)`, r.code !== 0, `exit ${r.code}`);
+  }
+}
 
 /* ── Security / validation fixture cases ─────────────────────────── */
 
