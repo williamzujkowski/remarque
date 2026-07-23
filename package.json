@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "engines": {
     "node": ">=18"
   },
@@ -31,7 +31,8 @@
     "drift": "node scripts/drift-check.mjs"
   },
   "devDependencies": {
-    "@williamzujkowski/oklch-terminal-themes": "0.2.0"
+    "@williamzujkowski/oklch-terminal-themes": "0.2.0",
+    "culori": "^4.0.2"
   },
   "peerDependencies": {
     "@williamzujkowski/oklch-terminal-themes": ">=0.1.0 <0.3.0"

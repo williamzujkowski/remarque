@@ -56,6 +56,10 @@ jobs:
         run: node scripts/test-theme.mjs
         working-directory: .
 
+      - name: "Palette golden gate (tokens-palette.css bound to remarque-light/remarque-dark, ΔE2000 ≤ 2.0; site mirror check)"
+        run: node scripts/palette-golden.mjs
+        working-directory: .
+
       - name: Build Astro site
         run: npm run build
 

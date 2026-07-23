@@ -10,9 +10,16 @@
  * ANSI slots — most of Remarque's 15 semantic slots don't map directly,
  * and most themes fail the AAA fg-muted 7:1 line as authored. So this
  * DERIVES rather than maps: hue + chroma come from the theme (its
- * personality), lightness is solved per slot to hit the exact ratio
- * targets from REMARQUE.md's Enforcement Checklist (binary search over
- * L, with in-gamut chroma clamping inside the solver). Output passes
+ * personality); lightness is KEEP-IF-PASSING — a few load-bearing slots
+ * (fg, accent, accent-hover, and dark's selection-fg/code-fg) keep the
+ * theme's own authored lightness when it already clears the slot's
+ * ratio target, and are solved by binary search ONLY when it doesn't.
+ * A well-designed input theme comes through close to its own feel
+ * instead of being flattened to the exact threshold; a theme that fails
+ * still gets a value that passes, same as before (#76). Every other
+ * slot (fg-muted, muted, border-bold, the bg ladder, selection-bg,
+ * accent-subtle) is solved/derived as before — those don't have a
+ * meaningful "theme's own value" to preserve. Output passes
  * remarque-audit BY CONSTRUCTION — this script self-verifies the same
  * pairings before it will emit anything.
  *
@@ -254,24 +261,43 @@ function solveL(C, H, bg, target, dir) {
   );
 }
 
-/* Accent hue: cursor if it's chromatic, else the most-chromatic classic ANSI. */
+/* Accent source: cursor if it's chromatic, else the most-chromatic classic
+ * ANSI. Carries l too (not just h/c) — keep-if-passing needs the source's
+ * own lightness as the candidate to test before falling back to solveL. */
 function accentHue(theme, label) {
   const cursor = theme.colors && theme.colors.cursor && theme.colors.cursor.oklch;
   if (cursor) {
-    const [, c, h] = validateOklch(cursor, `${label} colors.cursor`);
-    if (c >= 0.05) return { h, c, from: 'cursor' };
+    const [l, c, h] = validateOklch(cursor, `${label} colors.cursor`);
+    if (c >= 0.05) return { l, h, c, from: 'cursor' };
   }
   const names = ['blue', 'purple', 'red', 'green', 'cyan', 'yellow'];
   const cands = [];
   for (const name of names) {
     const o = theme.colors && theme.colors[name] && theme.colors[name].oklch;
     if (!o) continue;
-    const [, c, h] = validateOklch(o, `${label} colors.${name}`);
-    cands.push({ name, c, h });
+    const [l, c, h] = validateOklch(o, `${label} colors.${name}`);
+    cands.push({ name, l, c, h });
   }
   if (!cands.length) die(`${label}: no classic ANSI colors available to derive an accent hue`);
   cands.sort((a, b) => b.c - a.c);
-  return { h: cands[0].h, c: cands[0].c, from: cands[0].name };
+  return { l: cands[0].l, h: cands[0].h, c: cands[0].c, from: cands[0].name };
+}
+
+/* Keep-if-passing: if the theme's own (quantized) lightness at this slot
+ * already clears `target` against `bg`, keep it (chroma gamut-clamped,
+ * hue rounded) — no margin, this is the theme's own value, not a solve.
+ * Only when it fails do we fall back to solveL, which keeps its existing
+ * ×1.03 search margin. `dir` only matters for that fallback path. */
+function keepOrSolve(L0, C, H, bg, target, dir) {
+  // Clamp into the valid domain first — an offset candidate (accent-hover,
+  // dark selection-fg/code-fg) can walk L past 0/1 for a theme whose own
+  // slot already sits near an extreme; ratio()'s luminance clip() would
+  // otherwise let an out-of-[0,1] L "pass" here only to fail the raw
+  // gamut check downstream in selfVerify.
+  const L = Math.min(1, Math.max(0, r3(L0)));
+  const c = fitChroma(L, C, H);
+  if (ratio([L, c, H], bg) >= target) return [L, c, r1(H)];
+  return solveL(C, H, bg, target, dir);
 }
 
 function fmt(triple) {
@@ -289,16 +315,23 @@ function deriveLight(t) {
   const bgC = fitChroma(bgL, Math.min(bgC0, 0.02), bgH);
   const bg = [bgL, bgC, bgH];
   const surface = [r3(bgL - 0.01), bgC, bgH];
-  const [, fgC0, fgH] = slotLch(t, 'foreground', 'light');
+  const [fgL0, fgC0, fgH] = slotLch(t, 'foreground', 'light');
   const fgC = Math.min(fgC0, 0.03);
-  const fg = solveL(fgC, fgH, surface, 10, 'darker');
+  // fg: keep the theme's own foreground lightness if it already clears the
+  // AAA floor (7:1) against surface; solve only if it doesn't (#76 — this
+  // used to always solve to 10:1, flattening well-designed themes).
+  const fg = keepOrSolve(fgL0, fgC, fgH, surface, 7.0, 'darker');
   const fgMuted = solveL(fgC, fgH, bg, 7.0, 'darker');
   const muted = solveL(Math.min(fgC0, 0.02), fgH, surface, 4.5, 'darker');
   const borderBold = solveL(0.01, bgH, bg, 3.0, 'darker');
   const ac = accentHue(t, 'light');
   const acC = Math.min(ac.c, 0.14);
-  const accent = solveL(acC, ac.h, bg, 4.5, 'darker');
-  const accentHover = [r3(accent[0] - 0.08), fitChroma(r3(accent[0] - 0.08), acC * 0.8, ac.h), r1(ac.h)];
+  // accent: keep the accent-source's own lightness (cursor or chosen ANSI
+  // color) if it already clears 4.5:1 on bg; solve only if it doesn't.
+  const accent = keepOrSolve(ac.l, acC, ac.h, bg, 4.5, 'darker');
+  // accent-hover: still the designed -0.08 offset from accent, but that
+  // offset is verified against 4.5:1 on bg and solve-adjusted if it breaks.
+  const accentHover = keepOrSolve(accent[0] - 0.08, acC * 0.8, ac.h, bg, 4.5, 'darker');
   const raw = {
     'color-bg': bg,
     'color-bg-subtle': [r3(bg[0] - 0.02), bg[1], bg[2]],
@@ -330,21 +363,33 @@ function deriveDark(t, accentHueLight) {
   const bgC = fitChroma(bgL, Math.min(bgC0, 0.03), bgH);
   const bg = [bgL, bgC, bgH];
   const surface = [r3(bg[0] + 0.03), bgC, bgH];
-  const [, fgC0, fgH] = slotLch(t, 'foreground', 'dark');
+  const [fgL0, fgC0, fgH] = slotLch(t, 'foreground', 'dark');
   const fgC = Math.min(fgC0, 0.02);
-  const fg = solveL(fgC, fgH, surface, 10, 'lighter');
+  // fg: keep the theme's own foreground lightness if it already clears the
+  // AAA floor (7:1) against surface; solve only if it doesn't (mirrors
+  // light — direction flipped, see #76).
+  const fg = keepOrSolve(fgL0, fgC, fgH, surface, 7.0, 'lighter');
   const fgMuted = solveL(fgC, fgH, bg, 7.0, 'lighter');
   const muted = solveL(fgC, fgH, surface, 4.5, 'lighter');
   const borderBold = solveL(0.01, bgH, bg, 3.0, 'lighter');
   const ac = accentHue(t, 'dark');
   const h = accentHueLight ?? ac.h; // keep hue consistent across the pair
   const acC = Math.min(ac.c, 0.12);
-  const accent = solveL(acC, h, bg, 4.5, 'lighter');
-  const accentHover = [r3(accent[0] + 0.07), fitChroma(r3(accent[0] + 0.07), acC, h), r1(h)];
+  // accent: keep the accent-source's own lightness if it already clears
+  // 4.5:1 on bg; solve only if it doesn't.
+  const accent = keepOrSolve(ac.l, acC, h, bg, 4.5, 'lighter');
+  // accent-hover: still the designed +0.07 offset from accent, verified
+  // against 4.5:1 on bg and solve-adjusted if the offset breaks it.
+  const accentHover = keepOrSolve(accent[0] + 0.07, acC, h, bg, 4.5, 'lighter');
   const selBg = [r3(bg[0] + 0.14), fitChroma(r3(bg[0] + 0.14), 0.06, h), r1(h)];
-  const selFg = solveL(0.005, fgH, selBg, 4.5, 'lighter');
+  // selection-fg: "slightly brighter than fg on selection" — derived from
+  // the (kept-or-solved) dark fg's own L/C/H, +0.02 lightness, verified
+  // against 4.5:1 on selection-bg and solved only if that breaks it.
+  const selFg = keepOrSolve(fg[0] + 0.02, fg[1], fg[2], selBg, 4.5, 'lighter');
   const codeBg = [r3(bg[0] + 0.04), bgC, bgH];
-  const codeFg = solveL(0.005, fgH, codeBg, 7, 'lighter');
+  // code-fg: "slightly dimmer than fg" — same pattern, -0.02, verified
+  // against the AAA 7:1 line on code-bg.
+  const codeFg = keepOrSolve(fg[0] - 0.02, fg[1], fg[2], codeBg, 7.0, 'lighter');
   const raw = {
     'color-bg': bg,
     'color-bg-subtle': surface,

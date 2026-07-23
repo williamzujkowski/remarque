@@ -42,6 +42,7 @@ These are not guidelines. Agents must follow them literally.
 - Site personalization happens ONLY by overriding `tokens-palette.css` tokens (font slots from the approved pairings, colors, accent, `--content-reading` per the measure table) in a stylesheet loaded after the tokens
 - After ANY palette change, run the audit and fix every failure before shipping — `npm run audit` inside this repo; `npx remarque-audit --palette <file> --src <dir>` in a consumer project (the npm script only exists here)
 - A generated palette override (from `npx remarque-theme <light> --dark <dark>`, see REMARQUE.md "Color Providers") is regenerated, never hand-edited — if it needs to change, change the source theme slugs and re-run `remarque-theme`, don't patch the emitted CSS directly
+- The DEFAULT palette in `tokens-palette.css` is bound to the upstream `remarque-light`/`remarque-dark` themes (REMARQUE.md "Color Providers" identity/serialization contract) — `node scripts/palette-golden.mjs` must stay green. Changing a default color means changing the upstream themes first (or in lockstep with the hand file), never editing `tokens-palette.css` alone to chase a design change; a value edited only on this side is drift, not personalization, and the golden gate exists to catch it
 
 ### Typography
 
