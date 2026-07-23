@@ -40,12 +40,16 @@ jobs:
         run: node scripts/audit.mjs
         working-directory: .
 
-      - name: tokens.json freshness (generated from the CSS)
+      - name: tokens.json + tokens.d.ts freshness (generated from the CSS)
         run: node scripts/tokens-json.mjs --check
         working-directory: .
 
       - name: Audit fixture tests (both theme conventions)
         run: node scripts/test-audit.mjs
+        working-directory: .
+
+      - name: "tokens.d.ts fixture tests (token-name coverage, exported types, package.json wiring)"
+        run: node scripts/test-types.mjs
         working-directory: .
 
       - name: "Drift-check fixture tests (classification: FAIL/WARN/INFO/no-op)"

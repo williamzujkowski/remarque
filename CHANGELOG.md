@@ -4,6 +4,35 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.12.0 — 2026-07-23
+
+TypeScript types and a README "Used By" section (closes #34, closes #35).
+
+### Added
+- **`tokens.d.ts`** — generated from `tokens.json` by `scripts/tokens-json.mjs`
+  (regenerates in the same run as `tokens.json`; `--check` verifies both are
+  fresh, wired into the same `deploy.yml` CI step). Ships literal-union types
+  for every token name (`RemarqueCoreToken`, `RemarquePaletteToken`,
+  `RemarqueToken`), a `RemarqueCssVar` template-literal type
+  (`` `--${RemarqueToken}` ``), structural interfaces matching tokens.json's
+  actual shape (`RemarqueTokensFile`, `RemarqueCoreTokenEntry`,
+  `RemarquePaletteTokenEntry`), a `RemarqueTokenValues` interface with the
+  live value of every token as a literal type, and an ambient
+  `declare module 'remarque-tokens/tokens.json'` so
+  `import tokens from 'remarque-tokens/tokens.json'` is precisely typed
+  without depending on the consumer's `resolveJsonModule`. This package has
+  no JS entry point — the types exist for editors/TS consumers who author
+  Remarque token names or read `tokens.json` programmatically.
+  `package.json` wires `types`, an `./tokens.d.ts` export, and a `types`
+  condition on the existing `./tokens.json` export; `scripts/test-types.mjs`
+  gates token-name coverage, the exported type surface, and the
+  `package.json` wiring (string assertions, no `typescript` dependency
+  added).
+- **README "Used By" section** — the demo site, `williamzujkowski.github.io`
+  (core-tier npm consumer), `tsundoku` (full-palette npm consumer, custom
+  accent hue), and `remarque-starter` (template repo), one line each on how
+  they consume the package.
+
 ## 0.11.0 — 2026-07-23
 
 Palette golden gate: the default palette is now bound, by CI, to the
