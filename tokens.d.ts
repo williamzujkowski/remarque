@@ -1,6 +1,6 @@
 /*
  * Remarque design tokens — GENERATED from tokens.json by
- * scripts/tokens-json.mjs (v0.19.0). Do not edit — the CSS
+ * scripts/tokens-json.mjs (v0.20.0). Do not edit — the CSS
  * (tokens-core.css + tokens-palette.css) is the source of truth;
  * tokens.json is the intermediate machine-readable form this file is
  * generated from. Regenerate with: node scripts/tokens-json.mjs
@@ -152,6 +152,7 @@ export interface RemarquePaletteTokenEntry {
  * below applying, etc).
  */
 export interface RemarqueTokensFile {
+  readonly $schema: string;
   readonly $description: string;
   readonly $extensions: {
     readonly remarque: {
@@ -159,6 +160,16 @@ export interface RemarqueTokensFile {
       readonly tiers: {
         readonly core: string;
         readonly palette: string;
+      };
+      /** DTCG conformance note (issue #99) — see REMARQUE.md "DTCG Conformance". */
+      readonly dtcg: {
+        readonly conformance: string;
+        readonly divergences: ReadonlyArray<{
+          readonly aspect: string;
+          readonly detail: string;
+          readonly gatedOn: string;
+        }>;
+        readonly note: string;
       };
     };
   };

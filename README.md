@@ -44,6 +44,8 @@ Copy the `fonts/` woff2 files from `node_modules/remarque-tokens/fonts/` into yo
 npx remarque-audit --palette src/styles/my-palette.css --src src
 ```
 
+Add `--json` to either `remarque-audit` or `remarque-drift` for a single structured JSON document on stdout instead of colored console output (exit codes unchanged) — for agents and CI tooling to parse rather than scrape. Shape documented in `AGENT_RULES.md` ("Machine-Readable Output").
+
 **Tailwind v4** projects add the shipped adapter — utilities that track the tokens through every theme switch, no value duplication:
 
 ```css
@@ -52,7 +54,7 @@ npx remarque-audit --palette src/styles/my-palette.css --src src
 @import "remarque-tokens/theme.css";
 ```
 
-**Tailwind v3** projects use the shipped config (`remarque-tokens/tailwind`) instead. A machine-readable token inventory ships as `remarque-tokens/tokens.json` (generated from the CSS — core/palette tiers, light+dark values) for tooling and AI agents. Prefer copy-paste? Grab `fonts.css`, `tokens.css`, `tokens-core.css`, `tokens-palette.css`, and `fonts/` directly — `tokens.css` aggregates the two tier files, so all three CSS files travel together. Use string-form `@import './tokens.css'` only (some bundlers silently drop `@import url(...)` for local files).
+**Tailwind v3** projects use the shipped config (`remarque-tokens/tailwind`) instead. A machine-readable token inventory ships as `remarque-tokens/tokens.json` (generated from the CSS — core/palette tiers, light+dark values) for tooling and AI agents, with a published JSON Schema at `remarque-tokens/tokens.schema.json` (also referenced by tokens.json's own `$schema` field) so tooling can validate it structurally instead of hand-parsing. tokens.json is conformant in spirit with the [Design Tokens Community Group](https://www.designtokens.org/) format (`$value`/`$type` on every token), with two deliberate divergences — see REMARQUE.md's "DTCG Conformance" section. Prefer copy-paste? Grab `fonts.css`, `tokens.css`, `tokens-core.css`, `tokens-palette.css`, and `fonts/` directly — `tokens.css` aggregates the two tier files, so all three CSS files travel together. Use string-form `@import './tokens.css'` only (some bundlers silently drop `@import url(...)` for local files).
 
 ## For AI Agents
 
@@ -68,7 +70,7 @@ The agent rules define build order, non-negotiable rules, disallowed patterns, a
 Packaging for agent tooling:
 - **npm exports:** `remarque-tokens/agent-rules` (→ `AGENT_RULES.md`) and `remarque-tokens/spec` (→ `REMARQUE.md`), alongside the existing `remarque-tokens/tokens.json`, so a project can point an agent at `node_modules/remarque-tokens/AGENT_RULES.md` without hardcoding a filename.
 - **Claude Code skill:** [`.claude/skills/remarque/SKILL.md`](.claude/skills/remarque/SKILL.md) — triggers on "remarque" / "design system" / new-page work, loads all three files, and states the tier rules, the audit command, and the two build-time pitfalls (unlayered-token-import, string-form `@import`) that pass a green build while silently breaking.
-- **Live tokens endpoint:** the demo site serves the current `tokens.json` at **https://williamzujkowski.github.io/remarque/tokens.json** — a remote agent can fetch current token values directly instead of trusting training data.
+- **Live tokens endpoint:** the demo site serves the current `tokens.json` at **https://williamzujkowski.github.io/remarque/tokens.json**, and its schema at **https://williamzujkowski.github.io/remarque/tokens.schema.json** — a remote agent can fetch current token values (and validate their shape) directly instead of trusting training data.
 
 ## Files
 
@@ -80,7 +82,10 @@ Packaging for agent tooling:
 | `tokens-core.css` | Core tier — type scale, spacing, widths, radius, motion, prose styling. Never overridden |
 | `tokens-palette.css` | Palette tier — font slots, colors, accent, reading measure. The sanctioned personalization surface |
 | `prose.css` | `.remarque-prose` long-form styling — own subpath so sites with their own prose system can skip it |
-| `scripts/audit.mjs` | `npm run audit` — enforces the spec's contrast/gamut/font-floor/no-hardcoded-color checklist |
+| `scripts/audit.mjs` | `npm run audit` — enforces the spec's contrast/gamut/font-floor/no-hardcoded-color checklist (`--json` for structured output) |
+| `scripts/drift-check.mjs` | `npx remarque-drift` — token drift check for consumers (`--json` for structured output) |
+| `tokens.json` + `tokens.d.ts` | Generated machine-readable token inventory + TypeScript types (`scripts/tokens-json.mjs`) |
+| `tokens.schema.json` | Generated JSON Schema (draft 2020-12) for `tokens.json`, published alongside it |
 | `fonts.css` + `fonts/` | Self-hosted @font-face declarations and woff2 files (no CDN requests) |
 | `tailwind.config.js` | Tailwind CSS **v3** configuration (v4 projects use an `@theme` block instead) |
 | `package.json` | npm package manifest for `remarque-tokens` |

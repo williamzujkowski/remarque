@@ -2,7 +2,7 @@
 /*
  * remarque audit — enforces REMARQUE.md's checklist mechanically.
  *
- *   node scripts/audit.mjs [--palette tokens-palette.css] [--src <dir>]
+ *   node scripts/audit.mjs [--palette tokens-palette.css] [--src <dir>] [--json]
  *   npx remarque-audit --palette your-palette.css --src src
  *
  * Checks (exit 1 on any failure):
@@ -19,6 +19,11 @@
  *   2. FONT FLOOR — no font-size declaration below 0.8125rem / 13px in src.
  *   3. NO HARDCODED COLORS — no hex/rgb()/hsl() literals in src styles;
  *      oklch() literals are allowed only in token files.
+ *
+ * --json: suppresses all human console output and emits ONE JSON document
+ * to stdout instead (exit codes unchanged) — for agents/tooling to parse
+ * instead of scraping colored stdout. Shape documented in AGENT_RULES.md
+ * ("Machine-Readable Output — remarque-audit --json").
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -33,11 +38,35 @@ function argOf(flag, dflt) {
 }
 const PALETTE = argOf('--palette', 'tokens-palette.css');
 const SRC = argOf('--src', existsSync('site/src') ? 'site/src' : '.');
+const JSON_MODE = args.includes('--json');
+
+// The audit's OWN package version (this script's remarque-tokens, resolved
+// via import.meta.url so it is correct whether run in this repo or as
+// npx remarque-audit from a consumer's node_modules/remarque-tokens) —
+// not the consumer project's package.json.
+const PKG_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const PKG_VERSION = JSON.parse(readFileSync(join(PKG_ROOT, 'package.json'), 'utf8')).version;
+
+const report = {
+  version: PKG_VERSION,
+  palette: PALETTE,
+  src: SRC,
+  passed: false,
+  contrast: [],
+  gamut: [],
+  srcScans: { fontFloor: [], unverifiableFontSize: [], hardcodedColors: [], oklchLiteral: [] },
+  failures: [],
+};
+
+function log(...a) {
+  if (!JSON_MODE) console.log(...a);
+}
 
 let failures = 0;
 function fail(msg) {
   failures++;
-  console.error(`  ✗ ${msg}`);
+  report.failures.push(msg);
+  if (!JSON_MODE) console.error(`  ✗ ${msg}`);
 }
 
 if (!existsSync(PALETTE)) {
@@ -48,6 +77,9 @@ if (!existsSync(SRC)) {
   console.error(`src directory not found: ${SRC} (use --src <dir>)`);
   process.exit(1);
 }
+// These two checks are fatal usage errors (exit 1) unrelated to the
+// checked project's compliance, so they print unconditionally even in
+// --json mode — there is no report to emit yet.
 
 /* ── OKLCH → sRGB → WCAG luminance ──────────────────────── */
 
@@ -139,11 +171,14 @@ const CHECKS = [
 ];
 
 for (const [themeName, decls] of [['light', lightDecls], ['dark', darkDecls]]) {
-  console.log(`\n${themeName} theme (${PALETTE})`);
+  log(`\n${themeName} theme (${PALETTE})`);
   // gamut check on every color-valued token
   for (const name of Object.keys(decls)) {
     const r = resolveColor(decls, name);
-    if (r.color && !inGamut(oklchToLinearSrgb(...r.color))) {
+    if (!r.color) continue; // unresolvable tokens are covered by the contrast checks' own error path
+    const ok = inGamut(oklchToLinearSrgb(...r.color));
+    report.gamut.push({ theme: themeName, token: name, value: `oklch(${r.color.join(' ')})`, ok });
+    if (!ok) {
       fail(`--${name} oklch(${r.color.join(' ')}) is outside sRGB gamut — browsers will clip it; author an in-gamut value`);
     }
   }
@@ -151,12 +186,16 @@ for (const [themeName, decls] of [['light', lightDecls], ['dark', darkDecls]]) {
     const fg = resolveColor(decls, fgName);
     const bg = resolveColor(decls, bgName);
     if (fg.err || bg.err) {
+      report.contrast.push({ theme: themeName, fg: fgName, bg: bgName, label, required: min, actual: null, ok: false, error: fg.err || bg.err });
       fail(`${fgName}/${bgName} (${label}): ${fg.err || bg.err}`);
       continue;
     }
     const r = ratio(fg.color, bg.color);
-    if (r < min) fail(`${fgName}/${bgName} = ${r.toFixed(2)}:1 < ${min}:1 (${label})`);
-    else console.log(`  ✓ ${fgName}/${bgName} = ${r.toFixed(2)}:1 (${label})`);
+    const actual = Math.round(r * 100) / 100;
+    const ok = r >= min;
+    report.contrast.push({ theme: themeName, fg: fgName, bg: bgName, label, required: min, actual, ok });
+    if (!ok) fail(`${fgName}/${bgName} = ${r.toFixed(2)}:1 < ${min}:1 (${label})`);
+    else log(`  ✓ ${fgName}/${bgName} = ${r.toFixed(2)}:1 (${label})`);
   }
 }
 
@@ -171,7 +210,7 @@ function* walk(dir) {
   }
 }
 
-console.log(`\nsource scans (${SRC})`);
+log(`\nsource scans (${SRC})`);
 const FONT_FLOOR_REM = 0.8125, FONT_FLOOR_PX = 13;
 // tokens.astro is the token *reference page* — its job is displaying literal
 // values (issue #48 tracks generating it from a machine-readable source).
@@ -198,26 +237,36 @@ for (const file of walk(SRC)) {
     for (const m of line.matchAll(/font-size:\s*([\d.]+)(rem|px)/g)) {
       const v = parseFloat(m[1]);
       if ((m[2] === 'rem' && v < FONT_FLOOR_REM) || (m[2] === 'px' && v < FONT_FLOOR_PX)) {
+        report.srcScans.fontFloor.push({ file: rel, line: i + 1, size: v, unit: m[2] });
         fail(`${rel}:${i + 1} font-size ${m[1]}${m[2]} below the 13px floor`);
       }
     }
     if (!isTokenFile(rel) && /font-size:\s*(clamp\(|[\d.]+%)/.test(line)) {
+      report.srcScans.unverifiableFontSize.push({ file: rel, line: i + 1, snippet: line.trim().slice(0, 80) });
       fail(`${rel}:${i + 1} statically unverifiable font-size (clamp/%) — use var(--text-*) tokens: ${line.trim().slice(0, 80)}`);
     }
     // 3. hardcoded colors (hex / rgb / hsl anywhere; oklch outside token files).
     // Note: hex fills/strokes in inline SVG are flagged deliberately —
     // Remarque icons use currentColor, per the no-hardcoded-colors rule.
     if (/(#[0-9a-fA-F]{3,8}\b(?![0-9a-zA-Z]))|(\brgba?\()|(\bhsla?\()/.test(line) && !/xmlns|href|url\(#|\{#/.test(line)) {
+      report.srcScans.hardcodedColors.push({ file: rel, line: i + 1, snippet: line.trim().slice(0, 80) });
       fail(`${rel}:${i + 1} hardcoded hex/rgb/hsl color: ${line.trim().slice(0, 80)}`);
     }
     if (!isTokenFile(rel) && /\boklch\(/.test(line) && !line.includes('var(--')) {
+      report.srcScans.oklchLiteral.push({ file: rel, line: i + 1, snippet: line.trim().slice(0, 80) });
       fail(`${rel}:${i + 1} oklch() literal outside token files: ${line.trim().slice(0, 80)}`);
     }
   });
 }
 
-if (failures) {
+report.passed = failures === 0;
+
+if (JSON_MODE) {
+  console.log(JSON.stringify(report, null, 2));
+} else if (failures) {
   console.error(`\naudit FAILED — ${failures} problem(s)\n`);
-  process.exit(1);
+} else {
+  console.log('\naudit passed ✓\n');
 }
-console.log('\naudit passed ✓\n');
+
+if (failures) process.exit(1);

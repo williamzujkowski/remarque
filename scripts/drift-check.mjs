@@ -2,7 +2,7 @@
 /*
  * remarque-drift — token drift check for consumers of remarque-tokens.
  *
- *   node scripts/drift-check.mjs --css-file <path> --package-dir <dir>
+ *   node scripts/drift-check.mjs --css-file <path> --package-dir <dir> [--json]
  *   npx remarque-drift --css-file src/styles/global.css --package-dir .
  *
  * Compares a consumer's stylesheet against the INSTALLED remarque-tokens
@@ -27,6 +27,11 @@
  *
  * Exit code: 1 iff there is at least one undocumented (FAIL) core-tier
  * mismatch. WARN and INFO never fail the build.
+ *
+ * --json: suppresses all human console output and emits ONE JSON document
+ * to stdout instead (exit codes unchanged) — records mirror the FAIL/
+ * WARN/INFO classification above. Shape documented in AGENT_RULES.md
+ * ("Machine-Readable Output — remarque-drift --json").
  */
 
 import { readFileSync, existsSync } from 'node:fs';
@@ -41,6 +46,7 @@ function argOf(flag, dflt) {
 
 const CSS_FILE = argOf('--css-file', null);
 const PACKAGE_DIR = resolve(argOf('--package-dir', '.'));
+const JSON_MODE = args.includes('--json');
 
 if (!CSS_FILE) {
   console.error('usage: drift-check.mjs --css-file <path> --package-dir <dir>');
@@ -161,6 +167,27 @@ for (const [name, tok] of Object.entries(tokens.palette || {})) {
 }
 
 /* ── Report ─────────────────────────────────────────────────────────── */
+
+if (JSON_MODE) {
+  // Flatten the internal per-token fails/warns/infos (each may bundle a
+  // light+dark mismatch) into one record per theme mismatch — the FAIL/
+  // WARN/INFO records the human report prints one line per, above.
+  const fail = fails.flatMap((f) => f.mismatches.map((m) => ({ name: f.name, theme: m.theme, canonical: f.canonical, value: m.value })));
+  const warn = warns.flatMap((w) => w.mismatches.map((m) => ({ name: w.name, theme: m.theme, canonical: w.canonical, value: m.value, doc: w.doc })));
+  const info = infos.flatMap((i) => i.diffs.map((d) => ({ name: i.name, theme: d.theme, canonical: d.theme === 'light' ? i.canonicalLight : i.canonicalDark, value: d.value })));
+  console.log(JSON.stringify({
+    cssFile: CSS_FILE,
+    packageDir: PKG_ROOT,
+    installedVersion,
+    deviationDoc: deviationDocPath,
+    passed: fails.length === 0,
+    fail,
+    warn,
+    info,
+    summary: { fail: fails.length, warn: warns.length, info: infos.length },
+  }, null, 2));
+  process.exit(fails.length ? 1 : 0);
+}
 
 console.log('remarque-drift — token drift check');
 console.log(`  consumer stylesheet: ${CSS_FILE}`);
