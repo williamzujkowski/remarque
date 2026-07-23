@@ -80,7 +80,7 @@ The palette tier (all `--color-*` tokens) can be *supplied* rather than hand-aut
 npx remarque-theme <light-slug> [--dark <dark-slug>] [-o palette-override.css]
 ```
 
-Terminal themes carry only `background/foreground/cursor/selection` + 16 ANSI slots — a few of Remarque's 15 semantic slots map directly, and most themes fail the AAA `fg-muted` 7:1 line as authored. So `remarque-theme` *derives* rather than maps: **hue and chroma carry the theme's personality; lightness is KEEP-IF-PASSING**. For the slots that have a meaningful "theme's own value" — `fg`, `accent`, `accent-hover`, and (in dark) `selection-fg`/`code-fg` — the theme's own authored lightness is kept as-is when it already clears the slot's contrast target; lightness is solved (binary search, same targets as the Enforcement Checklist below, with in-gamut chroma clamping) *only* when it doesn't. Every other slot (`fg-muted`, `muted`, `border-bold`, the bg ladder, `selection-bg`, `accent-subtle`) is solved/derived unconditionally, as it always was — those don't carry an independent authored value to preserve. This means a well-designed input theme comes through close to its own feel instead of being flattened to the exact threshold; a theme that fails a target still gets a value that passes, exactly as before. The accent hue comes from the theme's cursor color if it's chromatic, otherwise the most saturated classic ANSI color, and is kept consistent between the light and dark half of a pair.
+Terminal themes carry only `background/foreground/cursor/selection` + 16 ANSI slots — a few of Remarque's 24 semantic slots map directly, and most themes fail the AAA `fg-muted` 7:1 line as authored. So `remarque-theme` *derives* rather than maps: **hue and chroma carry the theme's personality; lightness is KEEP-IF-PASSING**. For the slots that have a meaningful "theme's own value" — `fg`, `accent`, `accent-hover`, and (in dark) `selection-fg`/`code-fg` — the theme's own authored lightness is kept as-is when it already clears the slot's contrast target; lightness is solved (binary search, same targets as the Enforcement Checklist below, with in-gamut chroma clamping) *only* when it doesn't. Every other slot (`fg-muted`, `muted`, `border-bold`, the bg ladder, `selection-bg`, `accent-subtle`) is solved/derived unconditionally, as it always was — those don't carry an independent authored value to preserve. This means a well-designed input theme comes through close to its own feel instead of being flattened to the exact threshold; a theme that fails a target still gets a value that passes, exactly as before. The accent hue comes from the theme's cursor color if it's chromatic, otherwise the most saturated classic ANSI color, and is kept consistent between the light and dark half of a pair.
 
 The audit remains the gate regardless of provenance — `remarque-theme` self-verifies its own output against the same checks before it will emit anything, but a site that hand-edits a generated palette (or points at a provider with pathological input colors) still runs through `remarque-audit` in CI like any other palette.
 
@@ -231,6 +231,113 @@ Charts are not yet a first-class Remarque surface, but tools built with the syst
 
 ---
 
+## Syntax Highlighting
+
+Code blocks are a first-class Remarque surface, not a place to reach for a vendor Shiki/Prism theme: `tokens-palette.css` defines 9 `--color-syntax-*` slots, hand-authored in both themes and golden-gated against the upstream `remarque-light`/`remarque-dark` themes' ANSI colors the same way the rest of the default palette is (issue #53). Because they are ordinary palette-tier tokens, they inherit palette swaps and theme-deck runtime switches for free — a vendor theme never does.
+
+### Slots
+
+| Slot | Shiki (`createCssVariablesTheme`) | Prism |
+|---|---|---|
+| `--color-syntax-keyword` | `token-keyword` | `.keyword`, `.atrule` |
+| `--color-syntax-string` | `token-string` + `token-string-expression` (aliased — regex/template/interpolated are string-like) | `.string`, `.char`, `.attr-value` |
+| `--color-syntax-constant` | `token-constant` | `.number`, `.boolean`, `.constant`, `.symbol` |
+| `--color-syntax-comment` | `token-comment` | `.comment`, `.prolog`, `.doctype`, `.cdata` |
+| `--color-syntax-function` | `token-function` | `.function` |
+| `--color-syntax-type` | (same Shiki variable as `function` — see divergence below) | `.class-name` |
+| `--color-syntax-punctuation` | `token-punctuation` | `.operator`, `.punctuation` |
+| `--color-syntax-variable` | `token-parameter` | `.variable`, `.property`, `.tag`, `.attr-name` |
+| `--color-syntax-link` | `token-link` | `.url` |
+
+Slot names were validated against Shiki's `theme-css-variables.ts` and Prism's reference-theme token vocabulary before being frozen (panel condition on #53) — every name above maps to a real token both highlighters actually emit.
+
+### Derivation
+
+`remarque-theme` derives all 9 slots from the source theme's 16 ANSI colors — the same keep-if-passing-else-solve pattern as every other slot, targeted at `--color-code-bg` (not `--color-bg`) at 4.5:1: `keyword`←blue, `string`←green, `constant`←yellow (the terminal convention for numbers/booleans), `function`←purple, `type`←cyan, `comment`←`brightBlack` in dark themes (solved to a muted neutral on the theme's own fg hue in light themes, where `brightBlack` is often too pale to clear 4.5:1 on `code-bg`), `punctuation`←a derived neutral in the muted family, `variable`←the theme's own fg hue/chroma with a slight lightness offset, and `link`←the already-derived accent triple, aliased with `var(--color-accent)` when it clears 4.5:1 on `code-bg` (solved standalone when it doesn't — accent's guarantee is against `--color-bg`, and `code-bg` sits close enough to drift below the line on some corpus themes). Chroma is capped at 0.14, the same ceiling as `--color-accent`, so syntax colors stay in the system's quiet, one-accent register. `scripts/palette-golden.mjs` extends its ΔE2000 ≤ 2.0 gate to all 9 slots, exactly like the rest of the default palette.
+
+### Astro / Shiki wiring
+
+Shiki v1+ ships `createCssVariablesTheme` — pass it as an object, not the `'css-variables'` string (Astro renames the string form's variable prefix to `--astro-code-*`, which silently breaks the mapping):
+
+```js
+import { createCssVariablesTheme } from 'shiki'; // or '@shikijs/core'
+
+const theme = createCssVariablesTheme({
+  name: 'remarque',
+  variablePrefix: '--color-syntax-',
+  fontStyle: true,
+});
+
+// markdown/MDX: { shikiConfig: { theme } }
+// <Code> component: <Code code={...} lang="..." theme={theme} />
+```
+
+**The CSS bridge (required, not optional):** `createCssVariablesTheme`'s `variablePrefix` is a plain string prepend, not a rename — Shiki's own internal slot names already start with `token-` (`token-keyword`, `token-string-expression`, `token-constant`, …) plus a bare `foreground`/`background`, so `variablePrefix: '--color-syntax-'` makes Shiki bake `color:var(--color-syntax-token-keyword)` into every span, not `var(--color-syntax-keyword)`. Left undefined, that variable resolves to nothing and the span silently inherits its parent's color — the highlighting looks like it's missing, not broken. One small bridge block closes the gap (Astro's Shiki integration puts an `.astro-code` class on the `<pre>`; scope to it so these implementation-detail names don't leak into the page's global custom-property namespace):
+
+```css
+.astro-code {
+  --color-syntax-foreground: var(--color-code-fg);
+  --color-syntax-background: var(--color-code-bg);
+  --color-syntax-token-keyword: var(--color-syntax-keyword);
+  --color-syntax-token-string: var(--color-syntax-string);
+  --color-syntax-token-string-expression: var(--color-syntax-string);
+  --color-syntax-token-constant: var(--color-syntax-constant);
+  --color-syntax-token-comment: var(--color-syntax-comment);
+  --color-syntax-token-function: var(--color-syntax-function);
+  --color-syntax-token-parameter: var(--color-syntax-variable);
+  --color-syntax-token-punctuation: var(--color-syntax-punctuation);
+  --color-syntax-token-link: var(--color-syntax-link);
+  /* token-inserted/-deleted/-changed intentionally left undefined —
+     diff markers, out of scope (see "Documented divergences" below);
+     they fall back to inherited foreground, which is a safe default. */
+}
+```
+
+There is no separate `token-type` — see the `type` ≡ `function` divergence below; `--color-syntax-type` is real for Prism but never appears as a Shiki variable.
+
+### Prism CSS mapping
+
+Prism ships no CSS-variables mode — wire the classes directly:
+
+```css
+.token.keyword,
+.token.atrule            { color: var(--color-syntax-keyword); }
+.token.string,
+.token.char,
+.token.attr-value        { color: var(--color-syntax-string); }
+.token.number,
+.token.boolean,
+.token.constant,
+.token.symbol            { color: var(--color-syntax-constant); }
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata             { color: var(--color-syntax-comment); }
+.token.function          { color: var(--color-syntax-function); }
+.token.class-name        { color: var(--color-syntax-type); }
+.token.operator,
+.token.punctuation       { color: var(--color-syntax-punctuation); }
+.token.variable,
+.token.property,
+.token.tag,
+.token.attr-name         { color: var(--color-syntax-variable); }
+.token.url               { color: var(--color-syntax-link); }
+```
+
+### Documented divergences
+
+These are deliberate, not bugs:
+
+- **`type` ≡ `function` under Shiki.** Shiki's css-variables mode folds `entity.name.type` into the function-scoped variable, so the two slots render identically in Shiki output even though Prism (`.class-name` vs. `.function`) distinguishes them. The tokens stay separate because Prism needs them separate.
+- **Plain operators inherit the foreground.** Shiki has no scope for a bare operator token; it renders in `--color-fg` like surrounding text rather than `--color-syntax-punctuation`. Prism's `.operator` class does map to punctuation.
+- **Diff markers are out of scope.** `token-inserted`/`token-deleted`/`token-changed` (Shiki) and equivalent Prism diff classes are not covered by this token set — a future `--color-diff-*` family would own them if a concrete consumer needs one.
+
+### Comment-contrast policy
+
+The 4.5:1 floor is held, not relaxed, for `--color-syntax-comment` — muted comments are an editorial convention, not a license to fail AA. Survey of shipping syntax themes: GitHub's light-default theme holds 4.55:1, GitHub's dark-default holds 6.15:1, and VS Code's Dark+ holds 5.0:1 — all pass. Only legacy/neglected themes fail (Prism's own default theme sits at 3.64:1; the legacy `github-dark` theme sits at 3.05:1). A muted-comment convention is achievable within AA; Remarque does not carry a documented exception for this slot.
+
+---
+
 ## Motion Rules
 
 Motion in Remarque is nearly invisible. The only permitted motion:
@@ -303,6 +410,7 @@ Every PR that ships Remarque pages MUST pass (`npm run audit` automates the colo
 - [ ] `font-variant-numeric: tabular-nums lining-nums` on all metadata that mixes with dates/counts.
 - [ ] No hardcoded hex/rgb colors — only `var(--color-*)` tokens.
 - [ ] Body line-height ≥ 1.5 (Remarque target: 1.75).
+- [ ] Every `--color-syntax-*` slot ≥ 4.5:1 against `--color-code-bg` in both themes (see "Syntax Highlighting").
 
 Agents reviewing PRs should reject changes that violate any line above without explicit rationale.
 

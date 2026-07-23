@@ -113,6 +113,15 @@ const CHECKS = [
   ['color-code-fg', 'color-code-bg', 4.5, 'code text'],
   ['color-border-bold', 'color-bg', 3.0, 'functional borders (WCAG 1.4.11)'],
   ['color-selection-fg', 'color-selection-bg', 4.5, 'selected text'],
+  ['color-syntax-keyword', 'color-code-bg', 4.5, 'syntax: keyword'],
+  ['color-syntax-string', 'color-code-bg', 4.5, 'syntax: string'],
+  ['color-syntax-constant', 'color-code-bg', 4.5, 'syntax: constant'],
+  ['color-syntax-comment', 'color-code-bg', 4.5, 'syntax: comment'],
+  ['color-syntax-function', 'color-code-bg', 4.5, 'syntax: function'],
+  ['color-syntax-type', 'color-code-bg', 4.5, 'syntax: type'],
+  ['color-syntax-punctuation', 'color-code-bg', 4.5, 'syntax: punctuation'],
+  ['color-syntax-variable', 'color-code-bg', 4.5, 'syntax: variable'],
+  ['color-syntax-link', 'color-code-bg', 4.5, 'syntax: link'],
 ];
 
 for (const [themeName, decls] of [['light', lightDecls], ['dark', darkDecls]]) {

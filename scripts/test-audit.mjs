@@ -28,6 +28,15 @@ const LIGHT = `:root {
   --color-selection-fg: var(--color-fg);
   --color-code-bg: oklch(0.945 0.005 80);
   --color-code-fg: var(--color-fg);
+  --color-syntax-keyword: oklch(0.51 0.12 250);
+  --color-syntax-string: oklch(0.50 0.12 145);
+  --color-syntax-constant: oklch(0.51 0.105 85);
+  --color-syntax-comment: oklch(0.52 0.01 80);
+  --color-syntax-function: oklch(0.52 0.12 310);
+  --color-syntax-type: oklch(0.50 0.085 196);
+  --color-syntax-punctuation: oklch(0.52 0.01 80);
+  --color-syntax-variable: oklch(0.26 0.01 80);
+  --color-syntax-link: var(--color-accent);
 }`;
 const DARK_DECLS = `
   --color-bg: oklch(0.16 0.01 80);
@@ -42,6 +51,15 @@ const DARK_DECLS = `
   --color-selection-fg: oklch(0.92 0.005 80);
   --color-code-bg: oklch(0.20 0.005 80);
   --color-code-fg: oklch(0.88 0.005 80);
+  --color-syntax-keyword: oklch(0.61 0.11 250);
+  --color-syntax-string: oklch(0.60 0.11 145);
+  --color-syntax-constant: oklch(0.61 0.11 84);
+  --color-syntax-comment: oklch(0.60 0.005 80);
+  --color-syntax-function: oklch(0.62 0.11 310);
+  --color-syntax-type: oklch(0.60 0.10 195);
+  --color-syntax-punctuation: oklch(0.60 0.005 80);
+  --color-syntax-variable: oklch(0.82 0.005 80);
+  --color-syntax-link: var(--color-accent);
 `;
 
 const cases = [
@@ -54,6 +72,9 @@ const cases = [
   // so if dark values leaked into light (the old .includes(':root') bug hid
   // this), the failure would disappear. Expect FAIL for the light theme.
   ['light-fails.css', `${LIGHT.replace('--color-fg-muted: oklch(0.43 0.015 80);', '--color-fg-muted: oklch(0.55 0.015 80);')}\n:root.dark {${DARK_DECLS}}`, false],
+  // A syntax slot too close to code-bg must fail — proves the 9 new
+  // pairings (issue #53) are actually wired into CHECKS, not just parsed.
+  ['syntax-slot-fails.css', `${LIGHT.replace('--color-syntax-comment: oklch(0.52 0.01 80);', '--color-syntax-comment: oklch(0.90 0.01 80);')}\n[data-theme="dark"] {${DARK_DECLS}}`, false],
 ];
 
 let bad = 0;

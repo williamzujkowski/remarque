@@ -4,6 +4,58 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.13.0 — 2026-07-23
+
+Syntax-highlighting palette — 9 `--color-syntax-*` slots, ANSI-derived, golden-gated (closes #53; consensus-ratified 3-0 with a binding taxonomy design record, 2026-07-23).
+
+### Added
+- **`--color-syntax-keyword/string/constant/comment/function/type/punctuation/variable/link`** —
+  9 new palette-tier slots in `tokens-palette.css`, hand-authored in both
+  themes, quiet/low-chroma (chroma capped at 0.14, the same ceiling as
+  `--color-accent`). Every slot is ≥ 4.5:1 against `--color-code-bg`
+  (not `--color-bg`) in both themes — a new dimension the audit didn't
+  cover before this release.
+- **`scripts/audit.mjs`** — 9 new `CHECKS` pairings (each syntax slot vs.
+  `color-code-bg`, 4.5:1, both themes). `scripts/test-audit.mjs`'s
+  fixture palettes carry the 9 slots and a new must-fail case proves
+  they're actually wired into `CHECKS`, not just parsed.
+- **`scripts/theme.mjs` (`remarque-theme`)** — derives all 9 slots from a
+  source theme's 16 ANSI colors (`keyword`←blue, `string`←green,
+  `constant`←yellow, `function`←purple, `type`←cyan, `comment`←`brightBlack`
+  in dark themes / a solved muted neutral in light themes,
+  `punctuation`←a derived neutral, `variable`←fg-adjacent,
+  `link`←the derived accent, aliased when it clears 4.5:1 on `code-bg`),
+  same keep-if-passing-else-solve pattern and in-gamut chroma clamping as
+  every other slot. `scripts/test-theme.mjs`'s 61-pair corpus (every
+  counterpart-paired theme in the installed `oklch-terminal-themes`
+  dataset) now runs the extended audit — 61/61 pass.
+- **`scripts/palette-golden.mjs`** — extends the ΔE2000 ≤ 2.0 golden gate
+  to the 9 syntax slots (now 24 `--color-*` tokens × 2 themes). The
+  hand-authored defaults are the cleaned round-number serialization of
+  values derived from `remarque-light`/`remarque-dark`'s ANSI colors,
+  same identity/serialization contract as the rest of the default
+  palette (#76).
+- **REMARQUE.md "Syntax Highlighting"** — the slot table with Shiki
+  `createCssVariablesTheme` and Prism class mappings, the exact Astro
+  wiring snippet (pass the theme *object*, never the `'css-variables'`
+  string — Astro renames its prefix), the CSS variable bridge required
+  to make that wiring actually render (Shiki's `variablePrefix` prepends
+  rather than renames its internal `token-*` names), a full Prism CSS
+  mapping block, the three documented divergences (`type` ≡ `function`
+  under Shiki, plain operators inherit foreground, diff markers out of
+  scope), and the comment-contrast policy (4.5:1 held; GitHub
+  light/dark-default and VS Code Dark+ all clear it).
+- **Demo site (`site/`)** — wired `astro.config.mjs`'s `markdown.shikiConfig`
+  and the Type Specimen page's new "Syntax Highlighting" section with
+  the `createCssVariablesTheme` recipe and its CSS bridge
+  (`site/src/styles/globals.css`), so at least one built page exercises
+  every slot in both themes. `shiki` added as an explicit `site`
+  devDependency (Astro already carries it transitively; pinned
+  explicitly so the resolution is intentional, not an accident of
+  hoisting). Playwright baselines updated for the 4 `specimen-*`
+  screenshots (the only page with a highlighted code block); the other
+  16 baselines are unchanged.
+
 ## 0.12.0 — 2026-07-23
 
 TypeScript types and a README "Used By" section (closes #34, closes #35).
