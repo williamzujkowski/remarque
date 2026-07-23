@@ -763,6 +763,10 @@ for the value-by-value mapping).
 
 ### Markup contract
 
+<!-- registry-usage:essay — scripts/build-registry.mjs (issue #100) extracts
+     the fenced block immediately below into registry/essay.json's
+     usage.html verbatim. Keep this the single, hand-authored known-good
+     sample — do not fork a second copy for the registry. -->
 ```html
 <article class="remarque-essay">
   <header class="content-reading">
@@ -944,6 +948,9 @@ Four primitives, composed independently — a page can use any subset:
 
 ### Markup contract
 
+<!-- registry-usage:broadsheet — scripts/build-registry.mjs (issue #100)
+     extracts the fenced block immediately below into
+     registry/broadsheet.json's usage.html verbatim. -->
 ```html
 <header class="remarque-masthead">
   <p class="remarque-masthead-kicker"><span>Field Notes</span></p>
@@ -1074,6 +1081,9 @@ existing literal.
 
 ### Markup contract
 
+<!-- registry-usage:forms — scripts/build-registry.mjs (issue #100) extracts
+     the fenced block immediately below into registry/forms.json's
+     usage.html verbatim. -->
 ```html
 <div class="remarque-field">
   <label class="remarque-field-label" for="email">Email</label>
@@ -1281,6 +1291,15 @@ Set (or clear) `data-palette` on `<html>`, alongside the existing
 carries *both* light and dark halves, so the light/dark toggle keeps
 working no matter which palette (or none) is active:
 
+<!-- registry-usage:palette-deck — scripts/build-registry.mjs (issue #100)
+     extracts the fenced block immediately below into
+     registry/palette-deck.json's usage.html verbatim. The FOUC-safe
+     `<script>` snippet a few lines down is deliberately NOT marked for
+     extraction — see REMARQUE.md "The Registry" and the PR description
+     for why (the registry's blocking no-executable-content condition is
+     held to an unambiguous zero-`<script>`-tag bar across every item;
+     that snippet's full text still lives here, one section up, and is
+     linked from the registry item's `docs` URL). -->
 ```html
 <html data-theme="dark" data-palette="gruvbox">
 ```
@@ -1330,6 +1349,175 @@ consensus panel, 2026-07-23) — see the root README's "Graduation"
 section. The original proposal predated `remarque-theme`; once that
 pipeline existed, generating N palettes stopped being the hard part and
 switching between them became the only piece worth a shared module.
+
+---
+
+## The Registry
+
+A machine-readable markup-contract registry — `registry.json` (index) +
+`registry/<name>.json` (four full items: `essay`, `broadsheet`, `forms`,
+`palette-deck`) — shipped for the ratified program's flagship item
+(issue #100). The funding rationale is narrow and mechanical, not
+"category-defining": it exists to prevent the exact bug class found in
+the flagship migration's sidenote implementation (#89,
+williamzujkowski.github.io#380) — an aria-label that drifted out of DOM
+order because the markup contract lived only as ~80 lines of spec prose
+an agent had to transcribe by hand. A registry item is that same known-
+good markup as versioned, hash-pinned DATA an agent fetches and applies
+instead.
+
+**Shape.** Adopted from shadcn/ui's `registry-item.json`/`registry.json`
+(`https://ui.shadcn.com/schema/registry-item.json`,
+`https://ui.shadcn.com/schema/registry.json`) — field NAMES that fit a
+CSS+HTML contract are kept as-is (`name`, `title`, `description`,
+`dependencies`, `registryDependencies`, `files[].path`/`content`/`type`,
+`cssVars`, `docs`); this is deliberately **not** a parallel invented
+schema. The two vendored, hand-authored schemas
+(`registry-item.schema.json`, `registry.schema.json` at the package
+root) document every adaptation and omission inline, in the property
+descriptions themselves — the summary:
+
+- **`type` is `"remarque:contract"`**, not one of shadcn's `registry:*`
+  values (`registry:lib`/`component`/`ui`/`hook`/`page`/...). None of
+  those describe a dependency-free CSS module plus its markup sample —
+  every shadcn value assumes an installable React-ecosystem artifact.
+  One honest value covers all four items today, since they're all the
+  same KIND of thing; a second value would only be minted for a future
+  item that is a genuinely different kind of contract.
+- **`cssVars` is repurposed**: shadcn's `cssVars` holds theme
+  {`theme`/`light`/`dark`} VALUES to merge into a consumer's stylesheet.
+  This registry ships whole CSS files verbatim instead (single-sourced
+  from the real `.css` at build time — see "Single-sourcing" below), so
+  there's nothing to merge; `cssVars` here is the flat, deduped list of
+  `--custom-property` NAMES the item's CSS actually reads via `var(...)`
+  — the palette-tier tokens it consumes, mechanically grepped, never
+  hand-maintained.
+- **`docs` is a URL, not markdown.** shadcn's `docs` is a documentation
+  blob; this registry's `docs` is a single HTTPS link into this file's
+  relevant section. The registry doesn't duplicate spec prose — it
+  points back at the one place that prose lives.
+- **Omitted fields** (documented once here, not repeated per-field):
+  `tailwind`/`css`/`envVars` (no Tailwind config, direct CSS injection,
+  or env vars — these items ship whole files, not fragments to splice
+  in), `font`/`extends`/`style`/`iconLibrary`/`baseColor`/`theme` (all
+  `registry:font`/`registry:base`-specific — not applicable to any item
+  here), `files[].target` (no CLI installer — see "What this deliberately
+  is NOT"), `meta` (no per-item metadata that doesn't already have a
+  named field).
+- **`registry.json` is a lightweight index**, not shadcn's full-item
+  embedding. shadcn's `items` array holds complete registry-item objects
+  inline; this index instead lists one pointer per item (`name`, `type`,
+  `title`, `description`, `version`, `integrity`, `file`) and leaves the
+  full payload — all file content — in `registry/<name>.json` only, so a
+  consumer can discover what exists and check its pinned hash before
+  deciding whether to fetch the full item.
+
+**Security (panel-mandated, blocking).** Every item carries a `version`
+(the exact `remarque-tokens` release it was generated from) and an
+`integrity` hash (`sha256-<base64>`, the same shape as W3C Subresource
+Integrity — computed over the item's `files` at build time by
+`scripts/lib/registry-extract.mjs`'s `sha256OfFiles`); `registry.json`'s
+index mirrors both per item, so a consumer can check the pin before
+fetching the full payload and must recheck it against what it actually
+receives. Every `docs`/`homepage` URL is `https://`. No item contains
+executable content — `scripts/test-registry.mjs` asserts no file's
+`content`, across every item without exception, contains the substring
+`<script`.
+
+That last rule is why `deck.js` — the Palette Deck's runtime module, a
+dependency-free ~60-line ESM file, and the one JS asset this package
+ships — is **not embedded in the registry at all**, even hashed and
+labeled. The panel's condition reads as an absolute ("no executable
+content in registry items ... files are HTML/CSS data"), and the honest
+call under a *blocking* security condition is to hold that line without
+exception rather than carve out a documented-but-included special case.
+Concretely: `registry/palette-deck.json` ships **only** the
+`data-theme`/`data-palette` HTML fragment from this file's "Markup/wiring
+contract" section — it does *not* include the FOUC-safe restore
+`<script>` sample documented a few lines below that fragment, even
+though that snippet is (arguably) still "just an HTML example." Holding
+every item to a zero-`<script>`-tag bar, with no case-by-case judgment
+call about which scripts "count," is a simpler rule to mechanically
+enforce forever than "no script tags, except this one, which is fine
+because—". Consumers keep getting `deck.js` the normal way — the
+`remarque-tokens/deck` package import, listed as an ordinary
+`dependencies` entry on every item — and the FOUC snippet's full text
+from this section, linked via the item's `docs` URL.
+
+**Modeling the tokens dependency.** essay/broadsheet/forms all consume
+palette-tier tokens, and the issue asked whether `tokens` should be a
+fifth registry item or a documented external dependency. It's the
+latter: every item's `dependencies` array lists `"remarque-tokens"` — an
+ordinary npm dependency, the same field shadcn uses for npm packages a
+component needs. Modeling tokens as a *registry item* would mean
+re-embedding (a subset of, or all of) `tokens.json`'s content a second
+time in a differently-shaped artifact; `tokens.json`/`tokens.schema.json`
+already exist as the purpose-built machine-readable form of the tokens
+(issue #99), served at the same site alongside this registry. Depending
+on the package that ships them is the smaller, honest mechanism.
+
+**Single-sourcing.** Every item's CSS `content` is read verbatim from the
+real `.css` file at build time (`essay.css`, `broadsheet.css`,
+`forms.css`) — never a second hand-copied literal. Every item's
+`usage.html` is extracted from THIS file's own "Markup contract" fenced
+```html blocks via an HTML-comment marker
+(`<!-- registry-usage:<name> -->`) placed immediately before the fence —
+`scripts/lib/registry-extract.mjs`'s `extractUsageHtml` finds the marker,
+then the next fenced block, and lifts its content verbatim. This spec's
+prose stays the ONE hand-authored copy of each known-good sample; the
+registry is a build artifact derived from it, exactly like `tokens.json`
+is derived from the CSS. `scripts/build-registry.mjs --check` gates
+freshness in CI the same way `scripts/tokens-json.mjs --check` already
+does for tokens.
+
+**Validation (the enforce-don't-instruct house pattern).**
+`scripts/test-registry.mjs` is the CI gate, wired alongside the other
+freshness/fixture checks in `deploy.yml`. It re-derives, mechanically,
+the exact contract lines this issue is funded on — not by trusting the
+prose, by parsing the generated `usage.html` itself:
+
+- Every essay `.remarque-sidenote-ref` carries `aria-label="Note N"`, and
+  refs/notes strictly alternate in DOM order — the precise shape of the
+  #89 bug.
+- The essay TOC rail (`.remarque-toc-rail`) carries `aria-label`.
+- Every broadsheet `.remarque-entry-numeral` carries `data-entry-number`.
+- Every forms `<input id="...">` has a matching `<label for="...">`, and
+  every `aria-describedby` target id exists in the sample.
+- No file, in any item, contains `<script` (the no-executable-content
+  rule above).
+
+Plus the structural gates any generated artifact needs: schema
+validation (via `ajv`, the same devDependency `tokens.schema.json`
+already uses) with negative fixtures proving the schemas actually reject
+malformed input, and an independent recomputation of every `integrity`
+hash proving it wasn't just carried over from a stale build.
+
+**What this deliberately is NOT.** No CLI installer — there is no
+`npx remarque-registry add essay` command, and no `files[].target`
+field to resolve an install path against. An agent's expected workflow
+is fetch the JSON, read `usage.html`/the CSS `content`, and apply it with
+its own editing tools — the registry replaces transcription-from-prose,
+not an installer. No archetype "starter-page" items this round: the
+issue floated one per archetype (Essay, Dossier, Notebook, ...) as an
+IF-cheap extra, and the honest call is SKIP — archetype pages live as
+demo-specific Astro files (`site/src/pages/**`), not as a reusable
+module with one canonical markup sample the way the four shipped items
+are, so extracting one would mean inventing a new "canonical" sample
+rather than single-sourcing an existing one.
+
+**Fetching it.** The demo site serves the registry the same way it
+serves `tokens.json` (`site/scripts/copy-tokens-json.mjs`, extended):
+
+- Index: **https://williamzujkowski.github.io/remarque/registry.json**
+- Per-item: **https://williamzujkowski.github.io/remarque/registry/essay.json**
+  (and `broadsheet.json`, `forms.json`, `palette-deck.json`)
+- Schemas: **https://williamzujkowski.github.io/remarque/registry-item.schema.json**,
+  **https://williamzujkowski.github.io/remarque/registry.schema.json**
+
+npm package exports mirror the same paths: `remarque-tokens/registry.json`,
+`remarque-tokens/registry/essay` (the `./registry/*` subpath maps to
+`./registry/*.json`), `remarque-tokens/registry-item.schema.json`,
+`remarque-tokens/registry.schema.json`.
 
 ---
 

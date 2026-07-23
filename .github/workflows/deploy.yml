@@ -44,6 +44,10 @@ jobs:
         run: node scripts/tokens-json.mjs --check
         working-directory: .
 
+      - name: "registry.json + registry/*.json freshness (generated from the CSS + REMARQUE.md contract samples)"
+        run: node scripts/build-registry.mjs --check
+        working-directory: .
+
       - name: Audit fixture tests (both theme conventions)
         run: node scripts/test-audit.mjs
         working-directory: .
@@ -62,6 +66,14 @@ jobs:
 
       - name: "Palette golden gate (tokens-palette.css bound to remarque-light/remarque-dark, ΔE2000 ≤ 2.0; site mirror check)"
         run: node scripts/palette-golden.mjs
+        working-directory: .
+
+      - name: "Registry fixture tests (schema validation + mechanical markup-contract checks — issue #100)"
+        run: node scripts/test-registry.mjs
+        working-directory: .
+
+      - name: "Consumer pack smoke test (npm pack + real install + peerDependencies resolution, no --legacy-peer-deps)"
+        run: node scripts/test-pack.mjs
         working-directory: .
 
       - name: Build Astro site

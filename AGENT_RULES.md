@@ -6,6 +6,17 @@ Read `REMARQUE.md` first for the full system specification. This file tells you 
 
 ---
 
+## Prefer the Registry Over Transcribing Prose
+
+For the Essay Module, the Broadsheet pattern, and Forms (`remarque-tokens/essay`, `remarque-tokens/broadsheet`, `remarque-tokens/forms`), a machine-readable markup-contract registry ships alongside the spec (REMARQUE.md "The Registry"; issue #100). **Agents building a Remarque page SHOULD fetch the relevant registry item and apply its `usage.html`/CSS `content` verbatim, rather than re-typing the markup from this file's or REMARQUE.md's prose.**
+
+- Fetch `https://williamzujkowski.github.io/remarque/registry/<name>.json` (`essay`, `broadsheet`, `forms`, or `palette-deck`), or read it from an installed package at `node_modules/remarque-tokens/registry/<name>.json` — same content either way.
+- The known-good markup lives in `files[].content` where `type` is `"remarque:markup"`; the CSS module (if any) is in the `"remarque:css"` entry. Both are the exact, versioned, hash-pinned (`integrity`) bytes — copy them, don't re-derive them from memory.
+- This exists specifically to prevent transcription bugs like #89 (a sidenote `aria-label` that drifted out of DOM order because an agent hand-copied ~80 lines of spec prose instead of applying known-good markup). Reading REMARQUE.md's prose for the *reasoning* behind a contract is still expected; reading it as the *source of the markup you type* is the failure mode the registry exists to close.
+- No CLI installer ships this round — there is no `npx` command that writes these files into a project for you. Fetch the JSON, then apply the markup with your own editing tools.
+
+---
+
 ## Build Order
 
 Execute in this exact order. Do not skip steps. Do not reorder.

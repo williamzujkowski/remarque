@@ -1,0 +1,44 @@
+{
+  "$schema": "https://williamzujkowski.github.io/remarque/registry.schema.json",
+  "name": "remarque-tokens",
+  "homepage": "https://williamzujkowski.github.io/remarque/",
+  "version": "0.23.0",
+  "items": [
+    {
+      "name": "essay",
+      "type": "remarque:contract",
+      "title": "Essay Module",
+      "description": "Sidenotes + sticky TOC rail for long-form Essay pages: margin notes relocated into real DOM order, right after the paragraph that cites them, numbered by CSS counter and labeled `aria-label=\"Note N\"` in the same order the counter advances — the mechanism that prevents the sidenote aria-label/DOM-order transcription bug found in the flagship migration (#89, williamzujkowski.github.io#380).",
+      "version": "0.23.0",
+      "integrity": "sha256-zr04H0+0xf01OWLk6B2A9ziZOYJd4Sq5q5/cib65lbU=",
+      "file": "registry/essay.json"
+    },
+    {
+      "name": "broadsheet",
+      "type": "remarque:contract",
+      "title": "Broadsheet Pattern",
+      "description": "The editorial Landing/archive pattern: masthead, lead article, numbered entry list, and post-header kicker. Entry numerals are generated from `data-entry-number` via `attr()`, never `counter()`, and every kicker/dateline row is true `font-variant-caps: all-small-caps`, never `text-transform: uppercase`.",
+      "version": "0.23.0",
+      "integrity": "sha256-BZea38PRdob4OfmdGN0eDw3U0adl7SEsdrjKgSewK9A=",
+      "file": "registry/broadsheet.json"
+    },
+    {
+      "name": "forms",
+      "type": "remarque:contract",
+      "title": "Forms Primitives",
+      "description": "Native field/input/checkbox/radio/button primitives with state-color wiring. Every `.remarque-input` pairs `for`/`id` with its `.remarque-field-label`, and every `.remarque-field-message` is wired via `aria-describedby` on the control — the paint-layer `data-state` attribute is never the only signal; `aria-invalid`/`aria-describedby` on the input carry the real accessibility contract.",
+      "version": "0.23.0",
+      "integrity": "sha256-Ft+jRmZtY6HBdTCFoIIJbM3S/3dx7iSVl7NRWD/40rY=",
+      "file": "registry/forms.json"
+    },
+    {
+      "name": "palette-deck",
+      "type": "remarque:contract",
+      "title": "Palette Deck (markup contract only — no executable content)",
+      "description": "Markup/wiring contract for the Palette Deck: set `data-palette` on the same root element as `data-theme` and the two compose independently. This item ships ONLY that HTML fragment. `deck.js` — the runtime module itself, a dependency-free ~60-line ESM file — is deliberately NOT embedded here: the registry’s blocking no-executable-content condition is held to an unambiguous zero-`<script>`-tag bar across every item, so neither `deck.js` nor the FOUC-restore `<script>` sample documented alongside it in REMARQUE.md is included. Consume `deck.js` the normal way, via the `remarque-tokens/deck` package import (`dependencies` below); read the FOUC-restore snippet from the `docs` URL.",
+      "version": "0.23.0",
+      "integrity": "sha256-WGgBZ2j0VnLPRAZlzv/4G1Wu9rKqTdXf1536dWWu8nU=",
+      "file": "registry/palette-deck.json"
+    }
+  ]
+}
