@@ -1,6 +1,6 @@
 /*
  * Remarque design tokens — GENERATED from tokens.json by
- * scripts/tokens-json.mjs (v0.21.0). Do not edit — the CSS
+ * scripts/tokens-json.mjs (v0.22.0). Do not edit — the CSS
  * (tokens-core.css + tokens-palette.css) is the source of truth;
  * tokens.json is the intermediate machine-readable form this file is
  * generated from. Regenerate with: node scripts/tokens-json.mjs
@@ -104,7 +104,13 @@ export type RemarquePaletteToken =
   | 'color-success-subtle'
   | 'color-warning'
   | 'color-warning-subtle'
-  | 'color-disabled';
+  | 'color-disabled'
+  | 'color-viz-1'
+  | 'color-viz-2'
+  | 'color-viz-3'
+  | 'color-viz-4'
+  | 'color-viz-5'
+  | 'color-viz-6';
 
 /** Every Remarque token name, core + palette. */
 export type RemarqueToken = RemarqueCoreToken | RemarquePaletteToken;
@@ -391,6 +397,30 @@ export interface RemarqueTokenValues {
     readonly 'color-disabled': {
       readonly light: "var(--color-muted)";
       readonly dark: "var(--color-muted)";
+    };
+    readonly 'color-viz-1': {
+      readonly light: "oklch(0.538 0.121 250.5)";
+      readonly dark: "oklch(0.708 0.129 249.5)";
+    };
+    readonly 'color-viz-2': {
+      readonly light: "oklch(0.541 0.111 85.5)";
+      readonly dark: "oklch(0.712 0.13  85.3)";
+    };
+    readonly 'color-viz-3': {
+      readonly light: "oklch(0.524 0.12  24.6)";
+      readonly dark: "oklch(0.724 0.129 310.2)";
+    };
+    readonly 'color-viz-4': {
+      readonly light: "oklch(0.499 0.12  144.8)";
+      readonly dark: "oklch(0.725 0.129 25.4)";
+    };
+    readonly 'color-viz-5': {
+      readonly light: "oklch(0.524 0.121 309.6)";
+      readonly dark: "oklch(0.696 0.129 144.9)";
+    };
+    readonly 'color-viz-6': {
+      readonly light: "oklch(0.528 0.09  195.8)";
+      readonly dark: "oklch(0.697 0.119 194.8)";
     };
   };
 }

@@ -256,14 +256,45 @@ Reference/Docs and Project Dossier pages often need to show several screenshots 
 
 ## Dataviz Tokens
 
-Charts are not yet a first-class Remarque surface, but tools built with the system inevitably need them. Rather than inventing chart-specific tokens, map dataviz elements onto vocabulary that already exists, so a chart survives a palette swap the same way prose and chrome do:
+Charts are a first-class Remarque surface: `tokens-palette.css` ships 6 hand-authored `--color-viz-*` categorical slots, bridge-derived and golden-gated against the upstream `remarque-light`/`remarque-dark` themes' `dataviz.categorical` block the same way the rest of the default palette is (issue #94 — the syntax-palette pattern's fourth application). The rest of a chart still maps onto vocabulary that already exists, so it survives a palette swap the same way prose and chrome do:
 
 - **Grid lines** use `--color-border` — never a separate "chart gray." Grid lines are structural, not decorative, and already have a sanctioned quiet role.
 - **Axis text and tick labels** use `--font-mono` at `--text-meta`, `--color-muted` — the same register as metadata rows and captions, never the body or display face.
-- **Categorical color ramp** is derived, not hand-picked: rotate hue at the accent's lightness/chroma steps — the same discipline "Changing the Accent Hue" already prescribes (fix lightness, vary hue, reduce chroma until every value clears the gamut) — producing a small hue family distinct from `--color-accent` itself, so chart color is never mistaken for the system's one interactive signal.
-- That ramp must be **audit-validated**, exactly like a palette override: every ramp color needs to clear gamut and 4.5:1 contrast against `--color-bg`/`--color-surface` in both themes before it ships.
+- **Categorical color** uses `--color-viz-1` through `--color-viz-6` (below) — never `--color-accent`, so chart color is never mistaken for the system's one interactive signal.
 
-**Precedent:** [tsundoku](https://github.com/williamzujkowski/tsundoku) built the underlying pattern already — its `DESIGN-NOTES.md` documents an 8-hue "orthogonal category system" (`--pop-pink`/`--pop-blue`/`--pop-green`/etc.), kept deliberately separate from `--color-accent` and used for content taxonomy (book categories, reading status) rather than interactivity. It held those hues to roughly the same lightness/contrast discipline as its audited palette, but by its own admission the hues were **never run through `remarque-audit`'s `CHECKS` array** — that is the one gap this guidance closes. A dataviz ramp should follow tsundoku's separation-from-accent instinct, but unlike its precedent, it must pass the audit before it ships.
+### Slots
+
+6 slots, not 8 — the upstream dataset's own floor: 516 of the 633 corpus themes ship exactly 6 `dataviz.categorical` entries, so shipping 8 would leave 2 unfillable on most themes. Every slot is verified ≥ **3:1** against `--color-bg` in both themes — Carbon's mark-on-background line, not text's 4.5:1. The distinction is deliberate: a chart mark is a small area read at a glance and identified by hue difference from its neighbors, not a string of characters read continuously letter-by-letter, so it gets the WCAG 1.4.11 non-text threshold (the same one `--color-border-bold` already uses for functional borders), not 1.4.3's text threshold.
+
+| Slot | Light | Dark |
+|---|---|---|
+| `--color-viz-1` | `oklch(0.538 0.121 250.5)` — 4.74:1 | `oklch(0.708 0.129 249.5)` — 7.53:1 |
+| `--color-viz-2` | `oklch(0.541 0.111 85.5)` — 4.73:1 | `oklch(0.712 0.13 85.3)` — 7.54:1 |
+| `--color-viz-3` | `oklch(0.524 0.12 24.6)` — 5.35:1 | `oklch(0.724 0.129 310.2)` — 7.55:1 |
+| `--color-viz-4` | `oklch(0.499 0.12 144.8)` — 5.32:1 | `oklch(0.725 0.129 25.4)` — 7.55:1 |
+| `--color-viz-5` | `oklch(0.524 0.121 309.6)` — 5.33:1 | `oklch(0.696 0.129 144.9)` — 7.53:1 |
+| `--color-viz-6` | `oklch(0.528 0.09 195.8)` — 4.74:1 | `oklch(0.697 0.119 194.8)` — 7.57:1 |
+
+**Order is not reconciled hue-for-hue across the pair.** The upstream `dataviz.categorical` order for `remarque-light` (blue, yellow, red, green, purple, cyan) does not match `remarque-dark`'s (blue, yellow, purple, red, green, cyan) — verified directly against the shipped dataset. `--color-viz-3` is reddish in light mode and purplish in dark mode. This is the same stance the rest of this file already takes for every other slot: **dark mode is independently tuned, not an inversion** — it is not a bug that a toggle recolors series 3, any more than it is a bug that `--color-fg`'s exact hue differs by theme.
+
+**Non-color redundancy (Carbon precedent, mandatory):** never use `--color-viz-*` as the *sole* distinguisher between series. Pair every categorical color with a second channel — a distinct marker shape (circle/square/triangle), a line dash pattern, or a direct end-of-line/legend label — so the chart still communicates under color-vision deficiency or `forced-colors: active` (which the marks themselves do not attempt to survive; see "Forced Colors & Contrast Preferences" for what *is* covered). This mirrors [tsundoku](https://github.com/williamzujkowski/tsundoku)'s `DESIGN-NOTES.md`, which documents an 8-hue "orthogonal category system" kept deliberately separate from its accent — the categorical slots above formalize that instinct as an audited, bridge-derived token set instead of a hand-picked one-off.
+
+### Derivation
+
+`remarque-theme` derives all 6 slots from the source theme's own `dataviz.categorical` array (dataset 0.5.0+) — first 6 entries, in the dataset's order, same keep-if-passing-else-solve pattern as every other slot, targeted at `--color-bg` (not `--color-surface`) at 3:1. Chroma is capped at 0.14, the same ceiling as `--color-accent`/`--color-syntax-*`. `scripts/palette-golden.mjs` extends its ΔE2000 ≤ 2.0 gate to all 6 slots.
+
+**Fallback (dataset predates the field):** an installed `@williamzujkowski/oklch-terminal-themes` older than 0.5.0 — still legal under this package's `>=0.1.0` peerDependencies floor — has no `dataviz` block at all. `remarque-theme` does **not** attempt to synthesize a categorical ramp from raw ANSI colors in that case: the upstream categorical-selection algorithm is undocumented, and approximating it could silently diverge from what a real 0.5.0+ dataset ships. It errors loudly instead, naming the missing field and the upgrade path — the smaller, honest option over a plausible-looking guess.
+
+### Sequential / diverging ramps
+
+Sequential and diverging ramps are **not** shipped as tokens — a fixed `--color-viz-seq-N` token set would misrepresent them, because a ramp's *step count* is dataset-defined (6-8, whatever the source theme carries) and a specific ramp is chosen per-use (a heatmap's sequential scale, a signed-difference chart's diverging scale), not once per theme like a categorical identity slot. Two ways to consume them:
+
+1. **Direct JSON consumption** — read the dataset's `dataviz.sequential`/`dataviz.diverging` arrays straight from the installed package:
+   ```js
+   const { sequential, diverging } = require('@williamzujkowski/oklch-terminal-themes/themes/remarque-light.json').dataviz;
+   ```
+   Each entry carries `oklch` (structured `{l, c, h}`) and `oklchCss` (a ready-to-use `oklch(...)` string) — no parsing required.
+2. **`remarque-theme --dataviz`** — emits `--viz-sequential-1..N` and `--viz-diverging-1..N` custom properties (`N` = the source theme's own ramp length) alongside the normal derived palette. Gamut-clamped but **not** contrast-solved (a sequential ramp's low end is designed to sit near `--color-bg`; solving it to a contrast floor would defeat the ramp) — advisory output, not audited or golden-gated like `--color-viz-1..6`. A future `remarque-audit --json`/`remarque-theme --json` could expose the same arrays as structured output; today, `--dataviz`'s CSS-property emission and direct JSON consumption above cover the need.
 
 ---
 
@@ -491,6 +522,7 @@ Every PR that ships Remarque pages MUST pass (`npm run audit` automates the colo
 - [ ] Body line-height ≥ 1.5 (Remarque target: 1.75).
 - [ ] Every `--color-syntax-*` slot ≥ 4.5:1 against `--color-code-bg` in both themes (see "Syntax Highlighting").
 - [ ] Every `--color-error`/`--color-success`/`--color-warning`/`--color-disabled` ≥ 4.5:1 against `--color-bg` **and** `--color-surface` in both themes; every `-subtle` background keeps `--color-fg` ≥ 4.5:1 on it (see "State Colors"). State colors used only for feedback moments, never decoration.
+- [ ] Every `--color-viz-*` slot ≥ 3:1 against `--color-bg` in both themes (see "Dataviz Tokens") — the mark-on-background line, not text's 4.5:1. Never used as the sole distinguisher between series — pair with a non-color redundancy (shape, pattern, or a direct label).
 - [ ] No bare `z-index` number in consumer CSS — reference `tokens-core.css`'s `--z-*` scale (see "Stacking").
 - [ ] Any new color-only affordance (hover/focus signal, state indicator, structural divider) is checked against forced-colors mode — does it survive, or does it need a `@media (forced-colors: active)` fallback? (see "Forced Colors & Contrast Preferences")
 

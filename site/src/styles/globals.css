@@ -81,6 +81,12 @@
   --color-selection-fg: var(--color-fg);
   --color-code-bg: oklch(0.945 0.005 80);
   --color-code-fg: var(--color-fg);
+  --color-viz-1: oklch(0.538 0.121 250.5);
+  --color-viz-2: oklch(0.541 0.111 85.5);
+  --color-viz-3: oklch(0.524 0.12 24.6);
+  --color-viz-4: oklch(0.499 0.12 144.8);
+  --color-viz-5: oklch(0.524 0.121 309.6);
+  --color-viz-6: oklch(0.528 0.09 195.8);
 }
 
 /* ─── Syntax Highlighting (Shiki CSS-variable bridge) ─────

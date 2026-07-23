@@ -168,6 +168,15 @@ const CHECKS = [
   ['color-fg', 'color-error-subtle', 4.5, 'state: fg on error-subtle banner bg'],
   ['color-fg', 'color-success-subtle', 4.5, 'state: fg on success-subtle banner bg'],
   ['color-fg', 'color-warning-subtle', 4.5, 'state: fg on warning-subtle banner bg'],
+  // Dataviz categorical slots (issue #94) — 3:1 is Carbon's mark-on-
+  // background line, not text's 4.5:1: these are chart marks read at a
+  // glance, not prose. See REMARQUE.md "Dataviz Tokens".
+  ['color-viz-1', 'color-bg', 3.0, 'dataviz: categorical 1 (mark)'],
+  ['color-viz-2', 'color-bg', 3.0, 'dataviz: categorical 2 (mark)'],
+  ['color-viz-3', 'color-bg', 3.0, 'dataviz: categorical 3 (mark)'],
+  ['color-viz-4', 'color-bg', 3.0, 'dataviz: categorical 4 (mark)'],
+  ['color-viz-5', 'color-bg', 3.0, 'dataviz: categorical 5 (mark)'],
+  ['color-viz-6', 'color-bg', 3.0, 'dataviz: categorical 6 (mark)'],
 ];
 
 for (const [themeName, decls] of [['light', lightDecls], ['dark', darkDecls]]) {
