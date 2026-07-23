@@ -706,7 +706,8 @@ for the value-by-value mapping).
     <h2 id="section-one">Section One</h2>
     <p>
       A claim worth a citation<a href="#note-1" id="note-1-ref"
-        class="remarque-sidenote-ref" aria-describedby="note-1"></a>.
+        class="remarque-sidenote-ref" aria-label="Note 1"
+        aria-describedby="note-1"></a>.
     </p>
     <aside class="remarque-sidenote" id="note-1" role="note">
       The note text, in real DOM order right after the paragraph that
@@ -729,6 +730,13 @@ Requirements the CSS depends on:
   `.remarque-sidenote` after it; later citations of the same note use
   `.remarque-sidenote-ref--repeat` (styled identically, does not advance
   the counter) so the shared numbering doesn't skip.
+- `aria-label="Note N"` on every `.remarque-sidenote-ref`, numbered in
+  the same order the CSS counter advances — the ref's visible digit is
+  counter-generated, so the anchor itself has no text content, and an
+  empty focusable link with no accessible name fails WCAG 4.1.2 / 2.4.4
+  (axe: `link-name`). Because both the label and the counter derive from
+  DOM order, they cannot drift apart. (Found in the flagship's migration,
+  williamzujkowski.github.io#380.)
 - `role="note"` on every `.remarque-sidenote` — `<aside>`'s implicit role
   is `complementary`, a landmark; an essay with several notes would
   otherwise scatter that many unlabeled landmark regions through the
