@@ -38,6 +38,14 @@ color-provider integration, closes #76; consensus-ratified 3-0,
 - All other slots (`muted`, the bg ladder, `selection-bg`,
   `accent-subtle`) are unaffected — solved/derived unconditionally, same
   as before.
+- **Accent selection now prefers the dataset's `accent` field** (dataset
+  0.3.0+, upstream #133) — the same cursor-else-most-chromatic-ANSI
+  heuristic, computed upstream where it can be curated per theme. The
+  local heuristic remains as fallback for older datasets. Dev pin bumped
+  `0.2.0` → `0.3.0`, whose native themes are OKLCH-authored (upstream
+  #132): the Remarque themes now carry the design palette's exact
+  values, which is what lets the golden gate below hold at ΔE ≤ 2.0
+  with most tokens exactly 0.
 
 ### Added
 - **`scripts/palette-golden.mjs`** (new CI gate, wired into

@@ -265,6 +265,14 @@ function solveL(C, H, bg, target, dir) {
  * ANSI. Carries l too (not just h/c) — keep-if-passing needs the source's
  * own lightness as the candidate to test before falling back to solveL. */
 function accentHue(theme, label) {
+  // Dataset 0.3.0+ publishes a curated/computed accent per theme — prefer
+  // it (it's this same heuristic, computed upstream where it can be
+  // curated per-theme). Validated like any other theme color; the local
+  // heuristic below stays as the fallback for older datasets.
+  if (theme.accent && theme.accent.oklch) {
+    const [l, c, h] = validateOklch(theme.accent.oklch, `${label} accent`);
+    return { l, c, h, from: `accent:${String(theme.accent.source)}` };
+  }
   const cursor = theme.colors && theme.colors.cursor && theme.colors.cursor.oklch;
   if (cursor) {
     const [l, c, h] = validateOklch(cursor, `${label} colors.cursor`);
