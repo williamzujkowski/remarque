@@ -80,6 +80,27 @@
   --color-code-fg: var(--color-fg);
 }
 
+/* ─── Syntax Highlighting (Shiki CSS-variable bridge) ─────
+   See REMARQUE.md "Syntax Highlighting" — createCssVariablesTheme's
+   variablePrefix prepends rather than renames, so Shiki bakes
+   `var(--color-syntax-token-keyword)` etc. into each span. This block
+   feeds those from the actual --color-syntax-* palette tokens so the
+   demo's highlighted code blocks track theme/palette swaps. */
+
+.astro-code {
+  --color-syntax-foreground: var(--color-code-fg);
+  --color-syntax-background: var(--color-code-bg);
+  --color-syntax-token-keyword: var(--color-syntax-keyword);
+  --color-syntax-token-string: var(--color-syntax-string);
+  --color-syntax-token-string-expression: var(--color-syntax-string);
+  --color-syntax-token-constant: var(--color-syntax-constant);
+  --color-syntax-token-comment: var(--color-syntax-comment);
+  --color-syntax-token-function: var(--color-syntax-function);
+  --color-syntax-token-parameter: var(--color-syntax-variable);
+  --color-syntax-token-punctuation: var(--color-syntax-punctuation);
+  --color-syntax-token-link: var(--color-syntax-link);
+}
+
 /* ─── Nav Link ─────────────────────────────────────────── */
 
 .nav-link {

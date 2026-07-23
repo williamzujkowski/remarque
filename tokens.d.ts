@@ -1,6 +1,6 @@
 /*
  * Remarque design tokens — GENERATED from tokens.json by
- * scripts/tokens-json.mjs (v0.12.0). Do not edit — the CSS
+ * scripts/tokens-json.mjs (v0.13.0). Do not edit — the CSS
  * (tokens-core.css + tokens-palette.css) is the source of truth;
  * tokens.json is the intermediate machine-readable form this file is
  * generated from. Regenerate with: node scripts/tokens-json.mjs
@@ -81,7 +81,16 @@ export type RemarquePaletteToken =
   | 'color-selection-bg'
   | 'color-selection-fg'
   | 'color-code-bg'
-  | 'color-code-fg';
+  | 'color-code-fg'
+  | 'color-syntax-keyword'
+  | 'color-syntax-string'
+  | 'color-syntax-constant'
+  | 'color-syntax-comment'
+  | 'color-syntax-function'
+  | 'color-syntax-type'
+  | 'color-syntax-punctuation'
+  | 'color-syntax-variable'
+  | 'color-syntax-link';
 
 /** Every Remarque token name, core + palette. */
 export type RemarqueToken = RemarqueCoreToken | RemarquePaletteToken;
@@ -286,6 +295,42 @@ export interface RemarqueTokenValues {
     readonly 'color-code-fg': {
       readonly light: "var(--color-fg)";
       readonly dark: "oklch(0.88 0.005 80)";
+    };
+    readonly 'color-syntax-keyword': {
+      readonly light: "oklch(0.51 0.12 250)";
+      readonly dark: "oklch(0.61 0.11 250)";
+    };
+    readonly 'color-syntax-string': {
+      readonly light: "oklch(0.50 0.12 145)";
+      readonly dark: "oklch(0.60 0.11 145)";
+    };
+    readonly 'color-syntax-constant': {
+      readonly light: "oklch(0.51 0.105 85)";
+      readonly dark: "oklch(0.61 0.11 84)";
+    };
+    readonly 'color-syntax-comment': {
+      readonly light: "oklch(0.52 0.01 80)";
+      readonly dark: "oklch(0.60 0.005 80)";
+    };
+    readonly 'color-syntax-function': {
+      readonly light: "oklch(0.52 0.12 310)";
+      readonly dark: "oklch(0.62 0.11 310)";
+    };
+    readonly 'color-syntax-type': {
+      readonly light: "oklch(0.50 0.085 196)";
+      readonly dark: "oklch(0.60 0.10 195)";
+    };
+    readonly 'color-syntax-punctuation': {
+      readonly light: "oklch(0.52 0.01 80)";
+      readonly dark: "oklch(0.60 0.005 80)";
+    };
+    readonly 'color-syntax-variable': {
+      readonly light: "oklch(0.26 0.01 80)";
+      readonly dark: "oklch(0.82 0.005 80)";
+    };
+    readonly 'color-syntax-link': {
+      readonly light: "var(--color-accent)";
+      readonly dark: "var(--color-accent)";
     };
   };
 }

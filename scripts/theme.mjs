@@ -7,7 +7,7 @@
  *   npx remarque-theme <light-slug> --dark <dark-slug> [-o out.css]
  *
  * Terminal themes carry only background/foreground/cursor/selection + 16
- * ANSI slots — most of Remarque's 15 semantic slots don't map directly,
+ * ANSI slots — most of Remarque's 24 semantic slots don't map directly,
  * and most themes fail the AAA fg-muted 7:1 line as authored. So this
  * DERIVES rather than maps: hue + chroma come from the theme (its
  * personality); lightness is KEEP-IF-PASSING — a few load-bearing slots
@@ -19,9 +19,11 @@
  * still gets a value that passes, same as before (#76). Every other
  * slot (fg-muted, muted, border-bold, the bg ladder, selection-bg,
  * accent-subtle) is solved/derived as before — those don't have a
- * meaningful "theme's own value" to preserve. Output passes
- * remarque-audit BY CONSTRUCTION — this script self-verifies the same
- * pairings before it will emit anything.
+ * meaningful "theme's own value" to preserve. The 9 --color-syntax-*
+ * slots (issue #53) are derived straight from the theme's 16 ANSI
+ * colors instead — see the "Syntax-highlighting slots" section below.
+ * Output passes remarque-audit BY CONSTRUCTION — this script
+ * self-verifies the same pairings before it will emit anything.
  *
  * Security (non-negotiable, per the panel security review on #75):
  *   - Both slugs are checked against the package's own index.json BEFORE
@@ -325,6 +327,66 @@ function withHeadroom([L0, , H], delta, dir, C) {
   return [L, fitChroma(L, C, H), r1(H)];
 }
 
+/* ── Syntax-highlighting slots (issue #53) ───────────────────────────
+ * Terminal ANSI colors ARE syntax colors in their native domain, so the
+ * 9 --color-syntax-* slots are derived straight from a theme's 16 ANSI
+ * colors rather than invented fresh — zero new upstream schema work.
+ * Every slot targets --color-code-bg (not --color-bg) at 4.5:1, same
+ * keep-if-passing-else-solve pattern as every other slot above: the
+ * ANSI color's own lightness is kept when it already clears the ratio,
+ * solved (same binary search, same in-gamut chroma clamping) only when
+ * it doesn't. Chroma is capped at 0.14 — the same ceiling already used
+ * for --color-accent — so syntax colors stay in the system's "quiet,
+ * one-accent" register rather than turning carnival-bright. */
+
+const SYNTAX_CHROMA_CAP = 0.14;
+
+/* keyword/string/constant/function/type: a direct ANSI slot, kept if it
+ * already passes vs code-bg, solved (same hue) if it doesn't. */
+function deriveSyntaxAnsi(t, ansiName, label, codeBg, dir) {
+  const [L0, C0, H0] = slotLch(t, ansiName, label);
+  const C = Math.min(C0, SYNTAX_CHROMA_CAP);
+  return keepOrSolve(L0, C, H0, codeBg, 4.5, dir);
+}
+
+/* comment: brightBlack in dark themes (the ANSI convention); in light
+ * themes brightBlack is often too pale to hold 4.5:1 on code-bg, so the
+ * fallback solves a muted neutral on the theme's own fg hue instead of
+ * brightBlack's hue. */
+function deriveSyntaxComment(t, label, codeBg, dir, fallbackC, fallbackH) {
+  const [L0, C0, H0] = slotLch(t, 'brightBlack', label);
+  const C = Math.min(C0, SYNTAX_CHROMA_CAP);
+  const L = r3(Math.min(1, Math.max(0, L0)));
+  const c = fitChroma(L, C, H0);
+  if (ratio([L, c, H0], codeBg) >= 4.5) return [L, c, r1(H0)];
+  return solveL(fallbackC, fallbackH, codeBg, 4.5, dir);
+}
+
+/* punctuation: a derived neutral in the muted family (fg hue, low
+ * chroma), targeted at code-bg rather than surface. */
+function deriveSyntaxPunctuation(fgC, fgH, codeBg, dir) {
+  return solveL(Math.min(fgC, 0.02), fgH, codeBg, 4.5, dir);
+}
+
+/* variable: fg-adjacent — the theme's own fg hue/chroma, offset a little
+ * so it reads as "quieter than plain text," verified (and solved if
+ * needed) against code-bg rather than assumed from the fg/surface pass. */
+function deriveSyntaxVariable(fg, codeBg, dir, offset) {
+  return keepOrSolve(fg[0] + offset, fg[1], fg[2], codeBg, 4.5, dir);
+}
+
+/* link: alias the already-derived accent triple when it clears 4.5:1 on
+ * code-bg (accent is only guaranteed against --color-bg, and code-bg
+ * sits a little off from bg, so this isn't automatic) — solve a
+ * standalone value at the accent's own hue/chroma only when it doesn't,
+ * same as every other slot. Aliasing means a site's accent-hue swap
+ * (REMARQUE.md "Changing the Accent Hue") carries the link color with
+ * it for free whenever the alias holds. */
+function deriveSyntaxLink(accent, codeBg, dir) {
+  if (ratio(accent, codeBg) >= 4.5) return { ref: 'color-accent' };
+  return keepOrSolve(accent[0], accent[1], accent[2], codeBg, 4.5, dir);
+}
+
 /* ── LIGHT derivation ─────────────────────────────────────────────── */
 
 function deriveLight(t) {
@@ -351,6 +413,18 @@ function deriveLight(t) {
   // accent-hover: still the designed -0.08 offset from accent, but that
   // offset is verified against 4.5:1 on bg and solve-adjusted if it breaks.
   const accentHover = keepOrSolve(accent[0] - 0.08, acC * 0.8, ac.h, bg, 4.5, 'darker');
+  const codeBg = [r3(bg[0] - 0.03), bg[1], bg[2]];
+  // Syntax-highlighting slots (issue #53) — see the derivation helpers
+  // above. All verified against code-bg (not bg) at 4.5:1.
+  const synKeyword = deriveSyntaxAnsi(t, 'blue', 'light', codeBg, 'darker');
+  const synString = deriveSyntaxAnsi(t, 'green', 'light', codeBg, 'darker');
+  const synConstant = deriveSyntaxAnsi(t, 'yellow', 'light', codeBg, 'darker');
+  const synFunction = deriveSyntaxAnsi(t, 'purple', 'light', codeBg, 'darker');
+  const synType = deriveSyntaxAnsi(t, 'cyan', 'light', codeBg, 'darker');
+  const synComment = deriveSyntaxComment(t, 'light', codeBg, 'darker', fgC, fgH);
+  const synPunctuation = deriveSyntaxPunctuation(fgC, fgH, codeBg, 'darker');
+  const synVariable = deriveSyntaxVariable(fg, codeBg, 'darker', 0.08);
+  const synLink = deriveSyntaxLink(accent, codeBg, 'darker');
   const raw = {
     'color-bg': bg,
     'color-bg-subtle': [r3(bg[0] - 0.02), bg[1], bg[2]],
@@ -365,8 +439,17 @@ function deriveLight(t) {
     'color-accent-subtle': [0.95, fitChroma(0.95, 0.02, ac.h), r1(ac.h)],
     'color-selection-bg': [0.92, fitChroma(0.92, 0.04, ac.h), r1(ac.h)],
     'color-selection-fg': { ref: 'color-fg' },
-    'color-code-bg': [r3(bg[0] - 0.03), bg[1], bg[2]],
+    'color-code-bg': codeBg,
     'color-code-fg': { ref: 'color-fg' },
+    'color-syntax-keyword': synKeyword,
+    'color-syntax-string': synString,
+    'color-syntax-constant': synConstant,
+    'color-syntax-comment': synComment,
+    'color-syntax-function': synFunction,
+    'color-syntax-type': synType,
+    'color-syntax-punctuation': synPunctuation,
+    'color-syntax-variable': synVariable,
+    'color-syntax-link': synLink,
   };
   const tokens = {};
   for (const [name, v] of Object.entries(raw)) tokens[name] = v.ref ? `var(--${v.ref})` : fmt(v);
@@ -409,6 +492,17 @@ function deriveDark(t, accentHueLight) {
   // code-fg: "slightly dimmer than fg" — same pattern, -0.02, verified
   // against the AAA 7:1 line on code-bg.
   const codeFg = keepOrSolve(fg[0] - 0.02, fg[1], fg[2], codeBg, 7.0, 'lighter');
+  // Syntax-highlighting slots (issue #53) — mirrors the light derivation,
+  // direction flipped ('lighter': text on a dark code-bg).
+  const synKeyword = deriveSyntaxAnsi(t, 'blue', 'dark', codeBg, 'lighter');
+  const synString = deriveSyntaxAnsi(t, 'green', 'dark', codeBg, 'lighter');
+  const synConstant = deriveSyntaxAnsi(t, 'yellow', 'dark', codeBg, 'lighter');
+  const synFunction = deriveSyntaxAnsi(t, 'purple', 'dark', codeBg, 'lighter');
+  const synType = deriveSyntaxAnsi(t, 'cyan', 'dark', codeBg, 'lighter');
+  const synComment = deriveSyntaxComment(t, 'dark', codeBg, 'lighter', fgC, fgH);
+  const synPunctuation = deriveSyntaxPunctuation(fgC, fgH, codeBg, 'lighter');
+  const synVariable = deriveSyntaxVariable(fg, codeBg, 'lighter', -0.08);
+  const synLink = deriveSyntaxLink(accent, codeBg, 'lighter');
   const raw = {
     'color-bg': bg,
     'color-bg-subtle': surface,
@@ -425,9 +519,18 @@ function deriveDark(t, accentHueLight) {
     'color-selection-fg': selFg,
     'color-code-bg': codeBg,
     'color-code-fg': codeFg,
+    'color-syntax-keyword': synKeyword,
+    'color-syntax-string': synString,
+    'color-syntax-constant': synConstant,
+    'color-syntax-comment': synComment,
+    'color-syntax-function': synFunction,
+    'color-syntax-type': synType,
+    'color-syntax-punctuation': synPunctuation,
+    'color-syntax-variable': synVariable,
+    'color-syntax-link': synLink,
   };
   const tokens = {};
-  for (const [name, v] of Object.entries(raw)) tokens[name] = fmt(v);
+  for (const [name, v] of Object.entries(raw)) tokens[name] = v.ref ? `var(--${v.ref})` : fmt(v);
   tokens['weight-display'] = '500';
   return { raw, tokens };
 }
@@ -452,6 +555,15 @@ const CHECKS = [
   ['color-code-fg', 'color-code-bg', 4.5, 'code text'],
   ['color-border-bold', 'color-bg', 3.0, 'functional borders (WCAG 1.4.11)'],
   ['color-selection-fg', 'color-selection-bg', 4.5, 'selected text'],
+  ['color-syntax-keyword', 'color-code-bg', 4.5, 'syntax: keyword'],
+  ['color-syntax-string', 'color-code-bg', 4.5, 'syntax: string'],
+  ['color-syntax-constant', 'color-code-bg', 4.5, 'syntax: constant'],
+  ['color-syntax-comment', 'color-code-bg', 4.5, 'syntax: comment'],
+  ['color-syntax-function', 'color-code-bg', 4.5, 'syntax: function'],
+  ['color-syntax-type', 'color-code-bg', 4.5, 'syntax: type'],
+  ['color-syntax-punctuation', 'color-code-bg', 4.5, 'syntax: punctuation'],
+  ['color-syntax-variable', 'color-code-bg', 4.5, 'syntax: variable'],
+  ['color-syntax-link', 'color-code-bg', 4.5, 'syntax: link'],
 ];
 
 function resolveRaw(raw, name, seen = new Set()) {
