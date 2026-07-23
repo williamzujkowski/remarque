@@ -146,6 +146,8 @@ Remarque uses a three-slot font system. Each slot has a strict role, and each sl
 
 This is why the measure is palette-tier: it is a property of the font choice, not of the system's identity. The *target character count* is the invariant.
 
+**Known limitation: Latin script only.** The table above, and the `ch`-based measure math behind it, assume Latin-alphabet conventions — character width roughly proportional to em-height, word-space-separated tokens, left-to-right flow. None of that holds for CJK, Arabic, or Devanagari body text: CJK measure is conventionally counted in full-width characters per line, a different unit than a Latin `ch` entirely; Arabic's contextual letterforms and right-to-left flow change what "character count" even means; Devanagari's conjunct consonants and matras make per-character width too irregular for a single ch-target to describe. Remarque has not derived a measure-compensation row for any non-Latin script — a site setting CJK/Arabic/Devanagari body copy needs to work out its own measure the way this table works out Latin ones; the ch-target does not transfer by assumption. Named here honestly, in the same spirit as this spec's Butterick line-spacing deviation write-up further down, rather than left for a future non-Latin consumer to discover the hard way.
+
 ---
 
 ## Editorial Microtypography
@@ -527,6 +529,14 @@ Every PR that ships Remarque pages MUST pass (`npm run audit` automates the colo
 - [ ] Any new color-only affordance (hover/focus signal, state indicator, structural divider) is checked against forced-colors mode — does it survive, or does it need a `@media (forced-colors: active)` fallback? (see "Forced Colors & Contrast Preferences")
 
 Agents reviewing PRs should reject changes that violate any line above without explicit rationale.
+
+### APCA: Considered, Not Adopted (2026-07-23)
+
+APCA (Accessible Perceptual Contrast Algorithm) was pulled into the WCAG3 working draft in 2023 and remains exploratory — no ratified conformance model specifies it, and that status is unchanged as of this writing. Remarque holds **WCAG 2.x's ratio-based contrast** as the enforcement gate (see "Contrast Ratios" above and the Enforcement Checklist) rather than building the audit toward an unratified algorithm.
+
+This is a deliberate policy/data split, not an oversight: the upstream `@williamzujkowski/oklch-terminal-themes` dataset is adding APCA Lc values as *data* on its themes (oklch-terminal-themes#151) — a reasonable thing for a dataset to expose so consumers can experiment. Remarque's own audit gate does not consume it. Data availability and policy adoption are two different questions, and this project is only answering one of them right now.
+
+**Revisit trigger:** a ratified WCAG3 conformance model that specifies an actual APCA (or successor) algorithm and threshold set. Until then, this is dated rather than re-litigated on every PR that mentions contrast.
 
 ---
 
@@ -1350,6 +1360,40 @@ An implementation succeeds when:
 - The result is distinctive without being gimmicky
 - The mobile version is roomy and readable — not a compressed desktop layout
 - A reader could identify it as a Remarque site without being told
+
+---
+
+## Governance & Deprecation
+
+Remarque is small enough that governance fits on a page, but it now ships as a published npm package with multiple consuming sites and a CI gate other repos call into — enough surface that the rules deserve writing down rather than living only in maintainer habit. The precedent here is deliberately modest: closer to how a single-maintainer Carbon or Polaris component documents its own contract than to either project's full RFC process.
+
+### Semver contract
+
+Remarque ships as a CSS token system, not an application — "breaking" means something different than it does for a library with a JS API surface:
+
+- **MAJOR** — a token is **removed** or **renamed**. Anything a consumer's `var(--color-x)` or a `tokens.json` lookup resolves today must keep resolving after a minor or patch bump; only a major bump may take that away.
+- **MINOR** — a token's **value changes**, or a token is **added**. Value changes always carry a stated rationale in the CHANGELOG entry (a contrast fix, a gamut correction, an upstream dataset repin) — the change is minor because the *name* stays stable and every consumer reads it through `var()` indirection, but it is never silent. Additive changes (new tokens, new optional CLI flags, new subpath exports) are minor by definition — nothing existing changes shape.
+- **PATCH** — tool/script fixes with no token or CSS output change (a `remarque-audit` parser bug, a `tokens-json.mjs` generation fix, a fixture correction). If `tokens.json`/`tokens.d.ts`'s content is byte-identical before and after, it's a patch.
+
+The project is still pre-1.0 — under strict SemVer every 0.x release is technically allowed to break anything — but every release to date has in practice held to the contract above (no token has ever been removed or renamed; see the version history in CHANGELOG.md). 1.0 is the point where that becomes a promise instead of an observed pattern.
+
+### Deprecation windows
+
+A token or convention slated for removal is announced in the CHANGELOG at least one MINOR release before it disappears, named explicitly with a target version — not left implicit in a commit message. The table below is the centralized registry of every open sunset commitment; a PR that adds a new one should add a row here in the same commit, not just mention it once in the CHANGELOG.
+
+| Deprecated / bridged item | Introduced | Sunset target | Rationale |
+|---|---|---|---|
+| `:root.dark` compatibility selector (alongside canonical `[data-theme="dark"]`) | 0.5.0 | 1.0 | Bridges class-keyed consumer sites onto the attribute-keyed convention `remarque-audit` treats as canonical — the audit already parses both forms, so the bridge costs nothing today. Platform endgame to watch instead: `color-scheme` + `light-dark()` (see "Technology Stack"). |
+
+No other open sunset commitments exist as of this writing (grepped against REMARQUE.md and CHANGELOG.md for "sunset"/"deprecated"). This table is meant to be the single place to look — but only if every future commitment is added here, not just announced in passing.
+
+### Decision-log habit
+
+Every design decision with more than one reasonable answer — a token value, a deviation from a cited precedent (Butterick, Carbon, USWDS), a scope change to an in-flight issue — gets a recorded vote, not just an implementation. The convention has been practiced since 0.5.0; this section states it as policy rather than leaving it implicit:
+
+- The CHANGELOG entry for the release states the vote count (e.g. "ratified 3-0 by consensus panel") and, when the outcome wasn't unanimous or shipped with conditions, what those conditions were.
+- REMARQUE.md carries the same treatment inline wherever a deviation is asserted against upstream guidance — see "Lineage: Butterick's Five Rules" below for the fullest example: the guidance, the deviation, the argued rationale, and the ratification line together.
+- The habit exists so a future maintainer — human or agent — can tell the difference between "nobody thought about this" and "this was considered and decided," without reconstructing the reasoning from a diff.
 
 ---
 
