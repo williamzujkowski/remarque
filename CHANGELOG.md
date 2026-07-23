@@ -26,9 +26,18 @@ color-provider integration, closes #76; consensus-ratified 3-0,
   one slot (see the PR for the full before/after) — hence the minor
   bump rather than a patch. Every pair still passes `remarque-audit`;
   the corpus property test (`test-theme.mjs`) stays green.
-- All other slots (`fg-muted`, `muted`, `border-bold`, the bg ladder,
-  `selection-bg`, `accent-subtle`) are unaffected — solved/derived
-  unconditionally, same as before.
+- **`fg-muted` and `border-bold` gain contrast headroom over their solved
+  minimums** (−0.01 L and −0.02 L further from the background,
+  respectively; mirrored in dark). Slots that exist to clear a legal line
+  shouldn't sit exactly on it: borders at 3.0:1 are fragile against
+  antialiasing, AAA text at 7.0:1 has no margin for rendering variance.
+  This encodes the same headroom the hand-authored default has always
+  carried (border-bold at 3.39:1, fg-muted at 7.55:1) into the
+  derivation itself — it's what reconciled the golden gate's last two
+  outliers without loosening the ΔE threshold.
+- All other slots (`muted`, the bg ladder, `selection-bg`,
+  `accent-subtle`) are unaffected — solved/derived unconditionally, same
+  as before.
 
 ### Added
 - **`scripts/palette-golden.mjs`** (new CI gate, wired into

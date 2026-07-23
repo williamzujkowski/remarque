@@ -306,6 +306,17 @@ function fmt(triple) {
   return `oklch(${L} ${C} ${H})`;
 }
 
+/* Push a solved triple further from the background by delta L — headroom
+ * over the legal minimum for slots that shouldn't sit at it (functional
+ * borders at exactly 3:1 are fragile against antialiasing; AAA text at
+ * exactly 7:1 has no margin for rendering variance). Direction is always
+ * away from bg, so the ratio only increases — never re-verified against
+ * the target, only re-clamped for gamut. */
+function withHeadroom([L0, , H], delta, dir, C) {
+  const L = r3(Math.min(1, Math.max(0, dir === 'darker' ? L0 - delta : L0 + delta)));
+  return [L, fitChroma(L, C, H), r1(H)];
+}
+
 /* ── LIGHT derivation ─────────────────────────────────────────────── */
 
 function deriveLight(t) {
@@ -321,9 +332,9 @@ function deriveLight(t) {
   // AAA floor (7:1) against surface; solve only if it doesn't (#76 — this
   // used to always solve to 10:1, flattening well-designed themes).
   const fg = keepOrSolve(fgL0, fgC, fgH, surface, 7.0, 'darker');
-  const fgMuted = solveL(fgC, fgH, bg, 7.0, 'darker');
+  const fgMuted = withHeadroom(solveL(fgC, fgH, bg, 7.0, 'darker'), 0.01, 'darker', fgC);
   const muted = solveL(Math.min(fgC0, 0.02), fgH, surface, 4.5, 'darker');
-  const borderBold = solveL(0.01, bgH, bg, 3.0, 'darker');
+  const borderBold = withHeadroom(solveL(0.01, bgH, bg, 3.0, 'darker'), 0.02, 'darker', 0.01);
   const ac = accentHue(t, 'light');
   const acC = Math.min(ac.c, 0.14);
   // accent: keep the accent-source's own lightness (cursor or chosen ANSI
@@ -369,9 +380,9 @@ function deriveDark(t, accentHueLight) {
   // AAA floor (7:1) against surface; solve only if it doesn't (mirrors
   // light — direction flipped, see #76).
   const fg = keepOrSolve(fgL0, fgC, fgH, surface, 7.0, 'lighter');
-  const fgMuted = solveL(fgC, fgH, bg, 7.0, 'lighter');
+  const fgMuted = withHeadroom(solveL(fgC, fgH, bg, 7.0, 'lighter'), 0.01, 'lighter', fgC);
   const muted = solveL(fgC, fgH, surface, 4.5, 'lighter');
-  const borderBold = solveL(0.01, bgH, bg, 3.0, 'lighter');
+  const borderBold = withHeadroom(solveL(0.01, bgH, bg, 3.0, 'lighter'), 0.02, 'lighter', 0.01);
   const ac = accentHue(t, 'dark');
   const h = accentHueLight ?? ac.h; // keep hue consistent across the pair
   const acC = Math.min(ac.c, 0.12);
