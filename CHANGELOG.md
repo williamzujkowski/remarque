@@ -4,6 +4,65 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.19.0 — 2026-07-23
+
+Palette Deck module (closes #56).
+
+### Added
+- **`deck.js` — palette-deck module (issue #56, re-scoped by 2026-07-23
+  consensus panel).** New own-subpath export (`remarque-tokens/deck`,
+  `remarque-tokens/deck.js`) — a dependency-free ~60-line ESM file, NOT
+  aggregated into `tokens.css` (it ships no CSS at all). Deliberately
+  THIN: the original theme-deck graduation proposal (12 terminal
+  palettes as `:root[data-theme-deck]` overrides) predates
+  `remarque-theme`; the panel re-scoped it to cover only what that
+  pipeline doesn't already provide — switching, persisting, and
+  FOUC-safely restoring a choice among already-generated palettes.
+  Generation, contrast solving, and hue/pairing remain entirely
+  `remarque-theme`'s job.
+  - `createDeck(names, opts?)` — registers a set of palette names,
+    returns `{ names, current, apply, restore }`. `apply(name)` sets/
+    clears `data-palette` on the root element and persists the choice to
+    `localStorage` (default key `remarque-palette`); `apply(null)`
+    reverts to the unscoped default. `restore()` re-applies a persisted
+    choice without re-persisting it (for the post-paint sync step — the
+    actual FOUC guard is a duplicated inline snippet, documented in
+    REMARQUE.md, matching how the light/dark theme toggle's own `<head>`
+    script already works). Unknown names throw rather than setting an
+    unvalidated attribute value.
+- **`--scope <name>` on `remarque-theme`.** Emits the derived palette
+  under `[data-palette="<name>"]` / `[data-palette="<name>"][data-theme="dark"]`
+  instead of `:root` / `[data-theme="dark"]`, so several generated
+  palettes can coexist in one stylesheet. `<name>` is validated with the
+  same slug grammar as `<light-slug>`/`--dark` before it is interpolated
+  into the attribute selector (security review precedent from #75/#76 —
+  it is the only control here, since a scope name has no upstream index
+  to check against). Derivation and self-verification are unaffected by
+  scoping — a scoped and unscoped run of the same pair emit
+  byte-identical declarations, differing only in the wrapping selector
+  (fixture-tested).
+- **`remarque-audit` recognizes scoped palettes directly.**
+  `scripts/lib/css-tokens.mjs`'s `isLightRoot` now treats a bare
+  `[data-palette="name"]` block as that scope's light root (one more
+  exact-match case, symmetric with the existing `[data-theme="light"]`
+  special case) — `isDarkBlock` needed no change, since
+  `[data-palette="name"][data-theme="dark"]` already matched its
+  existing rule. A `--scope`'d file is auditable exactly like any other
+  palette file; no "audit the unscoped version first" workaround is
+  needed. See REMARQUE.md "Palette Deck" for the full audit story and
+  why this was the smaller correct fix over a bespoke attribute-selector
+  grammar.
+- **Demo (`site/`):** a Palette Deck section on `/tokens` with a native
+  `<select class="remarque-input">` switcher (gruvbox / rosé-pine,
+  pinned slugs `gruvbox-light`/`gruvbox-dark` and
+  `rose-pine-dawn`/`rose-pine`), generated at build time by
+  `site/scripts/build-palette-deck.mjs` into `public/palettes/*.css`
+  (gitignored, regenerated every build — same pattern as
+  `public/tokens.json`). FOUC-safe restore snippet added to
+  `BaseLayout.astro`'s `<head>`, alongside the existing theme-toggle
+  script. VR baselines: `tokens.astro` only (new section on that page);
+  every other page is untouched by this release.
+
 ## 0.18.0 — 2026-07-23
 
 Form control primitives + reference components (closes #27, closes #30).

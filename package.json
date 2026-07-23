@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "engines": {
     "node": ">=18"
   },
@@ -74,6 +74,8 @@
     "./broadsheet.css": "./broadsheet.css",
     "./forms": "./forms.css",
     "./forms.css": "./forms.css",
+    "./deck": "./deck.js",
+    "./deck.js": "./deck.js",
     "./agent-rules": "./AGENT_RULES.md",
     "./spec": "./REMARQUE.md",
     "./package.json": "./package.json"
@@ -101,6 +103,7 @@
     "essay.css",
     "broadsheet.css",
     "forms.css",
+    "deck.js",
     "scripts/lib/css-tokens.mjs"
   ]
 }

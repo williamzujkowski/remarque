@@ -1121,6 +1121,133 @@ instead and keep Remarque to the page's editorial chrome around it.
 
 ---
 
+## Palette Deck
+
+A tiny runtime (`remarque-tokens/deck`, `deck.js`) for switching between
+several `remarque-theme`-generated palettes on one site — register a set
+of palette names, switch the active one, persist the choice, restore it
+before first paint. Issue #56.
+
+**What this module deliberately does NOT do.** The flagship site's
+`theme-deck.css` (12 terminal palettes as `:root[data-theme-deck=…]`
+overrides) was originally proposed for upstreaming as-is. A 2026-07-23
+consensus panel (3-0) re-scoped it: generation, contrast solving, and
+hue/pairing all now come from `remarque-theme` (`scripts/theme.mjs`,
+"Color Providers" above) — that pipeline makes deriving a new palette
+nearly free, so graduating a second, parallel generator would just
+duplicate it. What's left — and what this module is *only* — is the part
+`remarque-theme` doesn't provide: switching between already-generated
+palettes at runtime. No color math, no contrast solving, no palette
+authoring lives in `deck.js`; it is a dependency-free ~60-line ESM file
+that sets an attribute, reads/writes `localStorage`, and hands back
+enough to build a FOUC-safe restore. If you need to *generate* a palette,
+see "Color Providers"; this section is exclusively about *switching*
+between ones you already have.
+
+### The mechanism: `--scope`
+
+`remarque-theme` gained a `--scope <name>` flag for this module. Without
+it, output owns `:root` / `[data-theme="dark"]` outright — the normal,
+single-palette case. With `--scope <name>`, the same derivation emits
+under `[data-palette="<name>"]` / `[data-palette="<name>"][data-theme="dark"]`
+instead, so several generated palettes can coexist in one stylesheet
+(or several stylesheets) without fighting over `:root`:
+
+```
+npx remarque-theme gruvbox-light --dark gruvbox-dark --scope gruvbox -o palettes/gruvbox.css
+npx remarque-theme rose-pine-dawn --dark rose-pine --scope rose-pine -o palettes/rose-pine.css
+```
+
+`--scope`'s value is interpolated into a CSS attribute selector, so it is
+validated with the exact same slug grammar as `<light-slug>`/`--dark`
+(lowercase alphanumeric segments joined by single hyphens) before it
+touches any output — a scope name is a caller-supplied label with no
+upstream index to check it against, which is exactly why the regex
+carries the full weight here rather than acting as defense-in-depth for
+a separate lookup. Derivation, self-verification, and every contrast/
+gamut guarantee in "Color Providers" are **completely unaffected by
+scoping** — `theme.mjs` self-verifies the derived `[L, C, H]` values
+before it ever chooses a selector to emit them under, so a scoped and
+unscoped run of the same light/dark pair produce byte-identical
+declarations, differing only in which selector wraps them (fixture-
+tested in `scripts/test-theme.mjs`).
+
+### The audit story for scoped palettes
+
+`remarque-audit`'s selector classification (`scripts/lib/css-tokens.mjs`,
+`isLightRoot`/`isDarkBlock`) recognizes `[data-palette="name"]` directly:
+a bare `[data-palette="name"]` block counts as that scope's light root
+(the same kind of exact-match special case the file already carries for
+`[data-theme="light"]`), and `[data-palette="name"][data-theme="dark"]`
+was already recognized as dark by the existing rule (it contains the
+`[data-theme="dark"]` substring and starts with `[`) — no change needed
+there. This was the smaller correct fix, not a bespoke new
+attribute-selector grammar: one exact-match regex, symmetric with a
+pattern the file already used, rather than teaching the parser to
+understand arbitrary compound attribute selectors. The result: a
+`--scope`'d file is auditable exactly like any other palette file —
+`npx remarque-audit --palette palettes/gruvbox.css --src <dir>` — no
+"generate the unscoped version first" workaround required.
+
+### Markup/wiring contract
+
+Set (or clear) `data-palette` on `<html>`, alongside the existing
+`data-theme` attribute — the two compose independently. A deck palette
+carries *both* light and dark halves, so the light/dark toggle keeps
+working no matter which palette (or none) is active:
+
+```html
+<html data-theme="dark" data-palette="gruvbox">
+```
+
+```js
+import { createDeck } from 'remarque-tokens/deck';
+
+const deck = createDeck(['gruvbox', 'rose-pine']); // registered names
+deck.restore();                 // re-apply a persisted choice, if any
+deck.apply('rose-pine');        // switch + persist
+deck.apply(null);                // back to the unscoped default palette
+deck.current();                  // 'rose-pine' | null
+```
+
+`createDeck` validates every `apply()` call against the registered name
+list and throws on an unknown one — the deck never sets an attribute
+value it wasn't told about. Persistence (`localStorage`, default key
+`remarque-palette`) degrades to in-memory-only if storage is unavailable
+(private browsing, SSR) rather than throwing.
+
+**FOUC-safe restore.** Exactly like the light/dark theme toggle's own
+`<head>` script (see the demo's `BaseLayout.astro`), the deck's restore
+must run as a synchronous, render-blocking **classic** inline script
+physically in `<head>` — an ESM `<script type="module">` is deferred by
+the HTML spec and would let the default palette flash before the stored
+one applies. So the head snippet duplicates the ~3-line read-and-apply
+logic directly rather than importing `deck.js` (the same reason the
+theme toggle's head script doesn't import anything either):
+
+```html
+<script is:inline>
+  (function() {
+    var p = localStorage.getItem('remarque-palette');
+    if (p) document.documentElement.setAttribute('data-palette', p);
+  })();
+</script>
+```
+
+`deck.js` itself is loaded later (deferred/module, after first paint) to
+wire the switcher UI's change handler and to keep `restore()` available
+for pages that need to re-derive `current()` after the fact.
+
+### Provenance
+
+Re-scoped from the flagship site's theme-deck on the way up (issue #56,
+consensus panel, 2026-07-23) — see the root README's "Graduation"
+section. The original proposal predated `remarque-theme`; once that
+pipeline existed, generating N palettes stopped being the hard part and
+switching between them became the only piece worth a shared module.
+
+---
+
 ## Signature Moves
 
 These are the repeatable visual tells that make a Remarque site recognizable:

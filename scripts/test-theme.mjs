@@ -157,6 +157,66 @@ expect(
   expect('derived output has a [data-theme="dark"] block', /\[data-theme="dark"\]\s*{/.test(css), css.slice(0, 200));
 }
 
+/* ── --scope (remarque-tokens/deck, issue #56) ─────────────────────── */
+
+{
+  const [lightSlug, darkSlug] = pairs[0];
+
+  // Scoped emission uses [data-palette="name"] / [data-palette="name"][data-theme="dark"]
+  // instead of :root / [data-theme="dark"] — and nothing else about the
+  // shape changes.
+  const scoped = run(['scripts/theme.mjs', lightSlug, '--dark', darkSlug, '--scope', 'my-scope']);
+  expect('scoped run exits 0', scoped.code === 0, scoped.stderr.trim().slice(0, 200));
+  expect(
+    'scoped output has a [data-palette="my-scope"] block (not bare :root)',
+    /\[data-palette="my-scope"\]\s*{/.test(scoped.stdout) && !/(^|\n)\s*:root\s*{/.test(scoped.stdout),
+    scoped.stdout.slice(0, 200)
+  );
+  expect(
+    'scoped output has a [data-palette="my-scope"][data-theme="dark"] block',
+    /\[data-palette="my-scope"\]\[data-theme="dark"\]\s*{/.test(scoped.stdout),
+    scoped.stdout.slice(0, 200)
+  );
+
+  // Self-verify runs on the derived [L,C,H] values before the selector is
+  // ever chosen — scoping must not change a single derived value. Proven
+  // directly: strip the two files down to their declaration bodies (drop
+  // the provenance comment header and the selector lines) and diff.
+  const unscoped = run(['scripts/theme.mjs', lightSlug, '--dark', darkSlug]);
+  const declsOnly = (css) => css.replace(/\/\*[\s\S]*?\*\//, '').replace(/^\s*[^\s{][^{]*{\s*$/gm, '').trim();
+  expect(
+    'scoped output declares byte-identical token values to the unscoped output (only the selector differs)',
+    declsOnly(scoped.stdout) === declsOnly(unscoped.stdout),
+    'declaration bodies diverged between scoped and unscoped emission'
+  );
+
+  // The scoped output is directly auditable with remarque-audit (the
+  // isLightRoot fix in scripts/lib/css-tokens.mjs — see REMARQUE.md
+  // "Palette Deck") — no unscoped-first workaround needed.
+  const scopedFile = join(dir, 'my-scope.css');
+  writeFileSync(scopedFile, scoped.stdout);
+  const auditedScoped = run(['scripts/audit.mjs', '--palette', scopedFile, '--src', srcDir]);
+  expect(
+    'remarque-audit passes directly against --scope output',
+    auditedScoped.code === 0,
+    auditedScoped.stdout.split('\n').filter((l) => l.includes('✗')).join(' | ')
+  );
+
+  // --scope name validation mirrors the slug grammar (it lands in a CSS
+  // attribute selector — same "sanitize like a slug" bar as light/dark).
+  const badScopes = ['Bad Name', 'has space', 'UPPER', '', 'quote"break', 'bracket]break', 'semi;colon'];
+  for (const bad of badScopes) {
+    const r = run(['scripts/theme.mjs', lightSlug, '--dark', darkSlug, '--scope', bad]);
+    expect(`invalid --scope "${bad}" is rejected (nonzero exit)`, r.code !== 0, `exit ${r.code}`);
+  }
+  // A CSS-injection-shaped scope name never reaches the output at all.
+  {
+    const hostile = 'x"];body{color:red}[x="';
+    const r = run(['scripts/theme.mjs', lightSlug, '--dark', darkSlug, '--scope', hostile]);
+    expect('CSS-injection-shaped --scope is rejected before emission', r.code !== 0, `exit ${r.code}`);
+  }
+}
+
 if (bad) {
   console.error(`\ntheme fixture tests FAILED — ${bad} problem(s)\n`);
   process.exit(1);

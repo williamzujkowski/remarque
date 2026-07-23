@@ -146,6 +146,7 @@ project/
 ├── essay.css                 # Optional Essay module: sidenotes + sticky TOC rail (own subpath, NOT aggregated — import explicitly)
 ├── broadsheet.css            # Optional Broadsheet pattern: masthead, lead, entry list, post kicker (own subpath, NOT aggregated — import explicitly)
 ├── forms.css                 # Optional form control primitives: field/input/checkbox/radio/button, state-color wiring (own subpath, NOT aggregated — import explicitly)
+├── deck.js                   # Optional Palette Deck module: switch/persist/restore between remarque-theme-generated palettes (own subpath, NOT aggregated — dependency-free ESM, no CSS of its own)
 ├── print.css                 # Print stylesheet (own subpath, NOT aggregated — import explicitly)
 ├── theme.css                 # Tailwind v4 adapter (@theme inline) — import after tailwindcss + tokens
 ├── tailwind.config.js        # Tailwind v3 ONLY — v4 projects use theme.css instead
@@ -209,6 +210,7 @@ Before considering any implementation complete, verify:
 - [ ] If the Essay uses sidenotes/a TOC rail (`remarque-tokens/essay`): `.remarque-sidenote-ref`/`.remarque-sidenote` alternate in strict DOM order, the rail never intrudes into `.remarque-prose`'s own measure, and the page renders correctly with `essay.css`'s `@media` block deleted (the narrow-viewport/no-JS fallback)
 - [ ] If a Landing/archive page uses the Broadsheet pattern (`remarque-tokens/broadsheet`): entry numerals are generated from `data-entry-number` via `attr()` (not `counter()`), the entry list stays a `<ul>` (not `<ol>` — the numeral is `aria-hidden` and decorative), and every kicker/dateline row uses `font-variant-caps: all-small-caps`, never `text-transform: uppercase`
 - [ ] If a page uses form controls (`remarque-tokens/forms`): checkboxes/radios are styled with `accent-color` only — never `appearance: none` plus a hand-drawn replacement; every control (input, button, checkbox/radio label) is ≥44×44px; validation state lives on `.remarque-field[data-state]` AND a real `aria-invalid`/`aria-describedby` pair on the input, not `data-state` alone; disabled controls use `--color-disabled`, never a state color
+- [ ] If a page uses the Palette Deck (`remarque-tokens/deck`): `data-palette` is set/cleared on the same root element as `data-theme` (they compose, never conflict); the FOUC-safe restore is a synchronous classic `<script>` physically in `<head>` (never `type="module"`, which defers); the switcher control itself is a native, keyboard-operable element (e.g. `.remarque-input` `<select>`) at ≥44×44px, not a hand-rolled widget; every registered palette was generated via `remarque-theme --scope`, never hand-authored
 - [ ] Mobile version is roomy — not a compressed desktop layout
 - [ ] Mobile nav links have ≥44px touch targets
 - [ ] No pure white or pure black backgrounds

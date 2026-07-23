@@ -39,6 +39,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install root devDependencies (oklch-terminal-themes, for remarque-theme --scope)
+        run: npm ci
+        working-directory: .
+
       - name: Install Playwright's Chromium (+ OS deps)
         run: npx playwright install --with-deps chromium
 
