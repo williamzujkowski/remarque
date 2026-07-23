@@ -4,7 +4,58 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
-## 0.14.0 — 2026-07-23
+## 0.15.0 — 2026-07-23
+
+Essay module — sidenotes + sticky TOC rail, graduated from the flagship (closes #52).
+
+### Added
+- **`essay.css`** (new subpath: `remarque-tokens/essay`, `remarque-tokens/essay.css`) —
+  optional Essay-archetype module, not aggregated into `tokens.css` or `prose.css`. Adds:
+  - `.remarque-sidenote-ref` / `.remarque-sidenote` — footnotes as in-flow margin notes.
+    Small-print inline block below `80rem` (`--color-border-bold`, the note's only visual
+    separator at that width); floats into the left gutter above it via a Tufte-style
+    negative-margin technique (`clear: left` stacks consecutive notes, no JS). Numbered
+    with CSS counters (`counter-reset` on `.remarque-prose`) rather than an authored number
+    — this package ships no build step, unlike the flagship's rehype transform. A repeat
+    citation of an already-noted footnote uses `.remarque-sidenote-ref--repeat` (styled
+    identically, doesn't advance the shared counter).
+  - `.remarque-footnotes` — a same-voice fallback for consumers without a DOM-reordering
+    build step: styles GFM's default end-of-document footnotes section instead of relocating
+    notes inline.
+  - `.remarque-toc-rail` — `position: sticky` right rail at `>= 80rem`, plain inline
+    collapsible `<details>` below it, same markup at every width (mono meta voice, small
+    caps rather than `text-transform: uppercase` — the flagship predates that rule).
+  - `.remarque-essay` — the opt-in 3-column grid shell (gutter / reading column / TOC
+    rail) that places the above two. Center track is `minmax(0, var(--content-reading))`,
+    identical to plain `.content-reading` centering; the grid never sets `max-width` or
+    `margin-inline` on its children, so the reading-column measure is unaffected with or
+    without this module.
+  - Single breakpoint, `>= 80rem` (1280px) — re-derived from `--content-standard` /
+    `--content-reading` / the core spacing scale rather than asserting the flagship's
+    literal rem measurements. Deleting the `@media` block leaves the correct
+    narrow-viewport/no-JS presentation, not a degraded one.
+  - `grid-row: 1 / span 999` on the rail, not `1 / -1` — ships with the flagship's
+    same-day grid-inflation fix already applied (`-1` resolves to row 1 with no explicit
+    `grid-template-rows`, inflating it to the rail's own height).
+- **`print.css`** — forces `.remarque-sidenote` back to inline mode and `.remarque-essay`
+  back to block flow under `@media print`, making good on this file's existing "when a
+  sidenotes module lands" comment. (`.remarque-toc-rail` was already caught by the
+  existing `nav` / `[class*="toc-"]` print-hiding rules — no change needed there.)
+- **REMARQUE.md "Essay Module"** — markup contract, when-to-use guidance, the
+  breakpoint-behavior table, and the grid-inflation provenance note.
+- **AGENT_RULES.md** — File Structure Convention lists `essay.css` (and, newly, `print.css`,
+  which the convention had never mentioned); Quality Checklist gains an Essay-module line.
+- **Demo site (`site/`)** — `writing/typography-as-interface` (the Essay archetype's VR
+  reference page) now exercises both sidenotes and the TOC rail. VR baselines updated:
+  `essay-{light,dark}-{desktop,mobile}.png` (4 files). New computed-style assertion:
+  the TOC rail's bounding box never overlaps `.remarque-prose`'s reading column at the
+  `1280px` desktop viewport.
+
+### Documentation
+- **README.md "Graduation"** — adds this release to the "Historical examples" list as
+  the worked example of the "optional module" destination.
+
+
 
 Triage bundle — prose/`.content-reading` pairing documented, `--motion-easing` bridged into the Tailwind v4 utility layer, USWDS/WCAG source citations added to the accessibility section (closes #23, closes #31, closes #32).
 

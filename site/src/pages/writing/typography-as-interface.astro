@@ -5,6 +5,13 @@
  * Long-form writing. The core content type.
  * Always includes: serif title, mono metadata row, narrow reading column, strong prose styling, footer nav.
  * Never includes: sidebar content in reading column, more than one accent color, inline images wider than reading column.
+ *
+ * Essay Module demo (remarque-tokens/essay, issue #52): this page is the
+ * Essay archetype's VR reference page, so it doubles as the module's own
+ * demo — sidenotes (`.remarque-sidenote-ref` / `.remarque-sidenote`) and a
+ * sticky TOC rail (`.remarque-toc-rail`), both wrapped in the `.remarque-
+ * essay` grid shell. See REMARQUE.md "Essay Module" for the markup
+ * contract this page follows.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Meta from '../../components/Meta.astro';
@@ -13,7 +20,7 @@ const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Typography as Interface" description="When typography is the primary visual system, every decision about type is a decision about interface.">
-  <article class="pt-[var(--space-9)]">
+  <article class="remarque-essay pt-[var(--space-9)]">
     <header class="max-w-reading mx-auto mb-8">
       <h1 class="text-display font-display text-[var(--color-fg)]">Typography as Interface</h1>
       <div class="mt-4">
@@ -21,12 +28,25 @@ const base = import.meta.env.BASE_URL;
       </div>
     </header>
 
+    <nav class="remarque-toc-rail" aria-label="Table of contents">
+      <details open>
+        <summary>On this page</summary>
+        <ul>
+          <li><a href="#hierarchy-of-attention">The Hierarchy of Attention</a></li>
+          <li><a href="#typography-first">What We Mean by "Typography-First"</a></li>
+          <li><a href="#three-font-discipline">The Three-Font Discipline</a></li>
+          <li><a href="#against-component-first">Against the Component-First Approach</a></li>
+          <li><a href="#readability-is-not-optional">Readability Is Not Optional</a></li>
+        </ul>
+      </details>
+    </nav>
+
     <Prose>
       <p class="text-[var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg-muted)]">
         There is a persistent myth in web design that typography is a subset of design — one tool among many, alongside color, illustration, motion, and layout. This essay argues that typography <em>is</em> the interface. Everything else is furniture.
       </p>
 
-      <h2>The Hierarchy of Attention</h2>
+      <h2 id="hierarchy-of-attention">The Hierarchy of Attention</h2>
 
       <p>
         When a reader arrives at a page, they make a decision in under three seconds: is this worth reading? That decision is made almost entirely on typographic signals. The size of the headline. The density of the body text. The whitespace around it. The font itself.
@@ -36,15 +56,18 @@ const base = import.meta.env.BASE_URL;
         Color can support this decision. Motion can distract from it. But typography <em>is</em> the decision. A well-set page communicates competence, intention, and care before a single word is read.
       </p>
 
-      <h2>What We Mean by "Typography-First"</h2>
+      <h2 id="typography-first">What We Mean by "Typography-First"</h2>
 
       <p>
         Typography-first design does not mean "only text." It means that every visual decision is evaluated through the lens of reading comfort and typographic hierarchy. A button's border radius matters because it sits next to body text. A card's padding matters because it frames a headline. A page's maximum width matters because it determines line length.
       </p>
 
       <p>
-        Consider the most basic design token: body font size. Most component libraries default to <code>16px</code> or even <code>14px</code>. Remarque's non-negotiable minimum is <code>17px</code>. This single decision — one pixel — changes the feeling of every page built with the system. It says: we prioritize your comfort.
+        Consider the most basic design token: body font size. Most component libraries default to <code>16px</code> or even <code>14px</code>. Remarque's non-negotiable minimum is <code>17px</code><a href="#note-uswds" id="note-uswds-ref" class="remarque-sidenote-ref" aria-describedby="note-uswds"></a>. This single decision — one pixel — changes the feeling of every page built with the system. It says: we prioritize your comfort.
       </p>
+      <aside class="remarque-sidenote" id="note-uswds" role="note">
+        USWDS's own typography guidance sets 16px as its minimum body size — Remarque's 17px floor exceeds it deliberately, not by rounding error.
+      </aside>
 
       <blockquote>
         <p>The details are not the details. They make the design.</p>
@@ -54,7 +77,7 @@ const base = import.meta.env.BASE_URL;
         Charles Eames said this about furniture. It applies equally to type. The difference between a comfortable reading experience and an adequate one is found in line height, letter spacing, and paragraph spacing. Not in the presence of a gradient or the curvature of a card corner.
       </p>
 
-      <h2>The Three-Font Discipline</h2>
+      <h2 id="three-font-discipline">The Three-Font Discipline</h2>
 
       <p>
         Remarque uses exactly three fonts, each with a defined role that never overlaps:
@@ -70,7 +93,7 @@ const base = import.meta.env.BASE_URL;
         This constraint is intentional. Three fonts is enough to create clear hierarchy. Four creates confusion. Two can work but often sacrifices either the editorial quality of a serif display face or the technical precision of a monospace.
       </p>
 
-      <h2>Against the Component-First Approach</h2>
+      <h2 id="against-component-first">Against the Component-First Approach</h2>
 
       <p>
         Most design systems start with components: buttons, cards, modals, dropdowns. Typography is added later, as a "theme" layer that gets configured once and forgotten. The result is predictable — the components look fine in isolation, but the assembled page feels generic. The typography was never the protagonist.
@@ -80,15 +103,18 @@ const base = import.meta.env.BASE_URL;
         Remarque inverts this. The build order in <code>AGENT_RULES.md</code> is explicit: tokens first, then typography, then the layout shell, then prose styling. Components come last, and only the ones you actually need. This is not accidental. It ensures that every component is designed <em>around</em> the typography, not the other way around.
       </p>
 
-      <h2>Readability Is Not Optional</h2>
+      <h2 id="readability-is-not-optional">Readability Is Not Optional</h2>
 
       <p>
         The web has a readability crisis. Dense dashboard layouts. Full-width text on 27-inch monitors. Body text at <code>14px</code> with <code>1.4</code> line height. These are not design choices — they are defaults that nobody questioned.
       </p>
 
       <p>
-        Remarque questions all of them. The reading column is constrained to <code>46rem</code> (~740px). Line height is <code>1.75</code>. Top padding before the main heading is at least <code>6rem</code>. These numbers are not arbitrary — they come from centuries of book typography, adapted for screens.
+        Remarque questions all of them. The reading column is constrained to <code>46rem</code> (~740px)<a href="#note-measure" id="note-measure-ref" class="remarque-sidenote-ref" aria-describedby="note-measure"></a>. Line height is <code>1.75</code>. Top padding before the main heading is at least <code>6rem</code>. These numbers are not arbitrary — they come from centuries of book typography, adapted for screens.
       </p>
+      <aside class="remarque-sidenote" id="note-measure" role="note">
+        46rem is tuned to Inter, the default body face — REMARQUE.md's Measure Compensation table gives the value for every approved body font, since the measure is a property of the font choice, not the system's identity.
+      </aside>
 
       <p>
         A site built with Remarque should be comfortable to read for an extended period. If it isn't, the implementation has failed, regardless of how polished the components look.

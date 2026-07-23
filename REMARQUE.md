@@ -496,7 +496,8 @@ Long-form writing. The core content type.
 - Low-noise footer navigation (previous/next)
 
 **Optionally includes:**
-- Side table of contents on desktop (outside reading column)
+- Side table of contents on desktop (outside reading column) — see "Essay Module" below for the sanctioned sticky-rail implementation
+- Sidenotes/footnotes as in-flow margin notes — same module, same rail-vs-gutter layout
 
 **Never includes:**
 - Sidebar content within the reading column
@@ -623,6 +624,153 @@ Cover-grid and catalog pages — a page whose primary content unit is a grid of 
 - Card shadows or scale/lift-on-hover
 - Masonry layouts (Notebook's existing prohibition applies here too — a fixed-ratio grid only)
 - The `--content-wide` container used for anything other than the grid itself
+
+---
+
+## Essay Module
+
+An optional pair of Essay-archetype features — margin notes and a sticky
+table of contents — shipped as their own subpath, `remarque-tokens/essay`
+(`essay.css`), rather than aggregated into `tokens.css` or `prose.css`.
+Not every Essay wants either; both are opt-in.
+
+**Provenance.** Graduated from williamzujkowski.github.io's
+`rehype-sidenotes.mjs` + `global.css` sidenote/sticky-TOC implementation,
+ratified for upstreaming in [issue #52](https://github.com/williamzujkowski/remarque/issues/52)
+per the "Graduation" checklist in the package README — a footnote
+vocabulary Remarque otherwise entirely lacked (this spec, until now,
+permitted a side TOC at line ~499 without specifying anything about it).
+No site-specific value was copied; every dimension below is re-derived
+from tokens this package already ships (see `essay.css`'s header comment
+for the value-by-value mapping).
+
+### Markup contract
+
+```html
+<article class="remarque-essay">
+  <header class="content-reading">
+    <h1 class="text-display font-display">Essay Title</h1>
+  </header>
+
+  <nav class="remarque-toc-rail" aria-label="Table of contents">
+    <details open>
+      <summary>On this page</summary>
+      <ul>
+        <li><a href="#section-one">Section One</a></li>
+        <li><a href="#section-two">Section Two</a></li>
+      </ul>
+    </details>
+  </nav>
+
+  <div class="remarque-prose content-reading">
+    <h2 id="section-one">Section One</h2>
+    <p>
+      A claim worth a citation<a href="#note-1" id="note-1-ref"
+        class="remarque-sidenote-ref" aria-describedby="note-1"></a>.
+    </p>
+    <aside class="remarque-sidenote" id="note-1" role="note">
+      The note text, in real DOM order right after the paragraph that
+      cites it — not collected into an end-of-document section.
+    </aside>
+  </div>
+
+  <footer class="content-reading">...</footer>
+</article>
+```
+
+Requirements the CSS depends on:
+
+- `.remarque-sidenote-ref` and its matching `.remarque-sidenote` MUST
+  alternate in strict DOM order (ref, then note, then the next ref, then
+  its note...) — the module numbers them with CSS counters
+  (`counter-reset` on `.remarque-prose`), not an authored number, so an
+  out-of-order pair mislabels every note after it.
+- A footnote cited more than once: only the FIRST reference gets a
+  `.remarque-sidenote` after it; later citations of the same note use
+  `.remarque-sidenote-ref--repeat` (styled identically, does not advance
+  the counter) so the shared numbering doesn't skip.
+- `role="note"` on every `.remarque-sidenote` — `<aside>`'s implicit role
+  is `complementary`, a landmark; an essay with several notes would
+  otherwise scatter that many unlabeled landmark regions through the
+  page. `aria-describedby` on the reference (pointing at the note's `id`)
+  is optional but recommended.
+- `.remarque-toc-rail` wraps a plain `<details open>` — the SAME markup
+  at every viewport width, no JS breakpoint listener. `open` by default
+  is deliberate (see "Breakpoint behavior" below).
+
+**No build step required, and none shipped.** This module doesn't ship or
+depend on a rehype/remark transform — the contract above is satisfied by
+hand-authored HTML exactly as well as by a build-time relocation step. If
+your pipeline doesn't relocate GFM footnote definitions into DOM order
+(most don't, out of the box), style the default end-of-document
+`<section data-footnotes>` output with `.remarque-footnotes` instead —
+same mono/meta voice, without the DOM-reordering accessibility upgrade:
+
+```html
+<section class="remarque-footnotes">
+  <h2>Notes</h2>
+  <ol>
+    <li id="note-1">The note text. <a href="#note-1-ref">&#8617;</a></li>
+  </ol>
+</section>
+```
+
+Use `.remarque-sidenote` whenever you can relocate notes into reading
+order — that relocation is the actual accessibility win this module
+exists for. `.remarque-footnotes` is a same-voice fallback, not a lesser
+tier of support, for the common case where you can't (yet).
+
+### When to use
+
+Essay archetype only (sidenotes/a TOC rail are meaningless outside
+long-form prose). Reach for sidenotes on essays with real citations,
+asides, or sourcing that would otherwise interrupt the sentence; reach
+for the TOC rail on any essay long enough that "where am I" becomes a
+real question — roughly the same length threshold Reference/Docs pages
+already assume. Both are independent opt-ins: an essay can use one, the
+other, both, or neither without violating the archetype.
+
+### Breakpoint behavior
+
+Gated on a single `>= 80rem` (1280px) `@media` query — no other
+breakpoint, no JS:
+
+| Viewport | Sidenotes | TOC |
+|---|---|---|
+| `< 80rem` (narrow) | Small-print block, in-flow, right after the citing paragraph — bordered with `--color-border-bold` (a 3:1 functional border, since it's the note's only visual separator at this width) | Inline collapsible `<details>` in the reading column, native disclosure triangle |
+| `>= 80rem` (wide) | Floats into the LEFT margin gutter via a Tufte-style negative-margin technique, `clear: left` stacks consecutive notes, border relaxes to decorative `--color-border` (whitespace is now the real separator) | `position: sticky` in the RIGHT rail, `.remarque-essay` becomes a 3-column grid (gutter / reading column / rail) |
+
+The rail and margin notes always live OUTSIDE `--content-reading` — that
+is the entire point of the module. The center grid track is
+`minmax(0, var(--content-reading))`, identical to the plain
+`max-width: content-reading; margin-inline: auto` centering used
+everywhere else in Remarque; a TOC rail or a floated sidenote can widen
+the page shell, never the reading column itself. `.remarque-essay`'s grid
+placement rule only ever sets `grid-column` on its children — it never
+touches `max-width`/`margin-inline`, so the reading-column assertion
+this spec's Enforcement Checklist already covers holds unmodified with
+or without this module.
+
+Delete `essay.css`'s single `@media (min-width: 80rem)` block and the
+page still renders correctly — that IS the narrow-viewport presentation,
+not a degraded one. No JavaScript is required at either width. (The
+flagship implementation runs a small script to force `<details>` open on
+every breakpoint crossing; this module holds to "no JS required" and
+instead specifies `open` by default in the markup — a reader who
+manually collapses the TOC below the breakpoint and then widens their
+window keeps it collapsed until clicked again, a fully static cost this
+module accepts in exchange for not requiring a script tag.)
+
+### Provenance note: the grid-inflation lesson
+
+`.remarque-essay`'s TOC rail spans `grid-row: 1 / span 999`, not
+`1 / -1`. With no explicit `grid-template-rows` (as here), `-1` resolves
+to "the last explicit row line" — which, with zero explicit rows, is
+row 1. The flagship implementation shipped exactly that bug: the rail's
+own height inflated row 1, pushing the whole essay down and leaving a
+visible gap between the header and the first paragraph on wide
+viewports, fixed same-day. This module ships with the fix already
+applied so the next consumer doesn't rediscover it.
 
 ---
 
