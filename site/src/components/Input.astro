@@ -1,0 +1,103 @@
+---
+/**
+ * Input — reference component for the forms module (remarque-tokens/forms,
+ * issue #27/#30). Despite the name, this is a FIELD wrapper, not a bare
+ * `<input>`: it renders the full `.remarque-field` markup contract from
+ * REMARQUE.md's "Forms" section — label, control, and help/error message
+ * — wiring `for`/`id`, `aria-describedby`, and `aria-invalid` for you.
+ * Demo scaffolding, not package API: the real contract is the CSS classes,
+ * this component is one convenient way to author them in Astro.
+ *
+ * State precedence: an `error` prop always wins over `success` (a field
+ * cannot be both at once). Exactly one of `help` / `error` / `success` is
+ * rendered as the field's message line, in that same priority order.
+ */
+interface Props {
+  id: string;
+  label: string;
+  /** Native input type — ignored when `multiline` is set. */
+  type?: astroHTML.JSX.HTMLInputTypeAttribute;
+  name?: string;
+  value?: string;
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+  /** Renders a `<textarea>` instead of an `<input>`. */
+  multiline?: boolean;
+  rows?: number;
+  help?: string;
+  error?: string;
+  success?: string;
+  /** Demo/reference use only (e.g. exercising the focus-ring state on the components page) — not something a real form should reach for more than once per page. */
+  autofocus?: boolean;
+}
+
+const {
+  id,
+  label,
+  type = "text",
+  name,
+  value,
+  placeholder,
+  required = false,
+  disabled = false,
+  multiline = false,
+  rows = 4,
+  help,
+  error,
+  success,
+  autofocus = false,
+} = Astro.props;
+
+const state = error ? "error" : success ? "success" : undefined;
+const message = error || success || help;
+const messageId = message ? `${id}-message` : undefined;
+---
+
+<div class="remarque-field" data-state={state}>
+  <label class="remarque-field-label" for={id}>
+    {label}
+    {required && (
+      <span class="remarque-field-required" aria-hidden="true"> *</span>
+    )}
+  </label>
+  {
+    multiline ? (
+      <textarea
+        class="remarque-input"
+        id={id}
+        name={name || id}
+        rows={rows}
+        placeholder={placeholder}
+        required={required}
+        disabled={disabled}
+        autofocus={autofocus}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={messageId}
+      >
+        {value}
+      </textarea>
+    ) : (
+      <input
+        class="remarque-input"
+        type={type}
+        id={id}
+        name={name || id}
+        value={value}
+        placeholder={placeholder}
+        required={required}
+        disabled={disabled}
+        autofocus={autofocus}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={messageId}
+      />
+    )
+  }
+  {
+    message && (
+      <p class="remarque-field-message" id={messageId} role={error ? "alert" : undefined}>
+        {message}
+      </p>
+    )
+  }
+</div>

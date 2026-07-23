@@ -4,6 +4,66 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.18.0 — 2026-07-23
+
+Form control primitives + reference components (closes #27, closes #30).
+
+### Added
+- **`forms.css` — form control primitives module (issue #27).** New own-subpath
+  module (`remarque-tokens/forms`, `remarque-tokens/forms.css`), NOT aggregated
+  into `tokens.css` — matches `essay.css`/`broadsheet.css`/`print.css`'s
+  opt-in convention. Spec-native (built directly from the issue, not
+  graduated from a downstream site — no prior flagship implementation to
+  re-express).
+  - `.remarque-field` (label + control + help/error message vertical stack),
+    `.remarque-field-label` (meta voice, same declarations as `.text-label`),
+    `.remarque-field-required`, `.remarque-field-message`.
+  - `.remarque-input` — shared class across `<input>`/`<textarea>`/`<select>`:
+    body-voice text, `--color-border-bold` boundary (functional, 3:1-checked),
+    `--radius-sm` (tighter than the general 8px ceiling — form controls stay
+    more precise-reading), ≥44px tall, `::placeholder` at `--color-muted`
+    (a conscious AA choice, documented — placeholder is supplementary hint
+    copy, never the field's only label).
+  - `.remarque-checkbox` / `.remarque-radio` — `accent-color` only, no
+    `appearance: none`, no hand-drawn replacement; native controls keep every
+    platform accessibility behavior. Sized at `--space-5` (24px), wrapped in
+    a `<label>` carrying the 44px touch target.
+  - `.remarque-button` (+ `--primary` variant) — quiet by rule: bordered,
+    transparent, body-voice text by default; `--primary` is the one
+    sanctioned accent placement per viewport, still unfilled (accent
+    text/border, hover washes in `--color-accent-subtle`, never a solid
+    fill). Disabled state (native `:disabled`) uses `--color-disabled`.
+  - Validation state wiring on the 0.17.0 state-color tokens:
+    `.remarque-field[data-state="error"|"success"|"warning"]` recolors the
+    input border and message text together; always pairs with a real
+    `aria-invalid`/`aria-describedby` on the input (`data-state` is paint
+    only). `.remarque-input:user-invalid`, guarded with
+    `@supports selector(:user-invalid)`, is a zero-JS bonus layer.
+  - `.remarque-table` / `.remarque-table-wrap` — a standalone-table
+    re-scoping of `prose.css`'s table rules (mono `th`, 2px header rule, 1px
+    row rules, `.num` tabular-lining columns) for data tables that shouldn't
+    be wrapped in the full `.remarque-prose` container. Lives in `forms.css`
+    rather than a fifth subpath — AGENT_RULES.md's build order already
+    groups tables with buttons/cards as one supplementary-UI step.
+  - REMARQUE.md "Forms" section — full markup contract, state-wiring rules,
+    restraint rules restated (radius/touch-targets/no-fake-replacements/
+    quiet-buttons/placeholder-contrast), standalone-tables note, and "when
+    NOT to use" (Remarque is editorial-first — contact/search/newsletter
+    moments, not app UIs). AGENT_RULES.md's File Structure Convention and
+    Quality Checklist gain matching entries.
+  - `scripts/audit.mjs`'s `--src .` invocation covers `forms.css` for free
+    (font-floor + no-hardcoded-color scans — no new pairings needed, this
+    module introduces no new color tokens).
+- **Reference components (demo site, issue #30)** — `site/src/components/`:
+  `Button.astro`, `Input.astro` (a `.remarque-field` wrapper — label/help/
+  error props, wires `for`/`id`/`aria-describedby`/`aria-invalid`),
+  `Table.astro` (`.remarque-table`, standalone). New demo page
+  `site/pages/components` exercises every input state (default/focus/error/
+  success/disabled), both button variants, and a sample table in both
+  themes — added to `site/tests/helpers.ts`'s `PAGES` for visual-regression
+  coverage (new baselines for this page only; no existing baseline changed)
+  and linked from the site nav.
+
 ## 0.17.0 — 2026-07-23
 
 Semantic state colors + z-index scale (closes #26, closes #29).

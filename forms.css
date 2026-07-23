@@ -1,0 +1,424 @@
+/*
+ * Remarque — Form Control Primitives (issue #27)
+ * ────────────────────────────────────────────────
+ * Namespaced classes that style native form elements — no fake replacement
+ * widgets. A `<select>` is a `<select>`, a checkbox stays a checkbox with
+ * `accent-color` doing the recoloring work a browser already supports
+ * natively. This module exists because Remarque is editorial-first: forms
+ * are for the contact/search/newsletter moments a written-word site
+ * occasionally needs, not a component library for building app UIs. See
+ * "When NOT to use" in REMARQUE.md's "Forms" section before reaching for
+ * this on a page that wants more than a handful of fields. Also carries a
+ * small standalone-table section (`.remarque-table`) at the end of this
+ * file — see that section's header comment for why it lives here rather
+ * than in prose.css (issue #30's reference `Table.astro` needs the same
+ * table visual language OUTSIDE `.remarque-prose`).
+ *
+ * PROVENANCE — spec-native, not graduated from a downstream site (unlike
+ * essay.css/broadsheet.css). Built directly from issue #27; there was no
+ * prior flagship implementation to re-express in token vocabulary, so
+ * every value below is original to this module rather than a mapped-over
+ * site literal.
+ *
+ * Own subpath (remarque-tokens/forms, remarque-tokens/forms.css) — NOT
+ * included by the tokens.css aggregator, matching essay.css/broadsheet.css/
+ * print.css: most Remarque pages have zero forms. Import explicitly, after
+ * prose.css if both are in use:
+ *   @import 'remarque-tokens/prose.css';
+ *   @import 'remarque-tokens/forms.css';
+ * (string form — see AGENT_RULES.md Pitfall #6.)
+ *
+ * ─── MARKUP CONTRACT (summary — full version in REMARQUE.md) ──────────
+ *
+ *   <div class="remarque-field">
+ *     <label class="remarque-field-label" for="email">Email</label>
+ *     <input class="remarque-input" type="email" id="email" name="email"
+ *       aria-describedby="email-help" />
+ *     <p class="remarque-field-message" id="email-help">
+ *       We'll never share your email.
+ *     </p>
+ *   </div>
+ *
+ *   <div class="remarque-field" data-state="error">
+ *     <label class="remarque-field-label" for="email2">Email</label>
+ *     <input class="remarque-input" type="email" id="email2" name="email2"
+ *       aria-invalid="true" aria-describedby="email2-message" required />
+ *     <p class="remarque-field-message" id="email2-message" role="alert">
+ *       Enter a valid email address.
+ *     </p>
+ *   </div>
+ *
+ *   <label class="remarque-checkbox">
+ *     <input type="checkbox" name="subscribe" />
+ *     <span>Subscribe to updates</span>
+ *   </label>
+ *
+ *   <label class="remarque-radio">
+ *     <input type="radio" name="plan" value="a" />
+ *     <span>Plan A</span>
+ *   </label>
+ *
+ *   <button class="remarque-button" type="button">Cancel</button>
+ *   <button class="remarque-button remarque-button--primary" type="submit">
+ *     Submit
+ *   </button>
+ *
+ * `data-state` lives on `.remarque-field` (not the input) — it recolors
+ * both the control's border AND the message text together from one
+ * attribute, the same "one attribute drives several descendants" shape
+ * essay.css's counter-driven numbering uses. `aria-invalid="true"` is the
+ * REAL accessibility signal (screen readers announce it); `data-state` is
+ * the visual layer on top. Author both together — see "State wiring"
+ * below for what happens if a consumer only sets one.
+ */
+
+/* ─── Field wrapper: label + control + help/error text stack ────────────
+ * A vertical rhythm of three parts. `--space-2` between label and control
+ * (tight — they read as one unit), `--space-2` again before the message
+ * line. No border, no background on the wrapper itself — `.remarque-field`
+ * is layout only, never a bordered "card" around the control (Components:
+ * "no component should be visually louder than the content it contains").
+ */
+.remarque-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: var(--content-reading);
+}
+
+.remarque-field + .remarque-field {
+  margin-top: var(--space-5);
+}
+
+/* Label voice: same declarations as `.text-label` (tokens-core.css),
+   repeated rather than depended-on-as-a-mixin — the same non-mixin
+   precedent essay.css's TOC summary and broadsheet.css's kicker rows
+   establish. True small caps (`font-variant-caps`), never `text-transform:
+   uppercase` (REMARQUE.md "Small Caps"). Quiet mono metadata voice for the
+   label, not the body face — a form label identifies the field, the VALUE
+   typed into it is the content, and that distinction is the same one
+   `.text-label` already draws for dates/tags/status elsewhere. */
+.remarque-field-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--tracking-caps);
+  color: var(--color-muted);
+}
+
+/* Required-field marker: a plain asterisk in the accent color is the one
+   sanctioned use here (it is unambiguously "this is the interactive thing
+   that needs attention right now" — not decoration). Author it inside the
+   label: <label>Email <span class="remarque-field-required"
+   aria-hidden="true">*</span></label> — aria-hidden because `required` on
+   the input itself is the real signal a screen reader announces. */
+.remarque-field-required {
+  color: var(--color-accent);
+}
+
+/* Help/error/success message line — meta voice, body-face-adjacent size
+   floor (--text-meta, 14px, clears the USWDS small-text minimum). Neutral
+   (muted) by default; recolored by `.remarque-field[data-state]` below.
+   `text-wrap: pretty` matches `.remarque-prose`'s optical default for
+   short justified-feeling message copy. */
+.remarque-field-message {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-muted);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* ─── Text inputs: input / textarea / select ─────────────────────────────
+ * One shared class across all three native elements — same border,
+ * radius, spacing, and body-voice typography (Font Slots: "Body ... UI
+ * labels, navigation, buttons" — form values are UI labels' closest
+ * relative here, not metadata). `--color-border-bold`, not `-bold`'s
+ * quieter sibling: an input's boundary is a FUNCTIONAL edge (WCAG 1.4.11
+ * non-text contrast), the same reasoning `.remarque-sidenote`'s narrow-
+ * viewport border and `.remarque-toc-rail`'s hairline both already apply
+ * decoratively-vs-functionally in essay.css.
+ */
+.remarque-input {
+  display: block;
+  width: 100%;
+  min-height: 44px; /* USWDS/WCAG 2.5.5 touch-target floor — see AGENT_RULES.md */
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-title);
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  border: var(--border-width) var(--border-style) var(--color-border-bold);
+  /* Restraint rule (AGENT_RULES.md "Border radius never exceeds
+     --radius-md" + this module's own tighter floor): form controls stay
+     at --radius-sm, never the 8px ceiling other chrome is allowed. A
+     smaller control reads as more precise at a smaller radius. */
+  border-radius: var(--radius-sm);
+  transition: border-color var(--motion-fast) var(--motion-easing);
+}
+
+textarea.remarque-input {
+  min-height: 6rem; /* several lines tall by default — still clears the 44px floor */
+  resize: vertical;
+}
+
+/* Native select's disclosure triangle is left as the platform default —
+   restyling it means either `appearance: none` (which then requires a
+   hand-drawn replacement icon, exactly the "fake replacement" this module
+   avoids) or accepting a single browser's rendering as the reference,
+   neither of which is worth it for one triangle. */
+.remarque-input:hover {
+  border-color: var(--color-fg-muted);
+}
+
+/* Placeholder: --color-muted, the same 4.5:1-on-bg/-surface token used
+   everywhere else at this contrast tier — a conscious choice, not the
+   browser default (which is often far below AA). Placeholder text is
+   supplementary (never the only label — every `.remarque-input` pairs
+   with a real `<label>`), so 4.5:1 rather than `--color-fg-muted`'s 7:1
+   is the correct tier: AA is sufficient for non-essential hint copy. */
+.remarque-input::placeholder {
+  color: var(--color-muted);
+  opacity: 1; /* Firefox lowers placeholder opacity by default; pin it so the token value is what actually renders */
+}
+
+.remarque-input:disabled {
+  color: var(--color-disabled);
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+}
+
+/* ─── Checkbox / Radio — accent-color, no fake replacements ──────────────
+ * `accent-color` is the ENTIRE recoloring mechanism: no `appearance:
+ * none`, no hand-drawn checkmark/dot, no absolutely-positioned pseudo-
+ * element standing in for the native control. This is a deliberate
+ * ceiling on customization, not an oversight — every browser Remarque
+ * targets supports `accent-color` on checkboxes/radios, and a real native
+ * control keeps every platform accessibility behavior (keyboard,
+ * high-contrast mode, forced-colors mode, screen-reader state
+ * announcements) for free, at the cost of not controlling the checkmark
+ * glyph's exact shape.
+ *
+ * Sizing: --space-5 (1.5rem / 24px) — comfortably inside the 44px touch
+ * target once the wrapping <label> below adds its own min-height, and
+ * large enough to keep the accent-colored fill legible (a 16px default
+ * checkbox reads as fussy at this system's generous spacing scale).
+ */
+.remarque-checkbox,
+.remarque-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px; /* touch-target floor on the whole label, same shape as .nav-link */
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-title);
+  color: var(--color-fg);
+  cursor: pointer;
+}
+
+.remarque-checkbox input,
+.remarque-radio input {
+  accent-color: var(--color-accent);
+  width: var(--space-5);
+  height: var(--space-5);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* `:has()` is a light progressive enhancement here, not a functional
+   dependency — a browser without it still gets a fully working, natively
+   disabled control; it just skips the muted label-text recolor. */
+.remarque-checkbox:has(input:disabled),
+.remarque-radio:has(input:disabled) {
+  color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+.remarque-checkbox input:disabled,
+.remarque-radio input:disabled {
+  cursor: not-allowed;
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────
+ * Quiet by rule (AGENT_RULES.md Components: "Buttons are quiet: text-only
+ * or subtle bordered. Never filled/solid as default."). The default
+ * variant is bordered, transparent background, body-voice text — reads as
+ * "a clickable label," not a colored block. `--primary` is the ONE
+ * sanctioned accent placement per viewport (Visual Rules: accent for
+ * "inline links and one interactive element per viewport") — even there,
+ * it stays unfilled: accent text + accent border, never a solid accent
+ * fill, so the same restraint the default variant holds carries through
+ * to the emphasized one. Hover on `--primary` washes in
+ * `--color-accent-subtle` (the same quiet-highlight token
+ * `.remarque-prose mark` already uses) rather than darkening to a filled
+ * block — a wash, not a fill.
+ */
+.remarque-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-title);
+  color: var(--color-fg);
+  background-color: transparent;
+  border: var(--border-width) var(--border-style) var(--color-border-bold);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    color var(--motion-fast) var(--motion-easing),
+    border-color var(--motion-fast) var(--motion-easing),
+    background-color var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-button:hover:not(:disabled) {
+  border-color: var(--color-fg-muted);
+  color: var(--color-fg);
+}
+
+.remarque-button--primary {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.remarque-button--primary:hover:not(:disabled) {
+  color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  background-color: var(--color-accent-subtle);
+}
+
+.remarque-button:disabled {
+  color: var(--color-disabled);
+  border-color: var(--color-border);
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
+/* ─── Validation state wiring (0.17.0 state-color tokens) ────────────────
+ * `data-state` lives on `.remarque-field`, cascading down to the input's
+ * border and the message line's color together — author it alongside a
+ * real `aria-invalid="true"`/`aria-describedby` pair on the input (the
+ * markup contract above); `data-state` alone changes only the paint,
+ * `aria-invalid` is what a screen reader actually announces. `--warning`
+ * covers a caution/needs-attention message that isn't yet a hard failure
+ * (REMARQUE.md "State Colors" — "states needing attention before
+ * proceeding"), e.g. a password-strength hint. No `-subtle` background is
+ * used here: `-subtle` is sized for banner/callout backgrounds (REMARQUE.md
+ * "State Colors"), and painting a per-field background would make the
+ * field louder than the content it holds (Components rule) — border +
+ * message-text color is enough signal at this scale.
+ */
+.remarque-field[data-state="error"] .remarque-input,
+.remarque-input[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+.remarque-field[data-state="error"] .remarque-field-message {
+  color: var(--color-error);
+}
+
+.remarque-field[data-state="success"] .remarque-input {
+  border-color: var(--color-success);
+}
+
+.remarque-field[data-state="success"] .remarque-field-message {
+  color: var(--color-success);
+}
+
+.remarque-field[data-state="warning"] .remarque-input {
+  border-color: var(--color-warning);
+}
+
+.remarque-field[data-state="warning"] .remarque-field-message {
+  color: var(--color-warning);
+}
+
+/* `:user-invalid` — native, zero-JS validity feedback (matches only after
+   the user has interacted with the field and left it invalid, unlike
+   `:invalid`, which can match a required-but-untouched field on page
+   load). Guarded with `@supports selector(...)`: a browser lacking the
+   pseudo-class simply never matches this block and falls back to
+   whatever `data-state`/`aria-invalid` already provide — the same
+   "degrades to the no-JS/no-support baseline" shape essay.css's `@media`
+   gate uses for its own progressive enhancement. This is a bonus layer,
+   not a replacement for authoring `data-state="error"` explicitly. */
+@supports selector(:user-invalid) {
+  .remarque-input:user-invalid {
+    border-color: var(--color-error);
+  }
+}
+
+/* ─── Standalone data tables (issue #30) ──────────────────────────────────
+ * `.remarque-table` re-scopes prose.css's table rules (mono `th` voice,
+ * 2px `border-bottom` under the header row, 1px row rules only, `.num`
+ * for tabular-lining right-aligned numeric columns) under a top-level
+ * class instead of `.remarque-prose table`. This is intentionally a
+ * near-verbatim copy of those declarations, not a shared mixin (CSS has
+ * none) and not a requirement to wrap a standalone data table in the full
+ * `.remarque-prose` container — `.remarque-prose` also applies oldstyle
+ * proportional numerals, `> * + *` paragraph-spacing rhythm, and prose
+ * max-width, none of which a reference data grid (e.g. `Table.astro`)
+ * wants. Living in forms.css rather than a new subpath: this module is
+ * already "the supplementary-UI module" in AGENT_RULES.md's build order
+ * (step 7 groups buttons, tags, cards, code blocks, AND tables together),
+ * and a table this small does not justify its own subpath the way the
+ * Essay/Broadsheet modules' much larger surface area did.
+ *
+ * Wrap a wide table exactly like prose.css's convention:
+ *   <div class="remarque-table-wrap"><table class="remarque-table">...</table></div>
+ */
+.remarque-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.remarque-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-body);
+}
+
+.remarque-table caption {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-muted);
+  text-align: left;
+  caption-side: top;
+  margin-bottom: var(--space-2);
+}
+
+.remarque-table th {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 2px solid var(--color-border-bold);
+  color: var(--color-fg);
+}
+
+.remarque-table td {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--border-width) var(--border-style) var(--color-border);
+  color: var(--color-fg);
+}
+
+.remarque-table th.num,
+.remarque-table td.num {
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: right;
+}
