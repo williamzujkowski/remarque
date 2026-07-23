@@ -217,6 +217,72 @@ expect(
   }
 }
 
+/* ── --dataviz (issue #94) ────────────────────────────────────────── */
+
+{
+  const [lightSlug, darkSlug] = pairs.find(([l]) => l === 'remarque-light') || pairs[0];
+  const r = run(['scripts/theme.mjs', lightSlug, '--dark', darkSlug, '--dataviz']);
+  expect('--dataviz run exits 0', r.code === 0, r.stderr.trim().slice(0, 200));
+  expect(
+    '--dataviz output has --viz-sequential-1 and --viz-diverging-1',
+    /--viz-sequential-1:/.test(r.stdout) && /--viz-diverging-1:/.test(r.stdout),
+    r.stdout.slice(0, 200)
+  );
+  // Omitting --dataviz must not change the audited output at all (byte-
+  // identical minus the appended, unaudited ramp block).
+  const withoutFlag = run(['scripts/theme.mjs', lightSlug, '--dark', darkSlug]);
+  expect(
+    'omitting --dataviz leaves the audited --color-* output untouched',
+    r.stdout.startsWith(withoutFlag.stdout.replace(/\n$/, '')),
+    'the --dataviz block was not purely additive'
+  );
+}
+
+/* ── Dataviz categorical: dataset-predates-the-field fallback (issue #94)
+ * Simulates an installed oklch-terminal-themes older than 0.5.0 (no
+ * theme.dataviz block) by temporarily stripping it from a real corpus
+ * theme's JSON on disk, then restoring it — the same "mutate a fixture,
+ * prove the negative, put it back" shape as tokens.json's schema-
+ * violation fixtures in scripts/test-types.mjs, applied to a file
+ * instead of an in-memory clone. remarque-theme must fail LOUDLY, naming
+ * the missing field and an upgrade path — not silently synthesize a
+ * guessed ramp from raw ANSI colors (see scripts/theme.mjs's rationale
+ * for why that fallback was rejected in favor of a clean error). ── */
+{
+  const req2 = createRequire(import.meta.url);
+  const [victimLight, victimDark] = pairs.find(([l]) => l !== 'remarque-light') || pairs[0];
+  const themePath = req2.resolve(`${PKG_SPEC}/themes/${victimLight}.json`);
+  const original = readFileSync(themePath, 'utf8');
+  try {
+    const mutated = JSON.parse(original);
+    delete mutated.dataviz;
+    writeFileSync(themePath, JSON.stringify(mutated));
+
+    const r = run(['scripts/theme.mjs', victimLight, '--dark', victimDark]);
+    expect(
+      `dataviz-predates-the-field: derivation fails loudly for "${victimLight}" with dataviz stripped (nonzero exit)`,
+      r.code !== 0,
+      `exit ${r.code}`
+    );
+    expect(
+      'dataviz-predates-the-field: error names the missing field and the >=0.5.0 upgrade path',
+      /dataviz/i.test(r.stderr) && /0\.5\.0/.test(r.stderr),
+      r.stderr.trim().slice(0, 300)
+    );
+
+    // --dataviz's own ramp export fails the same clean way (sequential/
+    // diverging are missing too, since the whole block was stripped).
+    const r2 = run(['scripts/theme.mjs', victimLight, '--dark', victimDark, '--dataviz']);
+    expect(
+      '--dataviz also fails loudly (not silently) when dataviz is missing',
+      r2.code !== 0,
+      `exit ${r2.code}`
+    );
+  } finally {
+    writeFileSync(themePath, original);
+  }
+}
+
 if (bad) {
   console.error(`\ntheme fixture tests FAILED — ${bad} problem(s)\n`);
   process.exit(1);

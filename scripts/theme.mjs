@@ -22,6 +22,10 @@
  * meaningful "theme's own value" to preserve. The 9 --color-syntax-*
  * slots (issue #53) are derived straight from the theme's 16 ANSI
  * colors instead — see the "Syntax-highlighting slots" section below.
+ * The 6 --color-viz-* categorical slots (issue #94) are derived from
+ * the dataset's own dataviz.categorical block (0.5.0+) instead of ANSI —
+ * see "Dataviz categorical slots" below, including its dataset-predates-
+ * the-field fallback (a clean error, not a synthesized guess).
  * Output passes remarque-audit BY CONSTRUCTION — this script
  * self-verifies the same pairings before it will emit anything.
  *
@@ -50,13 +54,18 @@ try {
   OWN_VERSION = JSON.parse(readFileSync(join(HERE, '..', 'package.json'), 'utf8')).version;
 } catch { /* provenance is best-effort */ }
 
-const USAGE = `usage: remarque-theme <light-slug> [--dark <dark-slug>] [-o out.css] [--scope <name>]
+const USAGE = `usage: remarque-theme <light-slug> [--dark <dark-slug>] [-o out.css] [--scope <name>] [--dataviz]
 
   <light-slug>     slug of a theme with isDark=false in ${PKG_SPEC}
   --dark <slug>    slug of a theme with isDark=true; defaults to the light
                     theme's "counterpart" from the dataset (0.2.0+) when it
                     has one, and is required when it doesn't
   -o, --output     write the derived palette here instead of stdout
+  --dataviz        also emit --viz-sequential-N / --viz-diverging-N custom
+                    properties from the dataset's dataviz.sequential/
+                    .diverging ramps (0.5.0+ only; issue #94). These are
+                    advisory, per-use ramps, NOT identity tokens — they are
+                    not audited or golden-gated like --color-viz-1..6
   --scope <name>   emit under [data-palette="<name>"] instead of :root — for
                     the palette-deck module (remarque-tokens/deck), where
                     several generated palettes coexist in one stylesheet and
@@ -75,13 +84,14 @@ function die(msg) {
 /* ── CLI args ─────────────────────────────────────────────────────── */
 
 const argv = process.argv.slice(2);
-let darkSlug, outFile, scopeName;
+let darkSlug, outFile, scopeName, dataviz = false;
 const positional = [];
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
   if (a === '--dark') darkSlug = argv[++i];
   else if (a === '-o' || a === '--output') outFile = argv[++i];
   else if (a === '--scope') scopeName = argv[++i];
+  else if (a === '--dataviz') dataviz = true;
   else if (a === '-h' || a === '--help') { console.log(USAGE); process.exit(0); }
   else positional.push(a);
 }
@@ -506,6 +516,54 @@ function deriveStateSubtle(bgL, H, chromaCap, fg, dir) {
   return [L, c, r1(H)];
 }
 
+/* ── Dataviz categorical slots (issue #94) ────────────────────────────
+ * The upstream dataset (0.5.0+) ships a per-theme `dataviz.categorical`
+ * array — 6-8 ordered ColorValues already selected upstream for mutual
+ * distinguishability, the same kind of "this domain already carries the
+ * personality" argument as the syntax slots' ANSI colors. --color-viz-1
+ * through --color-viz-6 take the first 6 (633/633 corpus themes ship at
+ * least 6; 516 ship exactly 6 — that floor is why 6 ships, not 8), kept-
+ * if-passing/solved the same way as every other slot, verified against
+ * --color-bg (not --color-surface) at 3:1 — Carbon's mark-vs-background
+ * line, not text's 4.5:1 (REMARQUE.md "Dataviz Tokens": these are chart
+ * marks read at a glance, not prose read continuously).
+ *
+ * Order is taken as-is from the dataset, per theme independently — it is
+ * NOT reconciled to match hue-for-hue between a light/dark pair (the
+ * upstream categorical order does not always agree across a pair's two
+ * halves; verified empirically against remarque-light/remarque-dark).
+ * This is the same "dark mode is independently tuned, not inverted"
+ * stance the rest of this file already takes for every other slot.
+ *
+ * Fallback: a dataset older than 0.5.0 (still legal under this package's
+ * `>=0.1.0` peerDependencies floor) has no dataviz block at all. Rather
+ * than reverse-engineer the upstream's undocumented categorical-
+ * selection algorithm from raw ANSI colors — which could silently
+ * diverge from what a real 0.5.0+ dataset actually ships — this errors
+ * loudly and points at the upgrade. The smaller, honest option.
+ */
+
+const VIZ_CHROMA_CAP = 0.14; // same restrained ceiling as accent/syntax/state
+const VIZ_TARGET = 3.0; // Carbon's mark-on-background line
+
+function deriveVizCategorical(t, label, slug, bg, dir) {
+  const cats = t.dataviz && Array.isArray(t.dataviz.categorical) ? t.dataviz.categorical : null;
+  if (!cats || cats.length < 6) {
+    die(
+      `${label} theme "${slug}" has no dataviz.categorical (or fewer than 6 entries) in the installed ` +
+      `${PKG_SPEC}@${themesVersion} — upgrade the dataset to >=0.5.0 (dataviz.categorical landed there; issue #94) ` +
+      `and retry.\nremarque-theme does NOT synthesize a categorical ramp from raw ANSI colors as a fallback — the ` +
+      `upstream categorical-selection algorithm is undocumented, so approximating it here could silently diverge ` +
+      `from what a real 0.5.0+ dataset ships. Erroring with an upgrade instruction is the smaller, honest option.`
+    );
+  }
+  return cats.slice(0, 6).map((entry, i) => {
+    const [L0, C0, H0] = validateOklch(entry.oklch, `${label} dataviz.categorical[${i}]`);
+    const C = Math.min(C0, VIZ_CHROMA_CAP);
+    return keepOrSolve(L0, C, H0, bg, VIZ_TARGET, dir);
+  });
+}
+
 /* ── LIGHT derivation ─────────────────────────────────────────────── */
 
 function deriveLight(t) {
@@ -553,6 +611,9 @@ function deriveLight(t) {
   const stateErrorSubtle = deriveStateSubtle(bg[0], stateError[2], 0.02, fg, 'darker');
   const stateSuccessSubtle = deriveStateSubtle(bg[0], stateSuccess[2], 0.02, fg, 'darker');
   const stateWarningSubtle = deriveStateSubtle(bg[0], stateWarning[2], 0.02, fg, 'darker');
+  // Dataviz categorical slots (issue #94) — see deriveVizCategorical above.
+  // Verified against --color-bg (not surface) at 3:1.
+  const viz = deriveVizCategorical(t, 'light', lightSlug, bg, 'darker');
   const raw = {
     'color-bg': bg,
     'color-bg-subtle': [r3(bg[0] - 0.02), bg[1], bg[2]],
@@ -585,6 +646,12 @@ function deriveLight(t) {
     'color-warning': stateWarning,
     'color-warning-subtle': stateWarningSubtle,
     'color-disabled': { ref: 'color-muted' },
+    'color-viz-1': viz[0],
+    'color-viz-2': viz[1],
+    'color-viz-3': viz[2],
+    'color-viz-4': viz[3],
+    'color-viz-5': viz[4],
+    'color-viz-6': viz[5],
   };
   const tokens = {};
   for (const [name, v] of Object.entries(raw)) tokens[name] = v.ref ? `var(--${v.ref})` : fmt(v);
@@ -646,6 +713,9 @@ function deriveDark(t, accentHueLight) {
   const stateErrorSubtle = deriveStateSubtle(bg[0], stateError[2], 0.04, fg, 'lighter');
   const stateSuccessSubtle = deriveStateSubtle(bg[0], stateSuccess[2], 0.04, fg, 'lighter');
   const stateWarningSubtle = deriveStateSubtle(bg[0], stateWarning[2], 0.04, fg, 'lighter');
+  // Dataviz categorical slots (issue #94) — mirrors the light derivation,
+  // direction flipped ('lighter': marks on a dark bg).
+  const viz = deriveVizCategorical(t, 'dark', darkSlug, bg, 'lighter');
   const raw = {
     'color-bg': bg,
     'color-bg-subtle': surface,
@@ -678,6 +748,12 @@ function deriveDark(t, accentHueLight) {
     'color-warning': stateWarning,
     'color-warning-subtle': stateWarningSubtle,
     'color-disabled': { ref: 'color-muted' },
+    'color-viz-1': viz[0],
+    'color-viz-2': viz[1],
+    'color-viz-3': viz[2],
+    'color-viz-4': viz[3],
+    'color-viz-5': viz[4],
+    'color-viz-6': viz[5],
   };
   const tokens = {};
   for (const [name, v] of Object.entries(raw)) tokens[name] = v.ref ? `var(--${v.ref})` : fmt(v);
@@ -725,6 +801,12 @@ const CHECKS = [
   ['color-fg', 'color-error-subtle', 4.5, 'state: fg on error-subtle banner bg'],
   ['color-fg', 'color-success-subtle', 4.5, 'state: fg on success-subtle banner bg'],
   ['color-fg', 'color-warning-subtle', 4.5, 'state: fg on warning-subtle banner bg'],
+  ['color-viz-1', 'color-bg', 3.0, 'dataviz: categorical 1 (mark)'],
+  ['color-viz-2', 'color-bg', 3.0, 'dataviz: categorical 2 (mark)'],
+  ['color-viz-3', 'color-bg', 3.0, 'dataviz: categorical 3 (mark)'],
+  ['color-viz-4', 'color-bg', 3.0, 'dataviz: categorical 4 (mark)'],
+  ['color-viz-5', 'color-bg', 3.0, 'dataviz: categorical 5 (mark)'],
+  ['color-viz-6', 'color-bg', 3.0, 'dataviz: categorical 6 (mark)'],
 ];
 
 function resolveRaw(raw, name, seen = new Set()) {
@@ -765,6 +847,42 @@ const scopeNote = scopeName
   ? `\n *\n * Scoped for remarque-tokens/deck (--scope "${scopeName}") — this is one\n * palette among several coexisting in a stylesheet, switched at runtime\n * via [data-palette] rather than owning :root outright. Self-verification\n * below runs on the same derived [L,C,H] values regardless of scope; see\n * REMARQUE.md "Palette Deck" for the audit story on scoped output.`
   : '';
 
+// --dataviz (issue #94, optional, judgment-call item 6): advisory
+// --viz-sequential-N / --viz-diverging-N ramps straight from the
+// dataset's dataviz block — gamut-clamped but NOT contrast-solved (a
+// sequential ramp's low end is DESIGNED to sit near --color-bg; solving
+// it to a contrast floor would defeat the ramp). Not audited, not
+// golden-gated — see REMARQUE.md "Dataviz Tokens" for the recipe this
+// flag implements and why these are ramps, not identity tokens.
+function vizRamp(entries, prefix) {
+  return entries.map((e, i) => {
+    const [L0, C0, H0] = validateOklch(e.oklch, `${prefix}[${i}]`);
+    const L = r3(Math.min(1, Math.max(0, L0)));
+    return `  --${prefix}-${i + 1}: ${fmt([L, fitChroma(L, C0, H0), r1(H0)])};`;
+  }).join('\n');
+}
+let vizBlock = '';
+if (dataviz) {
+  const { sequential: seqL, diverging: divL } = themeLight.dataviz || {};
+  const { sequential: seqD, diverging: divD } = themeDark.dataviz || {};
+  if (!seqL || !divL || !seqD || !divD) {
+    die(`--dataviz requires dataviz.sequential/.diverging in the installed ${PKG_SPEC}@${themesVersion} — upgrade to >=0.5.0 (issue #94) and retry.`);
+  }
+  vizBlock = `
+/* --dataviz ramps (issue #94) — advisory, NOT audited/golden-gated like
+ * --color-viz-1..6 above. See REMARQUE.md "Dataviz Tokens". */
+${lightSelector} {
+${vizRamp(seqL, 'viz-sequential')}
+${vizRamp(divL, 'viz-diverging')}
+}
+
+${darkSelector} {
+${vizRamp(seqD, 'viz-sequential')}
+${vizRamp(divD, 'viz-diverging')}
+}
+`;
+}
+
 const css = `/*
  * Generated by remarque-theme (remarque-tokens ${OWN_VERSION}) — DO NOT HAND-EDIT.
  * Regenerate instead: ${regenCmd}
@@ -786,7 +904,7 @@ ${decls(light.tokens)}
 ${darkSelector} {
 ${decls(dark.tokens)}
 }
-`;
+${vizBlock}`;
 
 if (outFile) {
   writeFileSync(outFile, css);

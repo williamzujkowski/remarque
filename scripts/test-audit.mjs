@@ -44,6 +44,12 @@ const LIGHT = `:root {
   --color-warning: oklch(0.52 0.105 85);
   --color-warning-subtle: oklch(0.95 0.02 85);
   --color-disabled: var(--color-muted);
+  --color-viz-1: oklch(0.538 0.121 250.5);
+  --color-viz-2: oklch(0.541 0.111 85.5);
+  --color-viz-3: oklch(0.524 0.12 24.6);
+  --color-viz-4: oklch(0.499 0.12 144.8);
+  --color-viz-5: oklch(0.524 0.121 309.6);
+  --color-viz-6: oklch(0.528 0.09 195.8);
 }`;
 const DARK_DECLS = `
   --color-bg: oklch(0.16 0.01 80);
@@ -74,6 +80,12 @@ const DARK_DECLS = `
   --color-warning: oklch(0.62 0.11 85);
   --color-warning-subtle: oklch(0.22 0.04 85);
   --color-disabled: var(--color-muted);
+  --color-viz-1: oklch(0.708 0.129 249.5);
+  --color-viz-2: oklch(0.712 0.13 85.3);
+  --color-viz-3: oklch(0.724 0.129 310.2);
+  --color-viz-4: oklch(0.725 0.129 25.4);
+  --color-viz-5: oklch(0.696 0.129 144.9);
+  --color-viz-6: oklch(0.697 0.119 194.8);
 `;
 
 const cases = [
@@ -107,6 +119,12 @@ const cases = [
   // parsed. oklch(0.90 0.105 85) sits far too light on --color-bg
   // (oklch(0.975 0.005 80)) to hold 4.5:1.
   ['state-color-fails.css', `${LIGHT.replace('--color-warning: oklch(0.52 0.105 85);', '--color-warning: oklch(0.90 0.105 85);')}\n[data-theme="dark"] {${DARK_DECLS}}`, false],
+  // A dataviz categorical slot too close to bg must fail — proves the 6
+  // new --color-viz-* pairings (issue #94) are actually wired into
+  // CHECKS at the 3:1 mark threshold, not just parsed. oklch(0.92 0.02
+  // 250.5) sits far too light on --color-bg (oklch(0.975 0.005 80)) to
+  // hold even the lower 3:1 non-text bar.
+  ['viz-slot-fails.css', `${LIGHT.replace('--color-viz-1: oklch(0.538 0.121 250.5);', '--color-viz-1: oklch(0.92 0.02 250.5);')}\n[data-theme="dark"] {${DARK_DECLS}}`, false],
   // issue #93 regression: a `[data-theme="dark"]`/`:root.dark` selector
   // NESTED inside an unrelated media query (the shape tokens-palette.css's
   // `@media (prefers-contrast: more)` block uses) must NOT be read as

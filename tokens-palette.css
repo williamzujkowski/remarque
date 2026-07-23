@@ -16,7 +16,9 @@
  *   - Colors: every replacement palette must pass the contrast audit
  *     (npm run audit) — fg-muted ≥ 7:1, muted ≥ 4.5:1 on bg AND
  *     surface, accent + accent-hover ≥ 4.5:1, border-bold ≥ 3:1,
- *     every --color-syntax-* slot ≥ 4.5:1 on --color-code-bg,
+ *     every --color-syntax-* slot ≥ 4.5:1 on --color-code-bg, every
+ *     --color-viz-* slot ≥ 3:1 on --color-bg (Carbon's mark-on-
+ *     background line, not text's 4.5:1 — see "Dataviz Tokens"),
  *     in BOTH themes.
  *   - Accent: change the hue by re-deriving accent/accent-hover/
  *     accent-subtle/selection at the SAME lightness values used here,
@@ -117,6 +119,25 @@
   --color-warning:        oklch(0.52 0.105 85);   /* ANSI yellow — 5.17:1 bg / 5.02:1 surface */
   --color-warning-subtle: oklch(0.95 0.02  85);   /* faint yellow banner background */
   --color-disabled:       var(--color-muted);     /* muted family, not ANSI-derived */
+
+  /* Dataviz categorical ramp (issue #94) — hand-authored from
+     remarque-light's dataviz.categorical block (scripts/theme.mjs),
+     serialized as round numbers (golden-gated: scripts/palette-golden.mjs).
+     6 slots, not 8 — the dataset's own floor (516/633 corpus themes ship
+     exactly 6; shipping 8 would leave 2 unfillable on most themes). Every
+     slot ≥ 3:1 on --color-bg — Carbon's mark-on-background line, NOT
+     text's 4.5:1 (these are chart marks read at a glance, never prose).
+     Order is the dataset's own — NOT reconciled hue-for-hue against the
+     dark block below (dark mode is independently tuned, same stance as
+     every other slot; see REMARQUE.md "Dataviz Tokens"). Pair with a
+     non-color redundancy (shape, pattern, or a direct label) — never
+     color alone, per the same Carbon precedent. */
+  --color-viz-1: oklch(0.538 0.121 250.5);  /* 4.74:1 on bg */
+  --color-viz-2: oklch(0.541 0.111 85.5);   /* 4.73:1 on bg */
+  --color-viz-3: oklch(0.524 0.12  24.6);   /* 5.35:1 on bg */
+  --color-viz-4: oklch(0.499 0.12  144.8);  /* 5.32:1 on bg */
+  --color-viz-5: oklch(0.524 0.121 309.6);  /* 5.33:1 on bg */
+  --color-viz-6: oklch(0.528 0.09  195.8);  /* 4.74:1 on bg */
 }
 
 /* ─── Color: Dark theme ─────────────────────────────────── */
@@ -174,6 +195,16 @@
     --color-warning:        oklch(0.62 0.11 85);    /* 5.29:1 bg / 5.03:1 surface */
     --color-warning-subtle: oklch(0.22 0.04 85);
     --color-disabled:       var(--color-muted);
+
+    /* Dataviz categorical ramp (issue #94) — derived from remarque-dark's
+       dataviz.categorical block; see the light block above for the full
+       rationale. Every slot ≥ 3:1 on --color-bg. */
+    --color-viz-1: oklch(0.708 0.129 249.5);  /* 7.53:1 on bg */
+    --color-viz-2: oklch(0.712 0.13  85.3);   /* 7.54:1 on bg */
+    --color-viz-3: oklch(0.724 0.129 310.2);  /* 7.55:1 on bg */
+    --color-viz-4: oklch(0.725 0.129 25.4);   /* 7.55:1 on bg */
+    --color-viz-5: oklch(0.696 0.129 144.9);  /* 7.53:1 on bg */
+    --color-viz-6: oklch(0.697 0.119 194.8);  /* 7.57:1 on bg */
   }
 }
 
@@ -227,6 +258,15 @@
   --color-warning:        oklch(0.62 0.11 85);
   --color-warning-subtle: oklch(0.22 0.04 85);
   --color-disabled:       var(--color-muted);
+
+  /* Dataviz categorical ramp (issue #94) — see the light :root block
+     above for the full rationale. */
+  --color-viz-1: oklch(0.708 0.129 249.5);
+  --color-viz-2: oklch(0.712 0.13  85.3);
+  --color-viz-3: oklch(0.724 0.129 310.2);
+  --color-viz-4: oklch(0.725 0.129 25.4);
+  --color-viz-5: oklch(0.696 0.129 144.9);
+  --color-viz-6: oklch(0.697 0.119 194.8);
 }
 
 /* ─── prefers-contrast: more ────────────────────────────────
