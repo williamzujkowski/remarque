@@ -80,6 +80,22 @@
   --motion-fast: 120ms;         /* hover states, focus rings */
   --motion-normal: 180ms;       /* theme transitions */
   --motion-easing: ease-out;
+
+  /* Z-Index Scale (issue #29) — stacking is structural, not
+     personalization: CORE tier, never overridden. A small ordinal scale,
+     sparse gaps of 10 so a future layer can be inserted between two
+     existing rungs without renumbering everything above it. Consumer CSS
+     must never author a bare z-index number — reference one of these
+     seven tokens instead (Tailwind v4 has no --z-index-* theme namespace,
+     so its z-* utilities can't reference these directly; see theme.css's
+     header comment for the arbitrary-value bridge, z-[var(--z-modal)]). */
+  --z-base: 0;
+  --z-sticky: 10;       /* essay.css's TOC rail, sticky headers/rails */
+  --z-dropdown: 20;
+  --z-overlay: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-skip-link: 60;    /* tops everything — a focused skip-link must never be obscured */
 }
 
 /* ─── Reduced Motion ────────────────────────────────────── */

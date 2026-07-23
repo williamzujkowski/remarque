@@ -27,6 +27,14 @@
  * Pair every duration-[var(--motion-*)] utility with ease-remarque
  * (mapped below from --motion-easing) — without it Tailwind falls back
  * to its default `ease` timing function instead of the token (issue #31).
+ *
+ * Z-index utilities: Tailwind v4 ships z-* as a static, non-themable
+ * scale (there is no --z-index-* entry in its default @theme, so there
+ * is nothing here to map into). Use arbitrary values with the tokens
+ * instead — z-[var(--z-modal)], focus:z-[var(--z-skip-link)] — same
+ * pattern as the motion durations above, so every stacking layer stays
+ * traceable to tokens-core.css's --z-* scale (issue #29) instead of a
+ * bare Tailwind number.
  */
 
 @theme inline {

@@ -122,6 +122,20 @@ const CHECKS = [
   ['color-syntax-punctuation', 'color-code-bg', 4.5, 'syntax: punctuation'],
   ['color-syntax-variable', 'color-code-bg', 4.5, 'syntax: variable'],
   ['color-syntax-link', 'color-code-bg', 4.5, 'syntax: link'],
+  // Semantic state colors (issue #26) — feedback moments, not decoration.
+  ['color-error', 'color-bg', 4.5, 'state: error text'],
+  ['color-error', 'color-surface', 4.5, 'state: error text on surface'],
+  ['color-success', 'color-bg', 4.5, 'state: success text'],
+  ['color-success', 'color-surface', 4.5, 'state: success text on surface'],
+  ['color-warning', 'color-bg', 4.5, 'state: warning text'],
+  ['color-warning', 'color-surface', 4.5, 'state: warning text on surface'],
+  ['color-disabled', 'color-bg', 4.5, 'state: disabled text'],
+  ['color-disabled', 'color-surface', 4.5, 'state: disabled text on surface'],
+  // -subtle banner backgrounds: the pairing that matters is --color-fg on
+  // the subtle background (callout/banner body text), not the state color.
+  ['color-fg', 'color-error-subtle', 4.5, 'state: fg on error-subtle banner bg'],
+  ['color-fg', 'color-success-subtle', 4.5, 'state: fg on success-subtle banner bg'],
+  ['color-fg', 'color-warning-subtle', 4.5, 'state: fg on warning-subtle banner bg'],
 ];
 
 for (const [themeName, decls] of [['light', lightDecls], ['dark', darkDecls]]) {

@@ -22,6 +22,7 @@ function typeOf(name, value) {
   if (name.startsWith('weight-')) return 'fontWeight';
   if (name.startsWith('motion-') && /ms$/.test(value)) return 'duration';
   if (name.startsWith('leading-')) return 'number';
+  if (name.startsWith('z-')) return 'number'; // unitless stacking-order integers, not a length
   if (value === '0') return 'dimension';
   if (/(^|\s)(rem|px|em|%)/.test(value) || /^-?[\d.]+(rem|px|em)$/.test(value) || value.startsWith('clamp(')) return 'dimension';
   return 'string';

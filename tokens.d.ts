@@ -1,6 +1,6 @@
 /*
  * Remarque design tokens — GENERATED from tokens.json by
- * scripts/tokens-json.mjs (v0.16.0). Do not edit — the CSS
+ * scripts/tokens-json.mjs (v0.17.0). Do not edit — the CSS
  * (tokens-core.css + tokens-palette.css) is the source of truth;
  * tokens.json is the intermediate machine-readable form this file is
  * generated from. Regenerate with: node scripts/tokens-json.mjs
@@ -55,7 +55,14 @@ export type RemarqueCoreToken =
   | 'border-style'
   | 'motion-fast'
   | 'motion-normal'
-  | 'motion-easing';
+  | 'motion-easing'
+  | 'z-base'
+  | 'z-sticky'
+  | 'z-dropdown'
+  | 'z-overlay'
+  | 'z-modal'
+  | 'z-toast'
+  | 'z-skip-link';
 
 /** All palette-tier token names (tokens-palette.css). The sanctioned personalization surface. */
 export type RemarquePaletteToken =
@@ -90,7 +97,14 @@ export type RemarquePaletteToken =
   | 'color-syntax-type'
   | 'color-syntax-punctuation'
   | 'color-syntax-variable'
-  | 'color-syntax-link';
+  | 'color-syntax-link'
+  | 'color-error'
+  | 'color-error-subtle'
+  | 'color-success'
+  | 'color-success-subtle'
+  | 'color-warning'
+  | 'color-warning-subtle'
+  | 'color-disabled';
 
 /** Every Remarque token name, core + palette. */
 export type RemarqueToken = RemarqueCoreToken | RemarquePaletteToken;
@@ -202,6 +216,13 @@ export interface RemarqueTokenValues {
     readonly 'motion-fast': "120ms";
     readonly 'motion-normal': "180ms";
     readonly 'motion-easing': "ease-out";
+    readonly 'z-base': 0;
+    readonly 'z-sticky': 10;
+    readonly 'z-dropdown': 20;
+    readonly 'z-overlay': 30;
+    readonly 'z-modal': 40;
+    readonly 'z-toast': 50;
+    readonly 'z-skip-link': 60;
   };
   readonly palette: {
     readonly 'font-display': {
@@ -331,6 +352,34 @@ export interface RemarqueTokenValues {
     readonly 'color-syntax-link': {
       readonly light: "var(--color-accent)";
       readonly dark: "var(--color-accent)";
+    };
+    readonly 'color-error': {
+      readonly light: "oklch(0.52 0.12  25)";
+      readonly dark: "oklch(0.62 0.11 26)";
+    };
+    readonly 'color-error-subtle': {
+      readonly light: "oklch(0.95 0.02  25)";
+      readonly dark: "oklch(0.22 0.04 25)";
+    };
+    readonly 'color-success': {
+      readonly light: "oklch(0.51 0.12  145)";
+      readonly dark: "oklch(0.61 0.11 145)";
+    };
+    readonly 'color-success-subtle': {
+      readonly light: "oklch(0.95 0.02  145)";
+      readonly dark: "oklch(0.22 0.04 145)";
+    };
+    readonly 'color-warning': {
+      readonly light: "oklch(0.52 0.105 85)";
+      readonly dark: "oklch(0.62 0.11 85)";
+    };
+    readonly 'color-warning-subtle': {
+      readonly light: "oklch(0.95 0.02  85)";
+      readonly dark: "oklch(0.22 0.04 85)";
+    };
+    readonly 'color-disabled': {
+      readonly light: "var(--color-muted)";
+      readonly dark: "var(--color-muted)";
     };
   };
 }
