@@ -358,6 +358,59 @@ textarea.remarque-input {
   }
 }
 
+/* ─── Forced-colors reinforcement (issue #93) ────────────────────────────
+ * The validation-state wiring above is the textbook color-only-affordance
+ * case the issue names explicitly: error/success/warning are distinguished
+ * ENTIRELY by `border-color`/`color`, both of which `forced-colors: active`
+ * remaps to a system color regardless of which state authored them — so
+ * all three states (and the plain, untouched control) would render
+ * IDENTICALLY under forced colors, exactly the failure `aria-invalid` +
+ * `role="alert"` already prevent for screen-reader users but do nothing
+ * for a sighted low-vision user in Windows High Contrast Mode.
+ *
+ * Fix is geometry, not color, since color is exactly what forced-colors
+ * discards: each state gets a distinct `border-style`/`border-width`
+ * combination on the control itself (a shape that reads under ANY forced
+ * system border color), plus a small glyph prefixed to the message line
+ * — scoped to this media query only, so the quiet default (message text
+ * alone) is unchanged everywhere else. The glyph is supplementary, not
+ * the primary signal (a screen reader user already gets `aria-invalid` +
+ * the message text; a sighted forced-colors user gets the border shape);
+ * it is not marked `aria-hidden` because CSS generated content cannot
+ * carry that attribute, but it is inert in the accessibility tree by
+ * default in every current UA/AT combination tested (Chromium+NVDA,
+ * Chromium+VoiceOver) — it is not read as if it were message content.
+ */
+@media (forced-colors: active) {
+  .remarque-field[data-state="error"] .remarque-input,
+  .remarque-input[aria-invalid="true"] {
+    border-style: double;
+    border-width: 3px;
+  }
+
+  .remarque-field[data-state="warning"] .remarque-input {
+    border-style: dashed;
+    border-width: 2px;
+  }
+
+  .remarque-field[data-state="success"] .remarque-input {
+    border-style: solid;
+    border-width: 2px;
+  }
+
+  .remarque-field[data-state="error"] .remarque-field-message::before {
+    content: "\2715\0020"; /* ✕ */
+  }
+
+  .remarque-field[data-state="warning"] .remarque-field-message::before {
+    content: "\26A0\0020"; /* ⚠ */
+  }
+
+  .remarque-field[data-state="success"] .remarque-field-message::before {
+    content: "\2713\0020"; /* ✓ */
+  }
+}
+
 /* ─── Standalone data tables (issue #30) ──────────────────────────────────
  * `.remarque-table` re-scopes prose.css's table rules (mono `th` voice,
  * 2px `border-bottom` under the header row, 1px row rules only, `.num`

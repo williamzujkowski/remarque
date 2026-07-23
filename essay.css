@@ -365,6 +365,22 @@
   color: var(--color-fg);
 }
 
+/* Forced-colors fallback (issue #93 audit finding): the TOC rail's
+   summary toggle and its links both signal hover with a color-only
+   change (`--color-muted`/`--color-fg-muted` -> `--color-fg`). Structure
+   itself survives forced-colors for free (`.remarque-toc-rail summary`'s
+   `border-bottom` and `.remarque-sidenote`'s `border-inline-*` both use
+   real `border-color`, forced to a visible system border regardless of
+   the authored value — see REMARQUE.md "Forced Colors & Contrast
+   Preferences"), so this block is scoped narrowly to the two hover
+   affordances that have no non-color signal at all otherwise. */
+@media (forced-colors: active) {
+  .remarque-toc-rail summary:hover,
+  .remarque-toc-rail a:hover {
+    text-decoration: underline;
+  }
+}
+
 /* ─── Essay grid shell — wide-viewport rail layout ───────────────────────
  * `.remarque-essay` is the opt-in grid container an Essay page's <article>
  * adds to place a sticky TOC rail beside the reading column, mirroring

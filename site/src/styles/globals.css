@@ -125,6 +125,22 @@
   color: var(--color-fg);
 }
 
+/* Forced-colors fallback (issue #93): nav/footer links signal hover with
+   a color-only change (no underline at rest, matching the nav's quiet
+   voice) — under forced-colors that shift may not render distinguishably
+   since both the muted and default text colors are forced through the
+   same system CanvasText/LinkText mapping. Keyboard focus is unaffected
+   (`:focus-visible`'s outline is forced-colors-safe already, see
+   remarque-tokens' tokens-core.css); this only restores a MOUSE-hover
+   affordance. Scoped to the media query so the plain nav voice is
+   unchanged outside forced-colors mode. */
+@media (forced-colors: active) {
+  .nav-link:hover,
+  .footer-link:hover {
+    text-decoration: underline;
+  }
+}
+
 /* ─── Footer Link ──────────────────────────────────────── */
 /* Mono footer links with the same 44px touch-target floor as .nav-link */
 
@@ -188,4 +204,22 @@
 .copy-btn:hover {
   color: var(--color-fg);
   border-color: var(--color-border-bold);
+}
+
+/* ─── Token Reference — color swatches (issue #93) ────────────────────
+ * `.remarque-color-swatch` (site/src/pages/tokens.astro) paints each
+ * token's ACTUAL oklch() value inline via `style="background: ..."` —
+ * the swatch's entire purpose is showing the real color, unlike every
+ * other use of color in this codebase, which forced-colors is right to
+ * flatten. This is the one "must-survive custom painting" case in the
+ * demo site (REMARQUE.md "Forced Colors & Contrast Preferences",
+ * classification (c)): `forced-color-adjust: none` opts these two
+ * swatches out of forced-colors so the token reference page keeps doing
+ * its job (showing what each token actually renders as) instead of every
+ * swatch collapsing to the same system color and the page becoming
+ * content-free. Scoped to exactly these elements — everything else on
+ * the page (labels, contrast-ratio numbers, borders) still follows
+ * forced-colors normally. */
+.remarque-color-swatch {
+  forced-color-adjust: none;
 }

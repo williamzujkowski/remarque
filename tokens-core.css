@@ -247,3 +247,39 @@ html {
   border-radius: var(--radius-sm);
   transition: outline-color var(--motion-fast) var(--motion-easing);
 }
+
+/* ─── Forced Colors (Windows High Contrast Mode) ────────────
+ * Issue #93 — see REMARQUE.md "Forced Colors & Contrast Preferences" for
+ * the full site-wide audit; this block covers only what tokens-core.css
+ * itself is responsible for (focus + selection), which is why it is
+ * SHORT: most of Remarque's structural borders (prose/essay/broadsheet
+ * hairlines) already render correctly for free — `forced-colors: active`
+ * forces any non-transparent, non-zero-width `border-color` to a system
+ * border color regardless of the sub-3:1 authored value, so `--color-
+ * border`'s decorative-only hairlines stand in as real system-color
+ * rules exactly where they need to.
+ *
+ * Focus (WCAG 2.4.7 / 2.4.11): `outline` (not `box-shadow`) is the
+ * forced-colors-safe mechanism — `box-shadow` is unconditionally
+ * suppressed under forced-colors, so a focus indicator built from it
+ * alone would vanish entirely; `outline-style`/`outline-width` survive
+ * (only `outline-color` is remapped to a system color), so the
+ * `:focus-visible` rule above was already compliant by construction.
+ * This rule is a defensive, explicit restatement — pinning to the
+ * `Highlight` system color keyword rather than trusting the UA's
+ * default remap of our `--color-focus-ring` value keeps the ring keyed
+ * to the SAME system color users already recognize as "focused/
+ * selected" elsewhere in their OS, and gives the Playwright forced-
+ * colors gate (site/tests/forced-colors.spec.ts) something explicit to
+ * assert against rather than an implementation-defined remap. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+
+  /* `::selection`'s `background-color`/`color` are themselves on the
+     forced list (mapped to `Highlight`/`HighlightText` automatically,
+     same as any native text selection) — no override needed here; kept
+     as a comment, not a rule, so a future reader doesn't wonder whether
+     selection was audited (it was — see the inventory in REMARQUE.md). */
+}
