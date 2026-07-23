@@ -4,6 +4,76 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.11.0 — 2026-07-23
+
+Palette golden gate: the default palette is now bound, by CI, to the
+upstream `remarque-light`/`remarque-dark` themes (Phase 3 of the
+color-provider integration, closes #76; consensus-ratified 3-0,
+2026-07-23).
+
+### Changed
+- **`remarque-theme`: lightness is now KEEP-IF-PASSING, not always
+  solved.** For `fg`, `accent`, `accent-hover`, and (in dark)
+  `selection-fg`/`code-fg`, the bridge now keeps the theme's own
+  authored lightness when it already clears the slot's contrast target,
+  and only solves (binary search) when it doesn't. Previously every one
+  of these slots was solved unconditionally — e.g. `fg` always landed
+  exactly on the 10:1 threshold, flattening a well-designed theme's own
+  ~13:1+ contrast down to the floor. The `fg` target itself also drops
+  from 10:1 to 7:1 (the actual AAA line this slot exists to clear) when
+  a solve is needed at all. **This changes derived output for every
+  existing theme pairing** — most of the 61-pair corpus shifts at least
+  one slot (see the PR for the full before/after) — hence the minor
+  bump rather than a patch. Every pair still passes `remarque-audit`;
+  the corpus property test (`test-theme.mjs`) stays green.
+- **`fg-muted` and `border-bold` gain contrast headroom over their solved
+  minimums** (−0.01 L and −0.02 L further from the background,
+  respectively; mirrored in dark). Slots that exist to clear a legal line
+  shouldn't sit exactly on it: borders at 3.0:1 are fragile against
+  antialiasing, AAA text at 7.0:1 has no margin for rendering variance.
+  This encodes the same headroom the hand-authored default has always
+  carried (border-bold at 3.39:1, fg-muted at 7.55:1) into the
+  derivation itself — it's what reconciled the golden gate's last two
+  outliers without loosening the ΔE threshold.
+- All other slots (`muted`, the bg ladder, `selection-bg`,
+  `accent-subtle`) are unaffected — solved/derived unconditionally, same
+  as before.
+- **Accent selection now prefers the dataset's `accent` field** (dataset
+  0.3.0+, upstream #133) — the same cursor-else-most-chromatic-ANSI
+  heuristic, computed upstream where it can be curated per theme. The
+  local heuristic remains as fallback for older datasets. Dev pin bumped
+  `0.2.0` → `0.3.0`, whose native themes are OKLCH-authored (upstream
+  #132): the Remarque themes now carry the design palette's exact
+  values, which is what lets the golden gate below hold at ΔE ≤ 2.0
+  with most tokens exactly 0.
+
+### Added
+- **`scripts/palette-golden.mjs`** (new CI gate, wired into
+  `deploy.yml` right after the `remarque-theme` corpus test): derives
+  the reference palette from the pinned `remarque-light`/`remarque-dark`
+  themes and compares every `--color-*` token in both themes against
+  the hand-authored `tokens-palette.css`, resolving `var()` chains,
+  via CIEDE2000 (`culori`'s `differenceCiede2000` — not hand-rolled ΔE
+  math). Asserts ΔE2000 ≤ 2.0 per token and an exact `weight-display`
+  match; the full per-token table prints unconditionally (not just on
+  failure) so drift stays visible before it reaches the threshold. A
+  breach means the upstream themes and the hand file have diverged —
+  reconcile one against the other, the gate does not loosen.
+- **Site mirror check**, same script: asserts every `--color-*` value in
+  `site/src/styles/globals.css`'s `[data-theme="light"]` block is
+  string-identical (whitespace-normalized) to `tokens-palette.css`'s
+  `:root` light value — the known drift trap called out in #76.
+- `culori` added as a devDependency (already present transitively via
+  `@williamzujkowski/oklch-terminal-themes`; now pinned directly since
+  `palette-golden.mjs` imports it).
+- REMARQUE.md "Color Providers": documents the identity/serialization
+  contract — the upstream themes are the source of truth for the
+  default palette's identity, `tokens-palette.css` is its human-authored
+  serialization, and the golden gate is what keeps them from drifting
+  apart. AGENT_RULES.md: palette color changes must keep the golden
+  gate green; changing a default color means changing the upstream
+  themes first (or in lockstep), not hand-editing the CSS alone.
+
 ## 0.10.0 — 2026-07-23
 
 Color-provider Phase 2 groundwork: the upstream dataset now pairs its own
