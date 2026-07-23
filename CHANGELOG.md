@@ -4,6 +4,65 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.16.0 — 2026-07-23
+
+Broadsheet pattern — masthead, lead article, numbered entry list, post-header kicker, graduated from the flagship (closes #36).
+
+### Added
+- **`broadsheet.css`** (new subpath: `remarque-tokens/broadsheet`, `remarque-tokens/broadsheet.css`) —
+  optional editorial Landing/archive pattern, not aggregated into `tokens.css` or `prose.css`.
+  Validated downstream on williamzujkowski.github.io (landing PR #213, archive/tag/post-header
+  PR #214) before upstreaming. Adds four primitives:
+  - `.remarque-masthead` — centered nameplate: mono small-caps kicker, oversized mixed
+    roman + italic `--font-display` title, mono dateline with hairline-rule separators.
+    **Fluid-type decision:** the flagship's `clamp(3.5rem, 9vw, 7.5rem)` title exceeds
+    `--text-display` (tokens-core.css's largest rung, `clamp(2.75rem, 5.5vw, 5rem)`) — no
+    existing token reaches it, so `.remarque-masthead` declares a file-scoped
+    `--remarque-masthead-size` whose min/max bounds are arithmetic on existing core spacing
+    tokens (`--space-7 + --space-2` = 3.5rem, `--space-10 - --space-2` = 7.5rem) rather than
+    new literals or a new core token — both resolve to the exact flagship values already
+    validated (contrast/gamut/font-floor audits + axe).
+  - `.remarque-lead` — mono kicker, large `--font-display` title (reuses `--text-display`
+    as-is — its range covers the flagship's closely enough that no exception was needed
+    here), underline-grow hover (`--motion-normal`/`--motion-easing`, reduced-motion-safe
+    for free via tokens-core.css's existing zeroing), italic lede with an italic drop cap
+    (same 3.5em/`initial-letter` mechanics as `.remarque-prose--dropcap` — one drop-cap
+    voice, not a second bespoke number).
+  - `.remarque-entry-list` / `.remarque-entry` — numbered entries via `data-entry-number`
+    + `attr()`, NOT `counter()` (counter-generated content doesn't reliably receive the
+    OpenType oldstyle-figure treatment across Newsreader's weights — a graduation finding
+    worth keeping). Numeral column sized in `ch` units (intrinsic to the glyphs) rather
+    than an asserted rem literal. `<ul>`, not `<ol>` — the numeral is `aria-hidden` and
+    decorative, an `<ol>` would double-announce the position. Collapses to one column via
+    a container query at `40rem` (exactly `--space-10` x 5, matching the flagship's `640px`
+    — container-query conditions can't reference custom properties/`calc()`, so this is
+    the literal the multiple resolves to).
+  - `.remarque-post-kicker` — the same mono kicker voice, scaled to sit above an
+    individual post's own title.
+  - `font-variant-caps: all-small-caps` on every kicker/dateline row, not
+    `text-transform: uppercase` — the flagship predates the Small Caps rule and used
+    uppercase throughout this pattern; corrected on the way upstream, same as the Essay
+    Module's TOC summary.
+- **`print.css`** — caps the masthead/lead title point sizes for print (28pt/18pt, matching
+  this file's existing `body { font-size: 11pt; }` convention) instead of printing the
+  on-screen fluid nameplate size; adds `.remarque-masthead`/`.remarque-lead`/
+  `.remarque-entry-list` to the existing full-width-on-print selector list.
+- **REMARQUE.md "Patterns"** — new top-level section (Broadsheet is its first entry),
+  markup contract, the fluid-type decision writeup, and when-to-use guidance. Landing
+  archetype's "Optionally includes" list now references it.
+- **AGENT_RULES.md** — File Structure Convention lists `broadsheet.css`; Quality Checklist
+  gains a Broadsheet-pattern line (`attr()` not `counter()`, `<ul>` not `<ol>`, small caps
+  not uppercase).
+- **Demo site (`site/`)** — `site/src/components/BroadsheetEntry.astro` (reference
+  lead/entry component); `writing/index` restyled as a broadsheet archive (masthead + lead
+  + entry list); `writing/against-decoration` gains the post-header kicker. New VR baseline:
+  `broadsheet-{light,dark}-{desktop,mobile}.png` (4 files, `writing` path added to `PAGES`).
+
+### Documentation
+- **README.md "Graduation"** — adds this release to the "Historical examples" list; the
+  "optional module" destination list now names the Broadsheet pattern alongside sidenotes/
+  TOC rail/palette deck.
+
 ## 0.15.0 — 2026-07-23
 
 Essay module — sidenotes + sticky TOC rail, graduated from the flagship (closes #52).

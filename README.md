@@ -133,9 +133,10 @@ margin and should stay there. A local invention is upstreamable when **all four*
    spec amendment arguing the change.
 
 **Three destinations.** Core spec (rare — core is identity, the bar is a fork-level
-argument); optional module (sidenotes, TOC rail, palette deck); or *documented site-local
-pattern* — explicitly not shared. The zine layer that inspired this checklist is the
-exemplar of the third: sanctioned personality that would be diluted by generalizing it.
+argument); optional module (sidenotes, TOC rail, palette deck, the Broadsheet pattern); or
+*documented site-local pattern* — explicitly not shared. The zine layer that inspired this
+checklist is the exemplar of the third: sanctioned personality that would be diluted by
+generalizing it.
 
 **Process (single-maintainer scale, no ceremony):** open an issue with before/after
 screenshots and the token-purity check; record the decision in the changelog. Historical
@@ -143,7 +144,10 @@ examples: measure compensation and the Gallery archetype graduated; the essay
 sidenotes/sticky-TOC-rail pair graduated as an optional module
 ([#52](https://github.com/williamzujkowski/remarque/issues/52)); the theme deck was
 re-scoped on the way up ([#56](https://github.com/williamzujkowski/remarque/issues/56));
-the zine layer deliberately stayed local.
+the Broadsheet editorial pattern (masthead, lead article, numbered entry list, post-header
+kicker) graduated as an optional pattern module
+([#36](https://github.com/williamzujkowski/remarque/issues/36)); the zine layer
+deliberately stayed local.
 
 **Standing rulings** (ratified 3-0, 2026-07-23) on patterns the reviews kept re-flagging:
 

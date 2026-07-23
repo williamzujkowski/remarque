@@ -1,0 +1,441 @@
+/*
+ * Remarque — Broadsheet Pattern (masthead, lead, entry list, post kicker)
+ * ────────────────────────────────────────────────────────────────────
+ * Four editorial-layout primitives for Landing/archive contexts — the
+ * typography-maximalist end of the system. Newspaper-broadsheet voice:
+ * a nameplate, a featured lead story, a numbered contents list, and a
+ * post-header kicker line, built entirely from tokens already shipped
+ * in tokens-core.css / tokens-palette.css.
+ *
+ * PROVENANCE — graduated, not invented here. Validated downstream on
+ * williamzujkowski.github.io (landing PR #213, archive/tag/post-header
+ * PR #214), ratified for upstreaming in issue #36. Source: `astro-site/
+ * src/components/BroadsheetEntry.astro` + `global.css`'s "Broadsheet
+ * layout" block. As with the essay module (#52), no site-specific
+ * literal was copied — every dimension below is re-derived from this
+ * package's own tokens; see the inline comments for the value-by-value
+ * mapping and the few places the re-expression corrects the source
+ * (`text-transform: uppercase` -> `font-variant-caps: all-small-caps`,
+ * per REMARQUE.md "Small Caps", predates that rule same as essay.css's
+ * TOC summary did) or simplifies it (font-weight 300 has no Remarque
+ * core token; the italic/lede treatments below lean on color + style
+ * alone rather than introduce an un-tokenized weight).
+ *
+ * Own subpath (remarque-tokens/broadsheet, remarque-tokens/broadsheet.css)
+ * — NOT included by the tokens.css aggregator: the Landing/archive
+ * pattern is opt-in, most Remarque pages want none of it. Import
+ * explicitly, after prose.css if both are in use:
+ *   @import 'remarque-tokens/broadsheet.css';
+ * (string form — see AGENT_RULES.md Pitfall #6.)
+ *
+ * ─── MARKUP CONTRACT (summary — full version in REMARQUE.md) ──────────
+ *
+ *   <header class="remarque-masthead">
+ *     <p class="remarque-masthead-kicker"><span>Field Notes</span></p>
+ *     <h1 class="remarque-masthead-title">Quiet <em>Signals</em></h1>
+ *     <p class="remarque-masthead-dateline">
+ *       <span class="remarque-rule" aria-hidden="true"></span>
+ *       <span>July 23, 2026</span>
+ *       <span class="remarque-rule" aria-hidden="true"></span>
+ *     </p>
+ *   </header>
+ *
+ *   <article class="remarque-lead">
+ *     <p class="remarque-lead-kicker">
+ *       <span class="remarque-lead-section">Essay</span>
+ *       <span class="remarque-dot" aria-hidden="true">&middot;</span>
+ *       <span>8 min read</span>
+ *       <span class="remarque-dot" aria-hidden="true">&middot;</span>
+ *       <time datetime="2026-04-08">Apr 8, 2026</time>
+ *     </p>
+ *     <h2 class="remarque-lead-title"><a href="/writing/x">Title</a></h2>
+ *     <p class="remarque-lead-lede">Lede paragraph...</p>
+ *   </article>
+ *
+ *   <ul class="remarque-entry-list">
+ *     <li class="remarque-entry">
+ *       <span class="remarque-entry-numeral" data-entry-number="2"
+ *         aria-hidden="true"></span>
+ *       <div class="remarque-entry-body">
+ *         <p class="remarque-entry-kicker">...</p>
+ *         <h3 class="remarque-entry-title"><a href="/writing/y">Title</a></h3>
+ *         <p class="remarque-entry-excerpt">Excerpt...</p>
+ *       </div>
+ *     </li>
+ *   </ul>
+ *
+ *   <header class="remarque-post-header">
+ *     <p class="remarque-post-kicker">
+ *       <span class="remarque-post-kicker-section">Essay</span>
+ *       <span class="remarque-dot" aria-hidden="true">&middot;</span>
+ *       <span>8 min read</span>
+ *       <span class="remarque-dot" aria-hidden="true">&middot;</span>
+ *       <time datetime="2026-04-08">Apr 8, 2026</time>
+ *     </p>
+ *     <h1 class="text-display font-display">Post Title</h1>
+ *   </header>
+ *
+ * `<ul>` (not `<ol>`), deliberately, for the entry list: the visual
+ * numeral is decorative (`aria-hidden`, generated from `data-entry-
+ * number` via `attr()` — see below), and an `<ol>` would have screen
+ * readers announce "1 of 2" alongside it, doubling up on the same
+ * information in two voices. Matches the flagship's own choice.
+ */
+
+/* ─── Shared meta-voice bits ─────────────────────────────────────────
+ * Every kicker/dateline row below repeats these declarations rather
+ * than depending on `.text-label` as a mixin (tokens-core.css) — same
+ * non-mixin precedent as essay.css's TOC summary. All-small-caps, not
+ * `text-transform: uppercase` (REMARQUE.md "Small Caps": faux uppercase
+ * renders at cap-height with no optical correction; the flagship
+ * predates that rule and used `text-transform: uppercase` throughout
+ * this pattern). `--text-meta` (14px), not `--text-micro` (13px) — the
+ * words in a kicker ("Essay", "Field Notes") are read as content, not
+ * bare timestamps/fine print, the same distinction essay.css's sidenote
+ * marker already draws against the 13px floor. Tabular lining figures
+ * on every numeral here (dates, counts) per REMARQUE.md's Numerals
+ * rule — never mixed with the oldstyle register `.remarque-entry-
+ * numeral` uses below for the same reason `.text-meta` carries it.
+ */
+.remarque-masthead-kicker,
+.remarque-masthead-dateline,
+.remarque-lead-kicker,
+.remarque-entry-kicker,
+.remarque-post-kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  font-variant-caps: all-small-caps;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: var(--tracking-caps);
+  color: var(--color-muted);
+  margin: 0;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.remarque-dot {
+  color: var(--color-border-bold);
+}
+
+.remarque-lead-section,
+.remarque-entry-section,
+.remarque-post-kicker-section {
+  color: var(--color-accent);
+  font-weight: var(--weight-medium);
+}
+
+/* Hairline flanking the masthead dateline — decorative only, so a
+   1px border-color rule (not -bold) is the right register; nothing
+   depends on it as a boundary. */
+.remarque-rule {
+  display: inline-block;
+  width: var(--space-6);
+  height: var(--border-width);
+  background: var(--color-border-bold);
+}
+
+/* Hairline divider between broadsheet sections (masthead/lead/entry-list) */
+.remarque-broadsheet-rule {
+  max-width: var(--content-reading);
+  margin: var(--space-6) auto;
+  border: 0;
+  border-top: var(--border-width) var(--border-style) var(--color-border);
+}
+
+/* ─── 1. Masthead ─────────────────────────────────────────────────────
+ * The nameplate. Centered, oversized, the one place in Remarque a
+ * title outgrows `--text-display` (tokens-core.css's largest type-
+ * scale rung, clamp(2.75rem, 5.5vw, 5rem)) — a Landing masthead is a
+ * register above even a Landing page's own `<h1>`.
+ *
+ * FLUID-TYPE DECISION (issue #36's required call): the existing scale
+ * does not reach the flagship's validated clamp(3.5rem, 9vw, 7.5rem).
+ * Rather than assert those as bare literals (or add a new core
+ * `--text-masthead` token, which the issue explicitly rules out), this
+ * is a documented, file-scoped fluid exception whose min/max BOUNDS are
+ * arithmetic on core spacing tokens already in tokens-core.css — not
+ * new constants:
+ *   min = --space-7 (3rem) + --space-2 (0.5rem)  = 3.5rem
+ *   max = --space-10 (8rem) - --space-2 (0.5rem) = 7.5rem
+ * both resolve to the exact flagship values that were already
+ * validated (contrast/gamut/font-floor audits + axe) downstream. The
+ * 9vw fluid rate is kept as-is: it continues the same escalating-per-
+ * tier vw progression tokens-core.css's own scale already uses
+ * (2.25vw section -> 3.5vw title -> 5.5vw display), one step further
+ * for a register one step past display. This custom property lives
+ * here, not in tokens-core.css — it is NOT a new core token, it is
+ * local arithmetic on existing ones, scoped to this opt-in pattern.
+ */
+.remarque-masthead {
+  --remarque-masthead-size: clamp(
+    calc(var(--space-7) + var(--space-2)),
+    9vw,
+    calc(var(--space-10) - var(--space-2))
+  );
+  max-width: var(--content-reading);
+  margin: var(--space-8) auto var(--space-6);
+  text-align: center;
+}
+
+.remarque-masthead-title {
+  font-family: var(--font-display);
+  font-size: var(--remarque-masthead-size);
+  /* Reuses --leading-display/--tracking-display rather than the
+     flagship's bespoke 0.92/-0.035em — a fully tokenized simplification
+     at a scale where the difference is not perceptible at normal
+     reading distance. */
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  /* Same --weight-display escape hatch .text-display/.text-title use
+     (tokens-core.css) — a palette can compensate thin serif hairlines
+     in dark mode (tokens-palette.css already does, 400 light / 500
+     dark) and the masthead picks that up for free. */
+  font-weight: var(--weight-display, var(--weight-regular));
+  color: var(--color-fg);
+  margin: 0;
+  font-feature-settings: "liga" 1, "kern" 1;
+  font-optical-sizing: auto;
+  font-synthesis: none;
+  text-wrap: balance;
+}
+
+.remarque-masthead-title em {
+  font-style: italic;
+  color: var(--color-fg-muted);
+}
+
+.remarque-masthead-dateline {
+  margin-block-start: var(--space-4);
+  justify-content: center;
+}
+
+/* ─── 2. Lead Article ─────────────────────────────────────────────────
+ * The featured story below the masthead (or standing alone atop an
+ * archive). Title register: --text-display reaches close enough to
+ * the flagship's clamp(2.25rem, 4.5vw, 3.75rem) (2.75-5rem vs.
+ * 2.25-3.75rem) that no exception is needed here — "express via
+ * existing type tokens" (issue #36), the masthead above is the one
+ * register that genuinely doesn't fit.
+ */
+.remarque-lead {
+  max-width: var(--content-reading);
+  margin: var(--space-7) auto var(--space-6);
+}
+
+.remarque-lead-kicker {
+  margin-block-end: var(--space-3);
+}
+
+.remarque-lead-title {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  font-weight: var(--weight-display, var(--weight-regular));
+  margin: 0 0 var(--space-4);
+  text-wrap: balance;
+  font-optical-sizing: auto;
+  font-synthesis: none;
+}
+
+.remarque-lead-title a,
+.remarque-entry-title a {
+  color: var(--color-fg);
+  text-decoration: none;
+  /* Underline-grow hover (issue #36 "Findings"): AA-compliant, and
+     reduced-motion-safe for free — tokens-core.css zeroes
+     --motion-normal under prefers-reduced-motion, so this needs no
+     separate @media guard the way an opacity/transform animation
+     would. --motion-easing/--motion-normal replace the flagship's
+     hardcoded `220ms ease`. */
+  background-image: linear-gradient(var(--color-fg), var(--color-fg));
+  background-size: 0 1px;
+  background-repeat: no-repeat;
+  background-position: 0 95%;
+  transition: background-size var(--motion-normal) var(--motion-easing);
+}
+
+.remarque-lead-title a:hover,
+.remarque-lead-title a:focus-visible,
+.remarque-entry-title a:hover,
+.remarque-entry-title a:focus-visible {
+  background-size: 100% 1px;
+}
+
+.remarque-lead-lede {
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body);
+  font-style: italic;
+  font-weight: var(--weight-regular);
+  color: var(--color-fg-muted);
+  margin: 0;
+  text-wrap: pretty;
+  hanging-punctuation: first last;
+}
+
+/* Drop cap on italic text needs an explicit ::first-letter override
+   (issue #36 "Findings") — it cannot just inherit italic from the
+   parent's font-style the way a roman-text drop cap can, since this
+   pseudo-element re-asserts every typographic property of its own.
+   Same mechanics/sizing as prose.css's `.remarque-prose--dropcap`
+   (3.5em / 0.85 line-height / initial-letter progressive enhancement)
+   for one consistent drop-cap voice across the system, rather than a
+   second bespoke number. */
+.remarque-lead-lede::first-letter {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: var(--weight-display, var(--weight-regular));
+  font-size: 3.5em;
+  line-height: 0.85;
+  float: left;
+  padding: 0.08em 0.12em 0 0;
+  color: var(--color-fg);
+}
+
+@supports (initial-letter: 4) or (-webkit-initial-letter: 4) {
+  .remarque-lead-lede::first-letter {
+    initial-letter: 3.5;
+    -webkit-initial-letter: 3.5;
+    float: none;
+    padding: 0 0.08em 0 0;
+  }
+}
+
+/* ─── 3. Numbered Entry List ──────────────────────────────────────────
+ * `container-type: inline-size` — the 2-column/1-column collapse below
+ * responds to how much room the list itself has, not the viewport (a
+ * clean fit for a container query, matching the flagship's choice; it
+ * degrades correctly if this list is ever embedded in a narrower
+ * column than the page itself).
+ */
+.remarque-entry-list {
+  container-type: inline-size;
+  max-width: var(--content-reading);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.remarque-entry {
+  display: grid;
+  /* Numeral column sized in `ch` (intrinsic to the numeral glyphs
+     themselves), not an asserted rem literal — the flagship's
+     `minmax(3.5rem, 5rem)` re-expressed as "just wide enough for the
+     content," the more typographically disciplined choice per
+     REMARQUE.md's Decision Protocol when a core token doesn't already
+     cover a dimension. */
+  grid-template-columns: minmax(2.5ch, 4ch) 1fr;
+  gap: var(--space-4);
+  padding: var(--space-5) 0;
+  border-bottom: var(--border-width) var(--border-style) var(--color-border);
+  align-items: start;
+}
+
+.remarque-entry:last-child {
+  border-bottom: 0;
+}
+
+/* Oldstyle italic numerals in the outer margin, generated from
+   `data-entry-number` via `attr()` — NOT CSS `counter()` (issue #36
+   "Findings": counter-generated content does not receive the OpenType
+   oldstyle-figure treatment reliably across Newsreader's weights, only
+   real text/attr() content does). `attr()` reads from the element the
+   pseudo-content is generated on, so `data-entry-number` lives on
+   `.remarque-entry-numeral` itself, not the parent `<li>`. Both
+   `font-variant-numeric: oldstyle-nums proportional-nums` AND
+   `font-feature-settings: "onum" 1, "pnum" 1` are required together
+   for reliable rendering across weights — either alone is
+   inconsistent (issue #36 "Findings"). */
+.remarque-entry-numeral {
+  display: block;
+}
+
+.remarque-entry-numeral::before {
+  content: attr(data-entry-number);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-title);
+  line-height: 0.95;
+  color: var(--color-border-bold);
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  font-feature-settings: "onum" 1, "pnum" 1;
+  text-align: right;
+  display: block;
+  padding-block-start: 0.1em;
+  user-select: none;
+  transition: color var(--motion-normal) var(--motion-easing);
+}
+
+.remarque-entry:hover .remarque-entry-numeral::before,
+.remarque-entry:focus-within .remarque-entry-numeral::before {
+  color: var(--color-accent);
+}
+
+.remarque-entry-body {
+  min-width: 0; /* allow the grid child to shrink below its content's intrinsic width */
+}
+
+.remarque-entry-kicker {
+  margin-block-end: var(--space-2);
+}
+
+.remarque-entry-title {
+  font-family: var(--font-display);
+  font-size: var(--text-section);
+  line-height: var(--leading-section);
+  letter-spacing: var(--tracking-title);
+  font-weight: var(--weight-medium);
+  margin: 0 0 var(--space-2);
+  text-wrap: balance;
+  font-optical-sizing: auto;
+  font-synthesis: none;
+}
+
+.remarque-entry-excerpt {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--color-fg-muted);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+/* Collapse to one column on a narrow container — `40rem`, exactly
+   `--space-10` (8rem) x 5. Container-query conditions can't reference
+   custom properties or `calc()` (unlike a plain declaration value, the
+   condition itself is parsed before the cascade resolves custom
+   properties, and Lightning CSS's minifier rejects a `calc()` there
+   outright) so this is spelled as the literal it resolves to, with the
+   token-multiple noted here rather than in the syntax — matches the
+   flagship's own `640px` breakpoint exactly. */
+@container (max-width: 40rem) {
+  .remarque-entry {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .remarque-entry-numeral::before {
+    text-align: left;
+    font-size: var(--text-section);
+    padding-block-start: 0;
+  }
+}
+
+/* ─── 4. Post-Header Kicker ───────────────────────────────────────────
+ * The mono "Section · Reading time · Date" line above an individual
+ * post's title — the same kicker voice as the lead/entry rows above,
+ * scaled down to a single-line header. Pair with any Remarque heading
+ * class (`.text-display`, `.text-title`); this rule only styles the
+ * kicker line itself, not the title beneath it.
+ */
+.remarque-post-header {
+  margin-block-end: var(--space-7);
+}
+
+.remarque-post-kicker {
+  margin-block-end: var(--space-3);
+}

@@ -22,9 +22,12 @@ export interface PageSpec {
 
 /**
  * The five archetypes named in issue #49: Landing, Essay, Dossier, Notebook,
- * Specimen. Paths are deliberately relative WITHOUT a leading slash — with
- * `baseURL` set to `.../remarque/` (the Astro base path), a leading slash
- * would resolve against the origin root and silently drop `/remarque/`.
+ * Specimen — plus `broadsheet`, the Broadsheet pattern's reference page
+ * (issue #36; `writing/index.astro`, restyled as a broadsheet archive:
+ * masthead + lead article + numbered entry list). Paths are deliberately
+ * relative WITHOUT a leading slash — with `baseURL` set to `.../remarque/`
+ * (the Astro base path), a leading slash would resolve against the origin
+ * root and silently drop `/remarque/`.
  */
 export const PAGES: PageSpec[] = [
   { slug: 'landing', path: '' },
@@ -32,6 +35,7 @@ export const PAGES: PageSpec[] = [
   { slug: 'dossier', path: 'projects/remarque' },
   { slug: 'notebook', path: 'notes' },
   { slug: 'specimen', path: 'specimen' },
+  { slug: 'broadsheet', path: 'writing' },
 ];
 
 /**

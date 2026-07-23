@@ -142,6 +142,7 @@ project/
 ├── tokens-palette.css        # PALETTE tier: font slots, colors, accent, reading measure. Override freely, then run the audit
 ├── prose.css                 # .remarque-prose long-form styling (aggregated by tokens.css; own subpath for opt-out)
 ├── essay.css                 # Optional Essay module: sidenotes + sticky TOC rail (own subpath, NOT aggregated — import explicitly)
+├── broadsheet.css            # Optional Broadsheet pattern: masthead, lead, entry list, post kicker (own subpath, NOT aggregated — import explicitly)
 ├── print.css                 # Print stylesheet (own subpath, NOT aggregated — import explicitly)
 ├── theme.css                 # Tailwind v4 adapter (@theme inline) — import after tailwindcss + tokens
 ├── tailwind.config.js        # Tailwind v3 ONLY — v4 projects use theme.css instead
@@ -203,6 +204,7 @@ Before considering any implementation complete, verify:
 - [ ] Every image has a 1px border and mono caption
 - [ ] Every page maps to an archetype (Essay, Dossier, Notebook, Landing, Reference/Docs, Changelog, Gallery)
 - [ ] If the Essay uses sidenotes/a TOC rail (`remarque-tokens/essay`): `.remarque-sidenote-ref`/`.remarque-sidenote` alternate in strict DOM order, the rail never intrudes into `.remarque-prose`'s own measure, and the page renders correctly with `essay.css`'s `@media` block deleted (the narrow-viewport/no-JS fallback)
+- [ ] If a Landing/archive page uses the Broadsheet pattern (`remarque-tokens/broadsheet`): entry numerals are generated from `data-entry-number` via `attr()` (not `counter()`), the entry list stays a `<ul>` (not `<ol>` — the numeral is `aria-hidden` and decorative), and every kicker/dateline row uses `font-variant-caps: all-small-caps`, never `text-transform: uppercase`
 - [ ] Mobile version is roomy — not a compressed desktop layout
 - [ ] Mobile nav links have ≥44px touch targets
 - [ ] No pure white or pure black backgrounds
