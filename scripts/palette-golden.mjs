@@ -42,7 +42,7 @@ import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { differenceCiede2000 } from 'culori';
-import { extractBlocks, declsOf, isLightRoot, isDarkBlock } from './lib/css-tokens.mjs';
+import { extractBlocks, declsOf, isLightRoot, isDarkBlock, resolveSide, darkOverridesOf } from './lib/css-tokens.mjs';
 
 const DELTA_E_MAX = 2.0;
 const LIGHT_SLUG = 'remarque-light';
@@ -69,15 +69,24 @@ try {
   rmSync(workdir, { recursive: true, force: true });
 }
 
+// resolveSide/darkOverridesOf (issue #95) make this a no-op for the
+// bridge's own output (still the conventional two-block form — see
+// REMARQUE.md "Color Scheme & light-dark()") and correct for
+// tokens-palette.css's hand file (now light-dark()-based): both sides
+// resolve to the same shape either way.
 const derivedBlocks = extractBlocks(derivedCss);
-const derivedLight = declsOf(derivedBlocks, isLightRoot);
-const derivedDark = { ...derivedLight, ...declsOf(derivedBlocks, isDarkBlock) };
+const derivedRawLight = declsOf(derivedBlocks, isLightRoot);
+const derivedRawDarkBlock = declsOf(derivedBlocks, isDarkBlock);
+const derivedLight = resolveSide(derivedRawLight, 'light');
+const derivedDark = { ...derivedLight, ...darkOverridesOf(derivedRawLight, derivedRawDarkBlock) };
 
 const PALETTE = 'tokens-palette.css';
 const handCss = readFileSync(PALETTE, 'utf8');
 const handBlocks = extractBlocks(handCss);
-const handLight = declsOf(handBlocks, isLightRoot);
-const handDark = { ...handLight, ...declsOf(handBlocks, isDarkBlock) };
+const handRawLight = declsOf(handBlocks, isLightRoot);
+const handRawDarkBlock = declsOf(handBlocks, isDarkBlock);
+const handLight = resolveSide(handRawLight, 'light');
+const handDark = { ...handLight, ...darkOverridesOf(handRawLight, handRawDarkBlock) };
 
 /* ── Resolve a token to a culori oklch color, following var() chains ── */
 
@@ -146,32 +155,41 @@ for (const [themeName, hand, derived] of [
   else console.log(`  ✓ ${themeName} --weight-display = ${h} (hand == derived)`);
 }
 
-/* ── MIRROR: site's explicit light block vs tokens-palette.css :root ── */
+/* ── MIRROR: RETIRED (issue #95) ──────────────────────────────────────
+ * Before light-dark(), an explicit `[data-theme="light"]` choice had no
+ * mechanism of its own — the demo site's globals.css hand-carried a full
+ * `[data-theme="light"]` block re-asserting every --color-* value so a
+ * visitor on a dark-OS could still toggle back to light (AGENT_RULES
+ * Pitfall #3). That hand-carried block was a known drift trap (#76) —
+ * hence this check.
+ *
+ * Under light-dark(), explicit light selection is a `color-scheme: light`
+ * override (now shipped in tokens-palette.css itself: `[data-theme=
+ * "light"] { color-scheme: light; }`), and the color VALUES come from the
+ * single light-dark() declaration in :root — there is no second place
+ * for a --color-* value to be re-asserted, so the drift this check
+ * guarded against cannot recur by construction. The fix is therefore to
+ * assert the trap's precondition is gone, not to keep comparing two
+ * copies of a value that no longer has a second copy: the site's
+ * `[data-theme="light"]` block must not re-declare any --color-* custom
+ * property (a bare `color-scheme` override is fine and expected). */
 
-console.log(`\nsite mirror check (site/src/styles/globals.css [data-theme="light"] vs ${PALETTE} :root light)`);
+console.log(`\nsite mirror check (site/src/styles/globals.css [data-theme="light"] — retired under light-dark(), issue #95)`);
 
 const SITE_CSS = 'site/src/styles/globals.css';
 const siteBlocks = extractBlocks(readFileSync(SITE_CSS, 'utf8'));
 const siteLight = declsOf(siteBlocks, isLightRoot);
-const norm = (v) => v.replace(/\s+/g, ' ').trim();
-
 const siteColorNames = Object.keys(siteLight).filter((n) => n.startsWith('color-'));
-let mirrorFail = 0;
-for (const name of siteColorNames) {
-  const siteValue = siteLight[name];
-  const handValue = handLight[name];
-  if (handValue === undefined) {
-    fail(`site mirror: --${name} is declared in ${SITE_CSS} but not in ${PALETTE}'s :root`);
-    mirrorFail++;
-    continue;
-  }
-  if (norm(siteValue) !== norm(handValue)) {
-    fail(`site mirror: --${name} = "${siteValue}" in ${SITE_CSS} but "${handValue}" in ${PALETTE} :root — the mirror has drifted, reconcile it`);
-    mirrorFail++;
-  }
-}
-if (!mirrorFail) {
-  console.log(`  ✓ all ${siteColorNames.length} --color-* tokens in the site's [data-theme="light"] block match ${PALETTE} :root exactly`);
+
+if (siteColorNames.length > 0) {
+  fail(
+    `site mirror: ${SITE_CSS}'s [data-theme="light"] block re-declares ${siteColorNames.length} --color-* ` +
+      `token(s) (${siteColorNames.join(', ')}) — under light-dark() this block should carry ONLY ` +
+      `\`color-scheme: light\`; a re-declared --color-* value is exactly the drift trap this check used to ` +
+      `guard against, now resurrected in a form the light-dark() migration was supposed to make impossible`
+  );
+} else {
+  console.log(`  ✓ ${SITE_CSS}'s [data-theme="light"] block declares no --color-* tokens (color-scheme override only, as expected under light-dark())`);
 }
 
 if (failures) {

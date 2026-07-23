@@ -29,7 +29,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { extractBlocks, declsOf, isLightRoot, isDarkBlock } from './lib/css-tokens.mjs';
+import { extractBlocks, declsOf, isLightRoot, isDarkBlock, resolveSide, darkOverridesOf } from './lib/css-tokens.mjs';
 
 const args = process.argv.slice(2);
 function argOf(flag, dflt) {
@@ -110,10 +110,16 @@ function ratio(c1, c2) {
 }
 
 const blocks = extractBlocks(readFileSync(PALETTE, 'utf8'));
-const lightDecls = declsOf(blocks, isLightRoot);
-const darkOverrides = declsOf(blocks, isDarkBlock);
+// Raw extraction, then resolved through the light-dark() splitter (issue
+// #95) — a no-op over palettes that only use the conventional two-block
+// form, so both forms parse identically from here on. See
+// scripts/lib/css-tokens.mjs "light-dark() support".
+const rawLightRoot = declsOf(blocks, isLightRoot);
+const rawDarkBlock = declsOf(blocks, isDarkBlock);
+const lightDecls = resolveSide(rawLightRoot, 'light');
+const darkOverrides = darkOverridesOf(rawLightRoot, rawDarkBlock);
 if (Object.keys(lightDecls).length === 0) fail(`no top-level :root declarations found in ${PALETTE}`);
-if (Object.keys(darkOverrides).length === 0) fail(`no dark-theme declarations found in ${PALETTE} (@media prefers-color-scheme: dark or [data-theme="dark"])`);
+if (Object.keys(darkOverrides).length === 0) fail(`no dark-theme declarations found in ${PALETTE} (light-dark(), @media prefers-color-scheme: dark, or [data-theme="dark"])`);
 // CSS cascade: dark blocks override light; unset dark tokens inherit light values.
 const darkDecls = { ...lightDecls, ...darkOverrides };
 

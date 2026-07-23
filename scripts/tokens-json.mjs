@@ -19,7 +19,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { extractBlocks, declsOf, isLightRoot, isDarkBlock } from './lib/css-tokens.mjs';
+import { extractBlocks, declsOf, isLightRoot, isDarkBlock, resolveSide, darkOverridesOf } from './lib/css-tokens.mjs';
 
 function typeOf(name, value) {
   if (name.startsWith('color-')) return 'color';
@@ -50,8 +50,15 @@ const SCHEMA_URL = 'https://williamzujkowski.github.io/remarque/tokens.schema.js
 const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
 const coreDecls = declsOf(extractBlocks(readFileSync('tokens-core.css', 'utf8')), isLightRoot);
 const paletteBlocks = extractBlocks(readFileSync('tokens-palette.css', 'utf8'));
-const lightDecls = declsOf(paletteBlocks, isLightRoot);
-const darkOverrides = declsOf(paletteBlocks, isDarkBlock);
+// resolveSide/darkOverridesOf (issue #95) — tokens-palette.css's --color-*
+// tokens are now authored as light-dark(<light>, <dark>) single
+// declarations; this resolves each side to the same flat shape the rest
+// of this generator already expects, so tokens.json's OUTPUT is
+// unaffected by the authoring-form change (same names, same values).
+const rawLightRoot = declsOf(paletteBlocks, isLightRoot);
+const rawDarkBlock = declsOf(paletteBlocks, isDarkBlock);
+const lightDecls = resolveSide(rawLightRoot, 'light');
+const darkOverrides = darkOverridesOf(rawLightRoot, rawDarkBlock);
 
 // DTCG conformance note (issue #99, ratified option ii): documented IN the
 // generated artifact, not just in prose, so a future agent regenerating

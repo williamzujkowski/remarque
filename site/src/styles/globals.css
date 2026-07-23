@@ -61,32 +61,22 @@
 }
 
 /* ─── Explicit Light Override ──────────────────────────── */
-/* Palette-tier override (sanctioned): without it, users whose OS is
-   dark could never toggle back to light (AGENT_RULES Pitfall #3).
-   Values mirror the package's light :root defaults. */
+/* Pre-light-dark() (issue #95), this block had to hand-carry every
+   --color-* value from the package's light :root so a visitor on a
+   dark-OS device could still toggle back to light (AGENT_RULES Pitfall
+   #3) — a known drift trap (#76), guarded by scripts/palette-golden.mjs'
+   "site mirror" check. Under light-dark(), remarque-tokens' own
+   tokens-palette.css ships `[data-theme="light"] { color-scheme: light;
+   }` as part of the package — that single line is now the WHOLE
+   mechanism (every --color-* value lives in one light-dark() declaration
+   per token; explicit light selection just tells the UA which side of
+   it to resolve). Re-declaring --color-* here would recreate the exact
+   drift trap the migration retires, so this block does the same job
+   with no site-local color values at all — palette-golden.mjs's mirror
+   check now asserts that. */
 
 [data-theme="light"] {
-  --color-bg: oklch(0.975 0.005 80);
-  --color-bg-subtle: oklch(0.955 0.005 80);
-  --color-fg: oklch(0.18 0.01 80);
-  --color-fg-muted: oklch(0.43 0.015 80);
-  --color-muted: oklch(0.54 0.01 80);
-  --color-border: oklch(0.88 0.005 80);
-  --color-border-bold: oklch(0.62 0.01 80);
-  --color-surface: oklch(0.965 0.005 80);
-  --color-accent: oklch(0.50 0.14 250);
-  --color-accent-hover: oklch(0.42 0.11 250);
-  --color-accent-subtle: oklch(0.95 0.02 250);
-  --color-selection-bg: oklch(0.92 0.04 250);
-  --color-selection-fg: var(--color-fg);
-  --color-code-bg: oklch(0.945 0.005 80);
-  --color-code-fg: var(--color-fg);
-  --color-viz-1: oklch(0.538 0.121 250.5);
-  --color-viz-2: oklch(0.541 0.111 85.5);
-  --color-viz-3: oklch(0.524 0.12 24.6);
-  --color-viz-4: oklch(0.499 0.12 144.8);
-  --color-viz-5: oklch(0.524 0.121 309.6);
-  --color-viz-6: oklch(0.528 0.09 195.8);
+  color-scheme: light;
 }
 
 /* ─── Syntax Highlighting (Shiki CSS-variable bridge) ─────
