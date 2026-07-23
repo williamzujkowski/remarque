@@ -4,6 +4,18 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.14.0 — 2026-07-23
+
+Triage bundle — prose/`.content-reading` pairing documented, `--motion-easing` bridged into the Tailwind v4 utility layer, USWDS/WCAG source citations added to the accessibility section (closes #23, closes #31, closes #32).
+
+### Added
+- **`ease-remarque` Tailwind v4 utility** — `theme.css`'s `@theme inline` block now maps `--ease-remarque: var(--motion-easing)`, mirroring the `transitionTimingFunction.remarque` mapping the v3 `tailwind.config.js` already carried. Utility-class users of `duration-[var(--motion-fast)]` previously fell back to Tailwind's default `ease` timing function instead of the token (#31).
+- **Demo site** — every `duration-[var(--motion-fast)]` call site (22, across `site/src/pages/*`, `layouts/BaseLayout.astro`, `components/Meta.astro`) now pairs with `ease-remarque` so the rendered CSS carries `var(--motion-easing)` instead of Tailwind's default.
+
+### Documentation
+- **REMARQUE.md "Editorial Microtypography"** — states that `.remarque-prose` is typography-only (font, line height, numeral register, optical wrapping) and does not center the column; pair it with `.content-reading`, with a minimal code sample (#23).
+- **REMARQUE.md "USWDS Accessibility Compliance"** — every cited WCAG 2.1 success criterion (1.4.3 Contrast Minimum, 1.4.11 Non-text Contrast, 2.5.5 Target Size, 2.3.3 Animation from Interactions, the last in the adjacent "Motion Rules" section) and USWDS claim (16px font-size floor, the overall accessibility approach) now links to its source (`w3.org/WAI/WCAG21/Understanding/*`, `designsystem.digital.gov`) (#32).
+
 ## 0.13.0 — 2026-07-23
 
 Syntax-highlighting palette — 9 `--color-syntax-*` slots, ANSI-derived, golden-gated (closes #53; consensus-ratified 3-0 with a binding taxonomy design record, 2026-07-23).

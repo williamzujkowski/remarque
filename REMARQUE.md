@@ -124,6 +124,14 @@ This is why the measure is palette-tier: it is a property of the font choice, no
 
 The book-craft layer: numerals, small caps, drop caps, pull quotes, and optical wrapping. These are the details that separate typeset prose from a web page that merely uses nice fonts.
 
+`.remarque-prose` supplies typography only — font, line height, numeral register, optical wrapping — and stops short of centering the column, so pair it with `.content-reading` wherever the reading column needs to sit centered on the page:
+
+```html
+<div class="remarque-prose content-reading">
+  <!-- article body -->
+</div>
+```
+
 ### Numerals
 
 Two numeral registers, chosen by context:
@@ -353,19 +361,19 @@ Motion in Remarque is nearly invisible. The only permitted motion:
 - Parallax effects
 - Any animation on non-interactive elements
 
-**Reduced motion:** all motion must respect `prefers-reduced-motion` (WCAG 2.3.3). Because every sanctioned transition uses the two duration tokens, tokens.css zeroes `--motion-fast`/`--motion-normal` under `prefers-reduced-motion: reduce` — motion authored with the tokens is automatically safe. Never hardcode durations; any future opt-in animation must live inside a `(prefers-reduced-motion: no-preference)` query.
+**Reduced motion:** all motion must respect `prefers-reduced-motion` ([WCAG 2.3.3](https://www.w3.org/WAI/WCAG21/Understanding/animation-from-interactions.html)). Because every sanctioned transition uses the two duration tokens, tokens.css zeroes `--motion-fast`/`--motion-normal` under `prefers-reduced-motion: reduce` — motion authored with the tokens is automatically safe. Never hardcode durations; any future opt-in animation must live inside a `(prefers-reduced-motion: no-preference)` query.
 
 ---
 
 ## USWDS Accessibility Compliance
 
-Remarque adopts typography and accessibility standards from the US Web Design System (USWDS) and WCAG 2.1:
+Remarque adopts typography and accessibility standards from the [US Web Design System (USWDS)](https://designsystem.digital.gov/documentation/accessibility/) and [WCAG 2.1](https://www.w3.org/WAI/WCAG21/Understanding/):
 
 ### Font Size Floors
 
 | Token | Value | USWDS Rationale |
 |-------|-------|-----------------|
-| `--text-body` | 17px (1.0625rem) | Exceeds USWDS 16px minimum. Non-negotiable floor. |
+| `--text-body` | 17px (1.0625rem) | Exceeds [USWDS 16px minimum](https://designsystem.digital.gov/components/typography/). Non-negotiable floor. |
 | `--text-meta` | 14px (0.875rem) | USWDS minimum for small text. Used sparingly for metadata, labels, captions. |
 | `--text-micro` | 13px (0.8125rem) | USWDS floor for timestamps and fine print only. Never for body content. |
 
@@ -373,13 +381,13 @@ Remarque adopts typography and accessibility standards from the US Web Design Sy
 
 | Pairing | Requirement | Notes |
 |---------|-------------|-------|
-| Normal text on background | 4.5:1 minimum | All text below 24px regular / 18.5px bold. Applies on `--color-surface` too, not just `--color-bg` |
-| Large text on background | 3:1 minimum | Display and title text (24px+) |
-| Functional non-text elements | 3:1 minimum | WCAG 1.4.11 — use `--color-border-bold` (meets 3:1). `--color-border` is decorative-only by design and exempt; never the sole boundary of an interactive element |
+| Normal text on background | 4.5:1 minimum | [WCAG 1.4.3](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html) — all text below 24px regular / 18.5px bold. Applies on `--color-surface` too, not just `--color-bg` |
+| Large text on background | 3:1 minimum | [WCAG 1.4.3](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html) — display and title text (24px+) |
+| Functional non-text elements | 3:1 minimum | [WCAG 1.4.11](https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html) — use `--color-border-bold` (meets 3:1). `--color-border` is decorative-only by design and exempt; never the sole boundary of an interactive element |
 
 ### Touch Targets
 
-All interactive elements (links, buttons, inputs) must have a minimum touch target of **44x44px** (WCAG 2.5.5 AAA). This applies to nav links, theme toggles, footer links, chips, and any clickable element.
+All interactive elements (links, buttons, inputs) must have a minimum touch target of **44x44px** ([WCAG 2.5.5](https://www.w3.org/WAI/WCAG21/Understanding/target-size.html) AAA). This applies to nav links, theme toggles, footer links, chips, and any clickable element.
 
 ### Line Height
 
