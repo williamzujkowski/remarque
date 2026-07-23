@@ -41,6 +41,7 @@ These are not guidelines. Agents must follow them literally.
 - NEVER change a value in `tokens-core.css` (or its tokens' values anywhere) — core tokens are Remarque's identity; changing them means the project has forked the system
 - Site personalization happens ONLY by overriding `tokens-palette.css` tokens (font slots from the approved pairings, colors, accent, `--content-reading` per the measure table) in a stylesheet loaded after the tokens
 - After ANY palette change, run the audit and fix every failure before shipping — `npm run audit` inside this repo; `npx remarque-audit --palette <file> --src <dir>` in a consumer project (the npm script only exists here)
+- A generated palette override (from `npx remarque-theme <light> --dark <dark>`, see REMARQUE.md "Color Providers") is regenerated, never hand-edited — if it needs to change, change the source theme slugs and re-run `remarque-theme`, don't patch the emitted CSS directly
 
 ### Typography
 
