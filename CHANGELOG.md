@@ -4,6 +4,27 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.10.0 — 2026-07-23
+
+Color-provider Phase 2 groundwork: the upstream dataset now pairs its own
+themes, so the bridge no longer needs to be told what goes with what.
+
+### Changed
+- **`remarque-theme`: `--dark` is now optional.** Dataset 0.2.0 of
+  `@williamzujkowski/oklch-terminal-themes` ships a `counterpart` field
+  (canonical light↔dark pairing, curated for ambiguous families —
+  upstream #128); when the light theme declares one, the bridge uses it.
+  A counterpart slug is validated exactly like a user-supplied `--dark`
+  (index membership before any path resolution). Lights without a
+  counterpart still require `--dark`; nothing is guessed from names.
+- **Corpus test now enumerates pairs from the `counterpart` field**
+  instead of the name-stem heuristic it shipped with — the dataset is
+  authoritative; the heuristic is gone.
+- Dev-pinned dataset bumped `0.1.0` → `0.2.0` (485 → 547 themes; the
+  corpus now includes deriving Remarque's palette from its own upstreamed
+  `remarque-light`/`remarque-dark` terminal themes, upstream #127).
+  `peerDependencies` widened to `>=0.1.0 <0.3.0`.
+
 ## 0.9.0 — 2026-07-22
 
 Color-provider bridge release (consensus-ratified 7-0, higher_order panel;

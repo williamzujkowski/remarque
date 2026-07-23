@@ -41,12 +41,12 @@ try {
   OWN_VERSION = JSON.parse(readFileSync(join(HERE, '..', 'package.json'), 'utf8')).version;
 } catch { /* provenance is best-effort */ }
 
-const USAGE = `usage: remarque-theme <light-slug> --dark <dark-slug> [-o out.css]
+const USAGE = `usage: remarque-theme <light-slug> [--dark <dark-slug>] [-o out.css]
 
   <light-slug>     slug of a theme with isDark=false in ${PKG_SPEC}
-  --dark <slug>    slug of a theme with isDark=true (required — the
-                    dataset has no light/dark pairing metadata yet, see
-                    oklch-terminal-themes#128)
+  --dark <slug>    slug of a theme with isDark=true; defaults to the light
+                    theme's "counterpart" from the dataset (0.2.0+) when it
+                    has one, and is required when it doesn't
   -o, --output     write the derived palette here instead of stdout`;
 
 function die(msg) {
@@ -67,7 +67,7 @@ for (let i = 0; i < argv.length; i++) {
   else positional.push(a);
 }
 const lightSlug = positional[0];
-if (!lightSlug || !darkSlug) die(USAGE);
+if (!lightSlug) die(USAGE);
 
 /* ── Resolve @williamzujkowski/oklch-terminal-themes ─────────────────
  * Tried from the consumer's cwd first (a project that installs the
@@ -123,6 +123,18 @@ function requireSlug(slug, label) {
 }
 
 const lightMeta = requireSlug(lightSlug, 'light');
+/* --dark defaults to the dataset's counterpart field (0.2.0+). The value
+ * still goes through requireSlug like a user-supplied one — a dataset
+ * entry is not trusted further than the CLI arg it replaces. */
+if (!darkSlug) {
+  darkSlug = lightMeta.counterpart;
+  if (!darkSlug) {
+    die(
+      `"${lightSlug}" has no counterpart in the installed ${PKG_SPEC} dataset — ` +
+      `pass --dark <slug> explicitly (or upgrade the dataset; pairing metadata landed in 0.2.0)`
+    );
+  }
+}
 const darkMeta = requireSlug(darkSlug, 'dark');
 if (lightMeta.isDark !== false) die(`light slug "${lightSlug}" has isDark=${lightMeta.isDark}, expected false`);
 if (darkMeta.isDark !== true) die(`dark slug "${darkSlug}" has isDark=${darkMeta.isDark}, expected true`);

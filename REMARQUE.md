@@ -77,14 +77,14 @@ The palette tier (all `--color-*` tokens) can be *supplied* rather than hand-aut
 [`@williamzujkowski/oklch-terminal-themes`](https://www.npmjs.com/package/@williamzujkowski/oklch-terminal-themes) is the reference provider: a dataset of terminal color schemes converted to OKLCH. Run it through the bundled bridge:
 
 ```
-npx remarque-theme <light-slug> --dark <dark-slug> [-o palette-override.css]
+npx remarque-theme <light-slug> [--dark <dark-slug>] [-o palette-override.css]
 ```
 
 Terminal themes carry only `background/foreground/cursor/selection` + 16 ANSI slots — a few of Remarque's 15 semantic slots map directly, and most themes fail the AAA `fg-muted` 7:1 line as authored. So `remarque-theme` *derives* rather than maps: **hue and chroma carry the theme's personality; lightness is solved per slot** (binary search against the same contrast targets as the Enforcement Checklist below, with in-gamut chroma clamping) so the output passes `remarque-audit` by construction. The accent hue comes from the theme's cursor color if it's chromatic, otherwise the most saturated classic ANSI color, and is kept consistent between the light and dark half of a pair.
 
 The audit remains the gate regardless of provenance — `remarque-theme` self-verifies its own output against the same checks before it will emit anything, but a site that hand-edits a generated palette (or points at a provider with pathological input colors) still runs through `remarque-audit` in CI like any other palette.
 
-**Pairing contract:** the dataset does not yet carry light/dark pairing metadata (tracked upstream: [`oklch-terminal-themes#128`](https://github.com/williamzujkowski/oklch-terminal-themes/issues/128)), so `--dark <slug>` is explicitly required — there is no implicit or guessed dark counterpart. `remarque-theme` also rejects a light slug that isn't tagged `isDark: false` and a dark slug that isn't tagged `isDark: true`.
+**Pairing contract:** dataset 0.2.0+ carries a `counterpart` field linking each paired theme to its canonical opposite-polarity variant ([`oklch-terminal-themes#128`](https://github.com/williamzujkowski/oklch-terminal-themes/issues/128)), and `--dark` defaults to it — `npx remarque-theme rose-pine-dawn` alone derives the rosé-pine pair. For a light theme without a counterpart (or an older dataset), `--dark <slug>` remains required; nothing is ever guessed from names. `remarque-theme` also rejects a light slug that isn't tagged `isDark: false` and a dark slug that isn't tagged `isDark: true`.
 
 ---
 
