@@ -19,6 +19,13 @@ Most developer sites inherit the visual language of SaaS dashboards or component
 - **Self-hosted fonts** — no Google CDN dependency. Strict CSP. GDPR-compliant.
 - **AI-native** — designed to be consumed by Claude Code, Cursor, Copilot, and other AI coding tools with zero aesthetic drift.
 
+## Used By
+
+- **[Remarque demo site](https://williamzujkowski.github.io/remarque/)** — the `site/` directory in this repo; reference implementation of all four demoed archetypes, deployed to GitHub Pages.
+- **[williamzujkowski.github.io](https://github.com/williamzujkowski/williamzujkowski.github.io)** — flagship personal site; core-tier npm consumer (`remarque-tokens/core` from npm, hand-authored palette layer on top).
+- **[tsundoku](https://github.com/williamzujkowski/tsundoku)** — bookshelf/reading-log site; full-palette npm consumer, custom terracotta "book cloth" accent hue over the default palette for its card-catalog identity.
+- **[remarque-starter](https://github.com/williamzujkowski/remarque-starter)** — template repo; Astro scaffold pulling `remarque-tokens` from npm with the audit wired into CI, meant to be forked.
+
 ## Install
 
 ```bash
