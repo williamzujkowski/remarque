@@ -126,6 +126,75 @@ for (const [name, css, shouldPass] of cases) {
 
 if (bad) process.exit(1);
 
+/* ── --json fixture coverage (issue #98) ─────────────────────────────
+   Run once against a passing fixture and once against a known must-fail
+   fixture; parse the JSON, assert the documented shape (AGENT_RULES.md
+   "remarque-audit --json"), and assert the must-fail fixture's offending
+   pairing actually surfaces in `contrast` with passed:false. */
+{
+  let jsonBad = 0;
+  function expect(label, cond) {
+    const ok = !!cond;
+    console.log(`${ok ? '✓' : '✗'} ${label}`);
+    if (!ok) jsonBad++;
+  }
+
+  const goodFile = join(dir, 'attr-convention.css');
+  const goodOut = execFileSync(
+    'node',
+    ['scripts/audit.mjs', '--palette', goodFile, '--src', join(dir, 'src'), '--json'],
+    { encoding: 'utf8' }
+  );
+  expect('--json stdout is ONLY the JSON document (no leading/trailing human text)', goodOut.trim().startsWith('{') && goodOut.trim().endsWith('}'));
+  const good = JSON.parse(goodOut);
+  expect(
+    'report has version/palette/src/passed',
+    typeof good.version === 'string' && good.palette === goodFile && good.src === join(dir, 'src') && good.passed === true
+  );
+  expect(
+    'report.contrast is a non-empty array of {theme,fg,bg,required,actual,ok}',
+    Array.isArray(good.contrast) && good.contrast.length > 0 &&
+      good.contrast.every((c) => 'theme' in c && 'fg' in c && 'bg' in c && 'required' in c && 'actual' in c && 'ok' in c)
+  );
+  expect(
+    'report.gamut is a non-empty array of {theme,token,value,ok}',
+    Array.isArray(good.gamut) && good.gamut.length > 0 &&
+      good.gamut.every((g) => 'theme' in g && 'token' in g && 'value' in g && 'ok' in g)
+  );
+  expect(
+    'report.srcScans has the fontFloor/unverifiableFontSize/hardcodedColors/oklchLiteral arrays',
+    good.srcScans && ['fontFloor', 'unverifiableFontSize', 'hardcodedColors', 'oklchLiteral'].every((k) => Array.isArray(good.srcScans[k]))
+  );
+  expect('report.failures is an empty array on a passing fixture', Array.isArray(good.failures) && good.failures.length === 0);
+
+  // light-fails.css lowers --color-fg-muted so it can no longer hold the
+  // spec's 7:1 AAA line against --color-bg in the light theme (see the
+  // `cases` fixture above).
+  const badFile = join(dir, 'light-fails.css');
+  let badReport;
+  try {
+    execFileSync('node', ['scripts/audit.mjs', '--palette', badFile, '--src', join(dir, 'src'), '--json'], { encoding: 'utf8' });
+    expect('must-fail fixture: audit --json still exits 1', false);
+  } catch (e) {
+    expect('must-fail fixture: audit --json still exits 1', e.status === 1);
+    badReport = JSON.parse(e.stdout);
+  }
+  expect('must-fail fixture: report.passed === false', badReport?.passed === false);
+  expect(
+    'must-fail fixture: the offending fg-muted/bg pairing is present with ok:false',
+    badReport?.contrast?.some((c) => c.theme === 'light' && c.fg === 'color-fg-muted' && c.bg === 'color-bg' && c.ok === false)
+  );
+  expect(
+    'must-fail fixture: report.failures[] names the offending pairing',
+    badReport?.failures?.some((m) => m.includes('color-fg-muted/color-bg'))
+  );
+
+  if (jsonBad) {
+    console.error(`--json fixture checks FAILED — ${jsonBad} problem(s)`);
+    process.exit(1);
+  }
+}
+
 /* ── Lineage doc-drift check (consensus condition, 2026-07-20) ──────
    The Butterick Lineage table in REMARQUE.md quotes token values; assert
    they match tokens.json so the doc can never drift from the tokens. */

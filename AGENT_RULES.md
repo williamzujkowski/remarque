@@ -227,6 +227,91 @@ Before considering any implementation complete, verify:
 
 ---
 
+## Machine-Readable Output
+
+Two tools emit structured JSON for agents/tooling instead of colored
+stdout — pass `--json` and parse stdout as a single JSON document. Exit
+codes are unchanged in both cases; `--json` only changes what stdout
+contains (all human progress lines, including error lines normally on
+stderr, are suppressed — nothing but the JSON document is written).
+
+### `remarque-audit --json`
+
+```
+node scripts/audit.mjs --palette <file> --src <dir> --json
+npx remarque-audit --palette <file> --src <dir> --json
+```
+
+```ts
+{
+  version: string;       // the remarque-tokens package version running the audit
+  palette: string;       // the --palette path as given
+  src: string;            // the --src path as given
+  passed: boolean;       // true iff failures.length === 0
+  contrast: Array<{
+    theme: 'light' | 'dark';
+    fg: string;            // fg token name, no leading --
+    bg: string;            // bg token name, no leading --
+    label: string;         // human label from the CHECKS table (e.g. "primary text")
+    required: number;      // minimum ratio (e.g. 4.5, 7.0, 3.0)
+    actual: number | null; // computed ratio rounded to 2dp, or null if fg/bg was unresolvable
+    ok: boolean;
+    error?: string;        // present only when actual is null (unresolved var()/missing token)
+  }>;
+  gamut: Array<{
+    theme: 'light' | 'dark';
+    token: string;          // token name, no leading --
+    value: string;          // e.g. "oklch(0.5 0.14 250)"
+    ok: boolean;            // false = outside sRGB gamut (browsers will clip it)
+  }>;
+  srcScans: {
+    fontFloor: Array<{ file: string; line: number; size: number; unit: 'rem' | 'px' }>;
+    unverifiableFontSize: Array<{ file: string; line: number; snippet: string }>;
+    hardcodedColors: Array<{ file: string; line: number; snippet: string }>;
+    oklchLiteral: Array<{ file: string; line: number; snippet: string }>;
+  };
+  failures: string[];      // every failure as a human-readable message, same text the non-JSON run prints
+}
+```
+
+`contrast` and `gamut` list EVERY check performed (passing and failing);
+only `srcScans` and `failures` are violation-only lists, since a source
+scan that finds nothing has nothing to report per line.
+
+### `remarque-drift --json`
+
+```
+node scripts/drift-check.mjs --css-file <path> --package-dir <dir> --json
+npx remarque-drift --css-file <path> --package-dir <dir> --json
+```
+
+```ts
+{
+  cssFile: string;
+  packageDir: string;          // resolved node_modules/remarque-tokens path
+  installedVersion: string;    // version of the INSTALLED remarque-tokens being checked against
+  deviationDoc: string | null; // path to DESIGN-DEVIATIONS.md / DESIGN-NOTES.md, or null if none found
+  passed: boolean;             // true iff fail.length === 0
+  fail: Array<{ name: string; theme: 'light' | 'dark'; canonical: string; value: string }>;
+  warn: Array<{ name: string; theme: 'light' | 'dark'; canonical: string; value: string; doc: string }>;
+  info: Array<{ name: string; theme: 'light' | 'dark'; canonical: string; value: string }>;
+  summary: { fail: number; warn: number; info: number }; // counts of distinct TOKENS with an entry, not records (one token can produce two records — light + dark)
+}
+```
+
+`fail`/`warn`/`info` are one record per (token, theme) mismatch — see
+`scripts/drift-check.mjs`'s doc comment and REMARQUE.md's "Token Tiers"
+for the FAIL/WARN/INFO classification these mirror.
+
+### `tokens.json` / `tokens.schema.json`
+
+`remarque-tokens/tokens.json` is always machine-readable (no flag
+needed) and now ships with a published JSON Schema — see REMARQUE.md
+"DTCG Conformance" for the schema's location, the `$schema` pointer, and
+the documented DTCG divergences.
+
+---
+
 ## How to Reference This System
 
 In prompts, issues, or agent instructions, use:

@@ -1,16 +1,21 @@
 #!/usr/bin/env node
 /*
- * Generates tokens.json (W3C design-tokens flavored) and tokens.d.ts
- * (TypeScript literal-union types) FROM the CSS — tokens-core.css and
- * tokens-palette.css remain the single source of truth; both files
+ * Generates tokens.json (DTCG/W3C design-tokens flavored), tokens.d.ts
+ * (TypeScript literal-union types), and tokens.schema.json (JSON Schema
+ * draft 2020-12 for tokens.json) FROM the CSS — tokens-core.css and
+ * tokens-palette.css remain the single source of truth; all three files
  * here are derived output for tooling, AI agents, and TS editors.
  *
- *   node scripts/tokens-json.mjs           # (re)write tokens.json + tokens.d.ts
- *   node scripts/tokens-json.mjs --check   # exit 1 if either is stale (CI)
+ *   node scripts/tokens-json.mjs           # (re)write tokens.json + tokens.d.ts + tokens.schema.json
+ *   node scripts/tokens-json.mjs --check   # exit 1 if any of the three is stale (CI)
  *
  * Multi-theme values use per-token light/dark groups with $value on each
- * (the W3C spec has no native theming; this follows its $extensions
- * escape hatch conservatively).
+ * (the DTCG/W3C spec has no native theming; this follows its $extensions
+ * escape hatch conservatively). tokens.json is CONFORMANT IN SPIRIT with
+ * the Design Tokens Community Group format ($value/$type on every token)
+ * but has two deliberate divergences — see the `dtcg` block below and
+ * REMARQUE.md's "DTCG Conformance" section for the full rationale and the
+ * named ratification triggers that would close each gap.
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -37,13 +42,41 @@ function valueFor(type, value) {
   return value;
 }
 
+// Published alongside tokens.json/tokens.schema.json by the demo site
+// (site/scripts/copy-tokens-json.mjs) — issue #99's "shadcn schema-URL
+// precedent". Bump the path only in lockstep with an actual site move.
+const SCHEMA_URL = 'https://williamzujkowski.github.io/remarque/tokens.schema.json';
+
 const version = JSON.parse(readFileSync('package.json', 'utf8')).version;
 const coreDecls = declsOf(extractBlocks(readFileSync('tokens-core.css', 'utf8')), isLightRoot);
 const paletteBlocks = extractBlocks(readFileSync('tokens-palette.css', 'utf8'));
 const lightDecls = declsOf(paletteBlocks, isLightRoot);
 const darkOverrides = declsOf(paletteBlocks, isDarkBlock);
 
+// DTCG conformance note (issue #99, ratified option ii): documented IN the
+// generated artifact, not just in prose, so a future agent regenerating
+// tokens.json can't lose it. Two deliberate divergences from the Design
+// Tokens Community Group draft, each with a named ratification trigger —
+// full conformance is gated on those drafts landing, not "someday soon."
+const DTCG_NOTE = {
+  conformance: 'partial — $value/$type present on every token (conformant in spirit); two deliberate structural divergences below',
+  divergences: [
+    {
+      aspect: 'color-value-encoding',
+      detail: 'Color $value is an oklch() CSS string, not the DTCG structured color object ({ colorSpace, components, alpha }).',
+      gatedOn: 'DTCG color $type structured-value format ratifying',
+    },
+    {
+      aspect: 'multi-mode-theming',
+      detail: 'Palette-tier tokens nest per-token { light: {$value}, dark: {$value} } groups instead of a single $value plus a modes/resolver mechanism.',
+      gatedOn: 'DTCG multi-mode / resolver draft ratifying',
+    },
+  ],
+  note: 'Deliberate, not oversight — see REMARQUE.md "DTCG Conformance" for the argument. Do not "fix" these toward the current unratified drafts; re-derive from the CSS via scripts/tokens-json.mjs instead.',
+};
+
 const out = {
+  $schema: SCHEMA_URL,
   $description: 'Remarque design tokens — GENERATED from tokens-core.css + tokens-palette.css by scripts/tokens-json.mjs. Do not edit; the CSS is the source of truth.',
   $extensions: {
     remarque: {
@@ -52,6 +85,7 @@ const out = {
         core: 'immutable identity — overriding forks the system',
         palette: 'sanctioned personalization surface — override freely, then run remarque-audit',
       },
+      dtcg: DTCG_NOTE,
     },
   },
   core: {},
@@ -171,6 +205,7 @@ export interface RemarquePaletteTokenEntry {
  * below applying, etc).
  */
 export interface RemarqueTokensFile {
+  readonly $schema: string;
   readonly $description: string;
   readonly $extensions: {
     readonly remarque: {
@@ -178,6 +213,16 @@ export interface RemarqueTokensFile {
       readonly tiers: {
         readonly core: string;
         readonly palette: string;
+      };
+      /** DTCG conformance note (issue #99) — see REMARQUE.md "DTCG Conformance". */
+      readonly dtcg: {
+        readonly conformance: string;
+        readonly divergences: ReadonlyArray<{
+          readonly aspect: string;
+          readonly detail: string;
+          readonly gatedOn: string;
+        }>;
+        readonly note: string;
       };
     };
   };
@@ -212,19 +257,155 @@ declare module 'remarque-tokens/tokens.json' {
 
 const dts = renderDts(out, version);
 
+/* ── tokens.schema.json ────────────────────────────────────────────────
+ * JSON Schema draft 2020-12 describing tokens.json's ACTUAL shape —
+ * generated (not hand-maintained) so it can never drift from what this
+ * script emits. Token *names* are open (patternProperties on the
+ * kebab-case grammar every generated name follows) rather than an
+ * enumerated list of the current token set, so adding/removing a token
+ * in the CSS doesn't require a schema edit — only its documented VALUE
+ * shape ($value/$type, the light/dark palette grouping, the $extensions
+ * escape hatches) is fixed.
+ */
+function renderSchema() {
+  const kebabName = '^[a-z][a-z0-9-]*$';
+  const scalarValue = { oneOf: [{ type: 'string' }, { type: 'number' }] };
+  return {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    $id: SCHEMA_URL,
+    title: 'Remarque design tokens (tokens.json)',
+    description:
+      'JSON Schema for remarque-tokens\' generated tokens.json — GENERATED by scripts/tokens-json.mjs, do not hand-edit. ' +
+      'Conformant in spirit with the Design Tokens Community Group format ($value/$type on every token), with two ' +
+      'deliberate divergences (oklch()-string color values; per-token light/dark nesting) — see the tokens.json ' +
+      '$extensions.remarque.dtcg block and REMARQUE.md "DTCG Conformance" for the full rationale and ratification triggers.',
+    type: 'object',
+    additionalProperties: false,
+    required: ['$description', '$extensions', 'core', 'palette'],
+    properties: {
+      // No format: 'uri' keyword — ajv's strict mode rejects unknown
+      // formats without the separate ajv-formats package, and this
+      // project deliberately keeps the schema-validation devDependency
+      // surface to ajv alone (see scripts/test-types.mjs).
+      $schema: { type: 'string' },
+      $description: { type: 'string' },
+      $extensions: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['remarque'],
+        properties: {
+          remarque: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['version', 'tiers', 'dtcg'],
+            properties: {
+              version: { type: 'string' },
+              tiers: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['core', 'palette'],
+                properties: { core: { type: 'string' }, palette: { type: 'string' } },
+              },
+              dtcg: {
+                type: 'object',
+                additionalProperties: false,
+                required: ['conformance', 'divergences', 'note'],
+                properties: {
+                  conformance: { type: 'string' },
+                  divergences: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      additionalProperties: false,
+                      required: ['aspect', 'detail', 'gatedOn'],
+                      properties: {
+                        aspect: { type: 'string' },
+                        detail: { type: 'string' },
+                        gatedOn: { type: 'string' },
+                      },
+                    },
+                  },
+                  note: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+      core: {
+        type: 'object',
+        additionalProperties: false,
+        patternProperties: { [kebabName]: { $ref: '#/$defs/coreEntry' } },
+      },
+      palette: {
+        type: 'object',
+        additionalProperties: false,
+        patternProperties: { [kebabName]: { $ref: '#/$defs/paletteEntry' } },
+      },
+    },
+    $defs: {
+      tokenType: {
+        type: 'string',
+        enum: ['color', 'dimension', 'number', 'fontFamily', 'fontWeight', 'duration', 'string'],
+      },
+      coreEntry: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['$value', '$type'],
+        properties: { $value: scalarValue, $type: { $ref: '#/$defs/tokenType' } },
+      },
+      paletteSideValue: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['$value'],
+        properties: {
+          $value: scalarValue,
+          $extensions: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              remarque: {
+                type: 'object',
+                additionalProperties: false,
+                properties: { inheritedFromLight: { type: 'boolean' } },
+              },
+            },
+          },
+        },
+      },
+      paletteEntry: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['$type', 'light', 'dark'],
+        properties: {
+          $type: { $ref: '#/$defs/tokenType' },
+          light: { $ref: '#/$defs/paletteSideValue' },
+          dark: { $ref: '#/$defs/paletteSideValue' },
+        },
+      },
+    },
+  };
+}
+
+const schema = JSON.stringify(renderSchema(), null, 2) + '\n';
+
 if (process.argv.includes('--check')) {
   const currentJson = existsSync('tokens.json') ? readFileSync('tokens.json', 'utf8') : '';
   const currentDts = existsSync('tokens.d.ts') ? readFileSync('tokens.d.ts', 'utf8') : '';
+  const currentSchema = existsSync('tokens.schema.json') ? readFileSync('tokens.schema.json', 'utf8') : '';
   const staleJson = currentJson !== json;
   const staleDts = currentDts !== dts;
-  if (staleJson || staleDts) {
+  const staleSchema = currentSchema !== schema;
+  if (staleJson || staleDts || staleSchema) {
     if (staleJson) console.error('tokens.json is stale — run: node scripts/tokens-json.mjs');
     if (staleDts) console.error('tokens.d.ts is stale — run: node scripts/tokens-json.mjs');
+    if (staleSchema) console.error('tokens.schema.json is stale — run: node scripts/tokens-json.mjs');
     process.exit(1);
   }
-  console.log('tokens.json and tokens.d.ts are fresh ✓');
+  console.log('tokens.json, tokens.d.ts, and tokens.schema.json are fresh ✓');
 } else {
   writeFileSync('tokens.json', json);
   writeFileSync('tokens.d.ts', dts);
-  console.log(`tokens.json + tokens.d.ts written — ${Object.keys(out.core).length} core + ${Object.keys(out.palette).length} palette tokens (v${version})`);
+  writeFileSync('tokens.schema.json', schema);
+  console.log(`tokens.json + tokens.d.ts + tokens.schema.json written — ${Object.keys(out.core).length} core + ${Object.keys(out.palette).length} palette tokens (v${version})`);
 }

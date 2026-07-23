@@ -68,6 +68,17 @@ Package subpaths for consumers: `remarque-tokens` (aggregator), `remarque-tokens
 
 This makes compliance mechanical: a site that overrides only palette-tier tokens is *authored*; one that touches core-tier tokens has *forked*. `tokens.css` imports both tiers, so existing consumers are unaffected.
 
+### DTCG Conformance
+
+`tokens-core.css` and `tokens-palette.css` remain the single source of truth; `scripts/tokens-json.mjs` regenerates `tokens.json`, `tokens.d.ts`, and `tokens.schema.json` from them in one pass (`node scripts/tokens-json.mjs`; `--check` gates CI freshness). `tokens.json` carries a `$schema` pointer to the published schema (served by the demo site at `/tokens.schema.json`, alongside `/tokens.json` — also exported as `remarque-tokens/tokens.schema.json`).
+
+`tokens.json` is **conformant in spirit** with the [Design Tokens Community Group (DTCG)](https://www.designtokens.org/) format — every token carries `$value`/`$type` — with two **deliberate** structural divergences, documented in the generated file itself (`$extensions.remarque.dtcg`) so a future regeneration can't lose the rationale:
+
+1. **Color values are `oklch()` CSS strings**, not the DTCG structured color object (`{ colorSpace, components, alpha }`). Remarque's color pipeline (audit, drift-check, `remarque-theme`) is built entirely on parsing/emitting `oklch(L C H)` strings; adopting the structured form would mean carrying two color representations in parallel for no present benefit. **Gated on:** the DTCG color `$type` structured-value format ratifying.
+2. **Palette-tier tokens nest per-token `light`/`dark` groups**, each with its own `$value`, rather than a single `$value` plus a modes/resolver mechanism. The DTCG spec has no ratified multi-mode/theming primitive yet; this repo's own theming (`@media (prefers-color-scheme: dark)`, `[data-theme="dark"]`, the Palette Deck's `[data-palette]` scoping) predates any such draft. **Gated on:** the DTCG multi-mode / resolver draft ratifying.
+
+Full DTCG conformance is gated on those two drafts ratifying — a named, checkable trigger, not "someday." Until then, do not "fix" `tokens.json` toward either unratified draft; the CSS is the source of truth, and both divergences are load-bearing for the tooling that already depends on this shape.
+
 ---
 
 ## Color Providers

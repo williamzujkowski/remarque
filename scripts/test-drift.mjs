@@ -171,6 +171,67 @@ function expect(label, cond, detail = '') {
   rmSync(root, { recursive: true, force: true });
 }
 
+/* ── --json fixture coverage (issue #98) ─────────────────────────────
+   Case 10: clean stylesheet → passed:true, empty fail/warn/info, valid
+   JSON-only stdout. Case 11: undocumented core override (mirrors case 2)
+   → passed:false with the offending token present in `fail`, same exit
+   code (1) as the human-mode run. */
+function runJson(cssFile, packageDir) {
+  try {
+    const out = execFileSync('node', ['scripts/drift-check.mjs', '--css-file', cssFile, '--package-dir', packageDir, '--json'], {
+      encoding: 'utf8',
+      stdio: 'pipe',
+    });
+    return { code: 0, out };
+  } catch (e) {
+    return { code: e.status ?? 1, out: (e.stdout || '') };
+  }
+}
+
+{
+  const root = mkdtempSync(join(tmpdir(), 'remarque-drift-test-'));
+  makePackageDir(root);
+  const css = join(root, 'consumer.css');
+  writeFileSync(css, `:root {\n  --color-fg: oklch(0.1 0 0);\n}`);
+  const { code, out } = runJson(css, root);
+  expect('case 10 (--json, no overrides): exit 0', code === 0, `exit ${code}`);
+  expect('case 10: stdout is ONLY the JSON document', out.trim().startsWith('{') && out.trim().endsWith('}'), out);
+  let report;
+  try {
+    report = JSON.parse(out);
+    expect('case 10: valid JSON', true);
+  } catch {
+    expect('case 10: valid JSON', false, out);
+    report = {};
+  }
+  expect(
+    'case 10: report has cssFile/installedVersion/passed/fail/warn/info/summary',
+    report.cssFile === css && report.installedVersion === '9.9.9' && report.passed === true &&
+      Array.isArray(report.fail) && Array.isArray(report.warn) && Array.isArray(report.info) &&
+      typeof report.summary === 'object',
+    JSON.stringify(report)
+  );
+  expect('case 10: 0 FAIL, 0 WARN, 0 INFO', report.fail?.length === 0 && report.warn?.length === 0 && report.info?.length === 0);
+  rmSync(root, { recursive: true, force: true });
+}
+
+{
+  const root = mkdtempSync(join(tmpdir(), 'remarque-drift-test-'));
+  makePackageDir(root);
+  const css = join(root, 'consumer.css');
+  writeFileSync(css, `:root {\n  --text-body: 2rem;\n}`);
+  const { code, out } = runJson(css, root);
+  expect('case 11 (--json, undocumented core override): exit 1', code === 1, `exit ${code}`);
+  const report = JSON.parse(out);
+  expect('case 11: report.passed === false', report.passed === false);
+  expect(
+    'case 11: report.fail[] contains the offending --text-body record',
+    Array.isArray(report.fail) && report.fail.some((f) => f.name === 'text-body' && f.theme === 'light' && f.canonical === '1.0625rem' && f.value === '2rem'),
+    JSON.stringify(report)
+  );
+  rmSync(root, { recursive: true, force: true });
+}
+
 if (bad) {
   console.error(`\ndrift-check fixture tests FAILED — ${bad} problem(s)\n`);
   process.exit(1);
