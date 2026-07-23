@@ -37,7 +37,7 @@
     "culori": "^4.0.2"
   },
   "peerDependencies": {
-    "@williamzujkowski/oklch-terminal-themes": ">=0.1.0 <0.3.0"
+    "@williamzujkowski/oklch-terminal-themes": ">=0.1.0 <1.0.0"
   },
   "peerDependenciesMeta": {
     "@williamzujkowski/oklch-terminal-themes": {

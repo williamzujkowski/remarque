@@ -72,6 +72,10 @@ jobs:
         run: node scripts/test-registry.mjs
         working-directory: .
 
+      - name: "Consumer pack smoke test (npm pack + real install + peerDependencies resolution, no --legacy-peer-deps)"
+        run: node scripts/test-pack.mjs
+        working-directory: .
+
       - name: Build Astro site
         run: npm run build
 
