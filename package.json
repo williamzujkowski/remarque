@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "engines": {
     "node": ">=18"
   },
@@ -80,6 +80,10 @@
     "./deck.js": "./deck.js",
     "./agent-rules": "./AGENT_RULES.md",
     "./spec": "./REMARQUE.md",
+    "./registry.json": "./registry.json",
+    "./registry-item.schema.json": "./registry-item.schema.json",
+    "./registry.schema.json": "./registry.schema.json",
+    "./registry/*": "./registry/*.json",
     "./package.json": "./package.json"
   },
   "files": [
@@ -107,6 +111,12 @@
     "broadsheet.css",
     "forms.css",
     "deck.js",
-    "scripts/lib/css-tokens.mjs"
+    "scripts/lib/css-tokens.mjs",
+    "registry.json",
+    "registry/",
+    "registry-item.schema.json",
+    "registry.schema.json",
+    "scripts/build-registry.mjs",
+    "scripts/lib/registry-extract.mjs"
   ]
 }
