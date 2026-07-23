@@ -4,6 +4,68 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.17.0 — 2026-07-23
+
+Semantic state colors + z-index scale (closes #26, closes #29).
+
+### Added
+- **State colors (`tokens-palette.css`, PALETTE tier)** — four semantic slots for feedback
+  moments (form validation, status banners, disabled controls), never decoration; the
+  one-accent rule still governs everything else. Hand-authored from the house ANSI hue
+  conventions, both themes, all three dark-mode conventions (`@media
+  prefers-color-scheme: dark`, `[data-theme="dark"]`, `:root.dark`):
+  - `--color-error` (hue 25, ANSI red) — light `oklch(0.52 0.12 25)` 5.44:1 bg / 5.28:1
+    surface; dark `oklch(0.62 0.11 26)` 5.07:1 bg / 4.82:1 surface.
+  - `--color-success` (hue 145, ANSI green) — light `oklch(0.51 0.12 145)` 5.08:1 bg /
+    4.93:1 surface; dark `oklch(0.61 0.11 145)` 5.36:1 bg / 5.10:1 surface.
+  - `--color-warning` (hue 85, ANSI yellow) — light `oklch(0.52 0.105 85)` 5.17:1 bg /
+    5.02:1 surface; dark `oklch(0.62 0.11 85)` 5.29:1 bg / 5.03:1 surface. The hard case:
+    yellow's low luminance-contrast means this slot solves noticeably darker in light
+    mode than error/success, the same shape as `--color-syntax-constant`'s solve.
+  - `--color-disabled` — aliased to `var(--color-muted)` in both themes: neutral
+    hue-80 muted family, deliberately **not** ANSI-derived.
+  - `-subtle` banner-background companions on the first three (`--color-error-subtle`/
+    `--color-success-subtle`/`--color-warning-subtle`, modeled on `--color-accent-subtle`
+    — near-bg lightness, state hue, low chroma) verified so `--color-fg` stays ≥4.5:1 on
+    them (the pairing that matters for callout/banner body text). No `-subtle` for
+    `--color-disabled` — a disabled control is quieter, not tinted.
+  - Every state text color ≥4.5:1 against `--color-bg` **and** `--color-surface`, both
+    themes; `scripts/audit.mjs` gains the 11 new pairings, `scripts/test-audit.mjs`'s
+    fixtures cover all seven tokens plus a must-fail case (`state-color-fails.css`).
+  - `scripts/theme.mjs` (`remarque-theme`) derives error/success/warning from a source
+    theme's red/green/yellow ANSI slots — keep-if-passing lightness checked against the
+    **stricter** of `--color-bg`/`--color-surface` at once (a new dual-target solver,
+    `keepOrSolveDual`/`solveDual`), not just one target like every other slot. Disabled
+    aliases the already-derived `--color-muted`. `-subtle` companions derive like
+    `--color-accent-subtle` (fixed 0.95 / bg+0.06 starting lightness — not the theme's
+    own solved bg lightness, which can exceed 0.95), nudged toward the extreme only if a
+    pathological theme doesn't already clear 4.5:1 against `--color-fg`. Self-verify
+    `CHECKS` mirrors `audit.mjs`'s new pairings exactly.
+  - `scripts/palette-golden.mjs` golden-gates all seven new tokens for free (it already
+    iterates whatever the bridge emits) — ΔE2000 ≤ 2.0 against `remarque-light`/
+    `remarque-dark`'s ANSI derivation, same identity/serialization contract as the rest
+    of the default palette. All new tokens land at ΔE ≤ 0.5 (see the PR description for
+    the full per-token table).
+  - REMARQUE.md "State Colors" — semantics, usage table, derivation note; Enforcement
+    Checklist gains the state-color pairing line.
+- **Z-index scale (`tokens-core.css`, CORE tier)** — stacking is structural, not
+  personalization. A small ordinal scale, sparse gaps of 10: `--z-base` (0), `--z-sticky`
+  (10), `--z-dropdown` (20), `--z-overlay` (30), `--z-modal` (40), `--z-toast` (50),
+  `--z-skip-link` (60, tops everything). Wired into `essay.css`'s sticky TOC rail
+  (`z-index: var(--z-sticky)`) and the demo site's skip-to-content link
+  (`focus:z-[var(--z-skip-link)]`, replacing a hardcoded Tailwind `focus:z-50`).
+  `theme.css`'s header comment documents the Tailwind v4 workaround — v4 has no
+  `--z-index-*` theme namespace, so `z-*` utilities can't map to these directly; use
+  arbitrary values (`z-[var(--z-modal)]`) instead, same pattern as the motion durations.
+  REMARQUE.md "Stacking" — the scale, and the rule that consumer CSS must never author a
+  bare `z-index` number. AGENT_RULES.md's Layout/Quality Checklist sections gain matching
+  lines.
+
+### Changed
+- **`scripts/tokens-json.mjs`** — `typeOf()` now types `--z-*` tokens as `number`
+  (unitless stacking-order integers), matching the existing `--leading-*` treatment,
+  instead of falling through to the generic `string` type.
+
 ## 0.16.0 — 2026-07-23
 
 Broadsheet pattern — masthead, lead article, numbered entry list, post-header kicker, graduated from the flagship (closes #36).

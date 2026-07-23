@@ -90,6 +90,23 @@ The audit remains the gate regardless of provenance — `remarque-theme` self-ve
 
 ---
 
+## State Colors
+
+Four semantic slots — `--color-error`, `--color-success`, `--color-warning`, `--color-disabled` — for feedback moments: form validation, status banners, disabled controls. **These are for feedback, not decoration.** The one-accent rule ("Visual Rules" / "Changing the Accent Hue") still governs expressive color everywhere else — a state color says "this specific thing failed/succeeded/needs attention/can't be used right now," not "this section is important." Don't recolor headings, borders, or chrome with a state color; reserve it for the actual feedback element (an inline error message, a success toast, a disabled button's text).
+
+Three of the four carry a `-subtle` companion — `--color-error-subtle`, `--color-success-subtle`, `--color-warning-subtle` — a faint tinted background for callout/banner-style feedback (an error banner, a success toast), sized the same way `--color-accent-subtle` is: near-`--color-bg` lightness, the state's hue, low chroma. `--color-disabled` has no `-subtle` companion — a disabled control is quieter than its enabled state, not tinted; use `--color-surface`/`--color-bg-subtle` for a disabled control's background if it needs one.
+
+| Slot | Use for | `-subtle` companion |
+|---|---|---|
+| `--color-error` | Validation errors, failure states, destructive-action confirmation text | `--color-error-subtle` (banner/callout background) |
+| `--color-success` | Confirmation messages, completed states | `--color-success-subtle` |
+| `--color-warning` | Caution messages, states needing attention before proceeding | `--color-warning-subtle` |
+| `--color-disabled` | Text/icon color for a disabled control | — (no subtle background; see above) |
+
+**Derivation:** hand-authored in `tokens-palette.css` from the house ANSI hue conventions — error hue 25 (red), success hue 145 (green), warning hue 85 (yellow) — the same conventions `--color-syntax-string`/`--color-syntax-constant` already use for green/yellow. `scripts/remarque-theme` derives all three from a source theme's `red`/`green`/`yellow` ANSI slots (keep-if-passing lightness, checked against the **stricter** of `--color-bg` and `--color-surface` at once, not just one), exactly like every other slot in "Color Providers." `--color-disabled` is deliberately **not** ANSI-derived — it aliases the already-derived neutral `--color-muted` family, since a disabled state is a muted/quiet register, not a hue. Warning (hue 85, yellow) is the hard case in light mode — yellow has low luminance-contrast against a light background, so its solved lightness sits noticeably darker than the other two states, the same shape as `--color-syntax-constant`'s solve. Every state text color holds ≥ 4.5:1 against `--color-bg` **and** `--color-surface` in both themes; every `-subtle` background holds `--color-fg` ≥ 4.5:1 on it (the pairing that matters for a callout's body text) — both enforced by `scripts/audit.mjs` and golden-gated (ΔE2000 ≤ 2.0) against the upstream themes like the rest of the default palette.
+
+---
+
 ## Font Slots
 
 Remarque uses a three-slot font system. Each slot has a strict role, and each slot accepts a small set of approved faces — swap the face, keep the role.
@@ -365,6 +382,26 @@ Motion in Remarque is nearly invisible. The only permitted motion:
 
 ---
 
+## Stacking
+
+Stacking order is structural, not personalization — `tokens-core.css` (CORE tier, never overridden) carries a small ordinal `--z-*` scale:
+
+| Token | Value | Use for |
+|---|---:|---|
+| `--z-base` | 0 | Default stacking context — the implicit baseline |
+| `--z-sticky` | 10 | Sticky headers/rails (essay.css's TOC rail) |
+| `--z-dropdown` | 20 | Dropdown/select menus |
+| `--z-overlay` | 30 | Overlays/backdrops |
+| `--z-modal` | 40 | Modal dialogs |
+| `--z-toast` | 50 | Toast/notification stacks |
+| `--z-skip-link` | 60 | The skip-to-content link — tops everything; it must never be obscured when focused |
+
+**The rule: never a bare `z-index` number in consumer CSS.** Reference one of these seven tokens instead — an unnamed `z-index: 999` (or any other asserted integer) can't be reasoned about against the rest of the page's stacking contexts, and it's the same "hardcoded value bypasses the token system" problem as a literal hex color or a bare font-size. The scale is deliberately sparse (gaps of 10) so a future layer can be inserted between two existing rungs without renumbering everything above it.
+
+Tailwind v4 ships `z-*` as a static, non-themable utility scale — there's no `--z-index-*` entry in its default `@theme` to map these into. `theme.css` (the Tailwind v4 adapter) documents the workaround in its header comment: use arbitrary values with the tokens, `z-[var(--z-modal)]` / `focus:z-[var(--z-skip-link)]`, the same pattern already used for motion durations (`duration-[var(--motion-fast)]`).
+
+---
+
 ## USWDS Accessibility Compliance
 
 Remarque adopts typography and accessibility standards from the [US Web Design System (USWDS)](https://designsystem.digital.gov/documentation/accessibility/) and [WCAG 2.1](https://www.w3.org/WAI/WCAG21/Understanding/):
@@ -419,6 +456,8 @@ Every PR that ships Remarque pages MUST pass (`npm run audit` automates the colo
 - [ ] No hardcoded hex/rgb colors — only `var(--color-*)` tokens.
 - [ ] Body line-height ≥ 1.5 (Remarque target: 1.75).
 - [ ] Every `--color-syntax-*` slot ≥ 4.5:1 against `--color-code-bg` in both themes (see "Syntax Highlighting").
+- [ ] Every `--color-error`/`--color-success`/`--color-warning`/`--color-disabled` ≥ 4.5:1 against `--color-bg` **and** `--color-surface` in both themes; every `-subtle` background keeps `--color-fg` ≥ 4.5:1 on it (see "State Colors"). State colors used only for feedback moments, never decoration.
+- [ ] No bare `z-index` number in consumer CSS — reference `tokens-core.css`'s `--z-*` scale (see "Stacking").
 
 Agents reviewing PRs should reject changes that violate any line above without explicit rationale.
 

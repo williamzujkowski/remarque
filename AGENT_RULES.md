@@ -62,12 +62,14 @@ These are not guidelines. Agents must follow them literally.
 - Within the centered column, use `.content-reading` for prose-width sections (46rem, auto-centered within the 72rem column)
 - Do NOT use Tailwind's `max-w-reading` or `max-w-standard` on page sections — these only set max-width without centering. Use the CSS classes `.content-reading` / `.content-standard` instead, which include `margin-inline: auto`
 - Code blocks (`<pre>`) inherit the width of their parent container — no special wrapping needed when the parent is already constrained
+- Stacking order is structural, not personalization: never author a bare `z-index` number — reference `tokens-core.css`'s `--z-*` scale (`--z-base`/`--z-sticky`/`--z-dropdown`/`--z-overlay`/`--z-modal`/`--z-toast`/`--z-skip-link`). Tailwind v4 has no `--z-index-*` theme namespace, so use arbitrary values (`z-[var(--z-modal)]`) rather than bare Tailwind numbers. See REMARQUE.md "Stacking."
 
 ### Color
 
 - Accent color is used for exactly two things: inline links and one interactive element per viewport
 - Dark mode is not an inverted light mode — it must be independently tuned for readability
 - Background colors use `--color-bg`, never pure white (#fff) or pure black (#000)
+- State colors (`--color-error`/`--color-success`/`--color-warning`/`--color-disabled`, plus the `-subtle` banner-background companions on the first three) are for feedback moments only — form validation, status banners, disabled controls — never for decoration. The one-accent rule above still governs everything else. See REMARQUE.md "State Colors."
 
 ### Components
 
@@ -212,6 +214,8 @@ Before considering any implementation complete, verify:
 - [ ] Muted text placed on `--color-surface` still meets 4.5:1 (check the surface pairing, not just bg)
 - [ ] All transitions use the motion duration tokens (reduced-motion support depends on it)
 - [ ] Skip-to-content link present and functional
+- [ ] If state colors are used (error/success/warning/disabled): only for feedback moments (validation, banners, disabled controls), never decoration; every state text color and `-subtle` companion passes `npm run audit`
+- [ ] No bare `z-index` numbers anywhere in the page's CSS — every stacking layer references `tokens-core.css`'s `--z-*` scale
 - [ ] OG meta tags present (og:title, og:description, og:image)
 - [ ] `<html lang="en">` attribute set
 - [ ] The site looks more like a book than a web app

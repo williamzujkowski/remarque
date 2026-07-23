@@ -421,6 +421,9 @@
     align-self: start;
     justify-self: start;
     position: sticky;
+    /* --z-sticky (tokens-core.css, issue #29) — never a bare z-index
+       number in consumer CSS. */
+    z-index: var(--z-sticky);
     top: var(--space-6);
     width: 100%;
     max-height: calc(100vh - var(--space-8));

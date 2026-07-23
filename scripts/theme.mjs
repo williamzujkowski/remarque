@@ -387,6 +387,101 @@ function deriveSyntaxLink(accent, codeBg, dir) {
   return keepOrSolve(accent[0], accent[1], accent[2], codeBg, 4.5, dir);
 }
 
+/* ── Semantic state colors (issue #26) ────────────────────────────────
+ * error/success/warning are derived from the theme's red/green/yellow ANSI
+ * slots — the same "ANSI colors already carry this domain's personality"
+ * argument as the syntax slots above, applied to feedback-moment colors
+ * instead of code tokens. Unlike every other keep-if-passing slot, the
+ * target here is TWO backgrounds at once (--color-bg and --color-surface,
+ * per the #26 scope comment: "keep-if-passing vs both") — a state color
+ * must hold 4.5:1 against whichever of the two is stricter, not just one.
+ * disabled is NOT ANSI — it aliases the already-derived neutral muted
+ * family, same as tokens-palette.css's hand-authored default.
+ */
+
+/* Dual-target variant of keepOrSolve/solveL: passes only when BOTH bg and
+ * surface clear `target` at the candidate L. Mirrors their guarded-nudge
+ * fallback shape, just checking two ratios instead of one. */
+function solveLDual(C, H, bg, surface, target, dir) {
+  const searchTarget = target * 1.03;
+  let lo = 0, hi = 1;
+  for (let i = 0; i < 40; i++) {
+    const mid = (lo + hi) / 2;
+    const c = fitChroma(mid, C, H);
+    const passes = ratio([mid, c, H], bg) >= searchTarget && ratio([mid, c, H], surface) >= searchTarget;
+    if (dir === 'darker') { if (passes) lo = mid; else hi = mid; }
+    else { if (passes) hi = mid; else lo = mid; }
+  }
+  let L = r3(dir === 'darker' ? lo : hi);
+  let c = fitChroma(L, C, H);
+  let guard = 0;
+  while ((ratio([L, c, H], bg) < target || ratio([L, c, H], surface) < target) && guard < 100) {
+    const next = dir === 'darker' ? r3(L - 0.001) : r3(L + 0.001);
+    if (next < 0 || next > 1 || next === L) break;
+    L = next;
+    c = fitChroma(L, C, H);
+    guard++;
+  }
+  const ok = ratio([L, c, H], bg) >= target && ratio([L, c, H], surface) >= target;
+  if (ok) return { L, C: c, H: r1(H), ok };
+  return { L, C: c, H: r1(H), ok: false };
+}
+
+function solveDual(C, H, bg, surface, target, dir) {
+  let r = solveLDual(C, H, bg, surface, target, dir);
+  if (r.ok) return [r.L, r.C, r.H];
+  // Chroma-collapse fallback, same rationale as solveL's.
+  r = solveLDual(0, H, bg, surface, target, dir);
+  if (r.ok) return [r.L, r.C, r.H];
+  die(
+    `internal error: cannot solve a state color for a ${target}:1 target against both bg and surface ` +
+    `(hue ${H.toFixed(1)}, direction ${dir}) even with chroma collapsed to 0 — pathological theme colors`
+  );
+}
+
+/* keep-if-passing against BOTH bg and surface at once. */
+function keepOrSolveDual(L0, C, H, bg, surface, target, dir) {
+  const L = Math.min(1, Math.max(0, r3(L0)));
+  const c = fitChroma(L, C, H);
+  if (ratio([L, c, H], bg) >= target && ratio([L, c, H], surface) >= target) return [L, c, r1(H)];
+  return solveDual(C, H, bg, surface, target, dir);
+}
+
+const STATE_CHROMA_CAP = 0.14; // same restrained ceiling as --color-accent / syntax slots
+
+function deriveStateColor(t, ansiName, label, bg, surface, dir) {
+  const [L0, C0, H0] = slotLch(t, ansiName, label);
+  const C = Math.min(C0, STATE_CHROMA_CAP);
+  return keepOrSolveDual(L0, C, H0, bg, surface, 4.5, dir);
+}
+
+/* -subtle companions: near-bg lightness (mirrors --color-accent-subtle
+ * EXACTLY — same fixed 0.95 / bg+0.06 starting points, not a theme-
+ * relative "bg's own lightness" — accent-subtle is the identity this
+ * mirrors, and its light-side constant is 0.95 regardless of how high a
+ * given theme's own solved bg lightness lands), state hue, low chroma —
+ * verified so --color-fg stays >= 4.5:1 on the result (the pairing that
+ * matters for a callout/banner's body text), not re-verified against bg/
+ * surface (it's a background, not a text color). `dir` 'darker' (light
+ * theme): subtle starts at 0.95. 'lighter' (dark theme): subtle starts at
+ * bg + 0.06. Nudged further toward the extreme (whiter in light, blacker
+ * in dark) only if a pathological theme's hue/chroma combination doesn't
+ * already clear 4.5:1 against fg at that starting lightness. */
+function deriveStateSubtle(bgL, H, chromaCap, fg, dir) {
+  let L = dir === 'darker' ? 0.95 : r3(Math.min(bgL + 0.06, 1));
+  let c = fitChroma(L, chromaCap, H);
+  let guard = 0;
+  while (ratio(fg, [L, c, H]) < 4.5 && guard < 200) {
+    L = dir === 'darker' ? r3(Math.min(1, L + 0.001)) : r3(Math.max(0, L - 0.001));
+    c = fitChroma(L, chromaCap, H);
+    guard++;
+  }
+  if (ratio(fg, [L, c, H]) < 4.5) {
+    die(`internal error: cannot solve a state-subtle background (hue ${H.toFixed(1)}, dir ${dir}) that holds --color-fg >= 4.5:1 — pathological theme colors`);
+  }
+  return [L, c, r1(H)];
+}
+
 /* ── LIGHT derivation ─────────────────────────────────────────────── */
 
 function deriveLight(t) {
@@ -425,6 +520,15 @@ function deriveLight(t) {
   const synPunctuation = deriveSyntaxPunctuation(fgC, fgH, codeBg, 'darker');
   const synVariable = deriveSyntaxVariable(fg, codeBg, 'darker', 0.08);
   const synLink = deriveSyntaxLink(accent, codeBg, 'darker');
+  // Semantic state colors (issue #26) — see the derivation helpers above.
+  // error/success/warning: keep-if-passing vs BOTH bg and surface at once;
+  // disabled: aliased to the already-derived muted family, not ANSI.
+  const stateError = deriveStateColor(t, 'red', 'light', bg, surface, 'darker');
+  const stateSuccess = deriveStateColor(t, 'green', 'light', bg, surface, 'darker');
+  const stateWarning = deriveStateColor(t, 'yellow', 'light', bg, surface, 'darker');
+  const stateErrorSubtle = deriveStateSubtle(bg[0], stateError[2], 0.02, fg, 'darker');
+  const stateSuccessSubtle = deriveStateSubtle(bg[0], stateSuccess[2], 0.02, fg, 'darker');
+  const stateWarningSubtle = deriveStateSubtle(bg[0], stateWarning[2], 0.02, fg, 'darker');
   const raw = {
     'color-bg': bg,
     'color-bg-subtle': [r3(bg[0] - 0.02), bg[1], bg[2]],
@@ -450,6 +554,13 @@ function deriveLight(t) {
     'color-syntax-punctuation': synPunctuation,
     'color-syntax-variable': synVariable,
     'color-syntax-link': synLink,
+    'color-error': stateError,
+    'color-error-subtle': stateErrorSubtle,
+    'color-success': stateSuccess,
+    'color-success-subtle': stateSuccessSubtle,
+    'color-warning': stateWarning,
+    'color-warning-subtle': stateWarningSubtle,
+    'color-disabled': { ref: 'color-muted' },
   };
   const tokens = {};
   for (const [name, v] of Object.entries(raw)) tokens[name] = v.ref ? `var(--${v.ref})` : fmt(v);
@@ -503,6 +614,14 @@ function deriveDark(t, accentHueLight) {
   const synPunctuation = deriveSyntaxPunctuation(fgC, fgH, codeBg, 'lighter');
   const synVariable = deriveSyntaxVariable(fg, codeBg, 'lighter', -0.08);
   const synLink = deriveSyntaxLink(accent, codeBg, 'lighter');
+  // Semantic state colors (issue #26) — mirrors the light derivation,
+  // direction flipped ('lighter': text on a dark bg/surface).
+  const stateError = deriveStateColor(t, 'red', 'dark', bg, surface, 'lighter');
+  const stateSuccess = deriveStateColor(t, 'green', 'dark', bg, surface, 'lighter');
+  const stateWarning = deriveStateColor(t, 'yellow', 'dark', bg, surface, 'lighter');
+  const stateErrorSubtle = deriveStateSubtle(bg[0], stateError[2], 0.04, fg, 'lighter');
+  const stateSuccessSubtle = deriveStateSubtle(bg[0], stateSuccess[2], 0.04, fg, 'lighter');
+  const stateWarningSubtle = deriveStateSubtle(bg[0], stateWarning[2], 0.04, fg, 'lighter');
   const raw = {
     'color-bg': bg,
     'color-bg-subtle': surface,
@@ -528,6 +647,13 @@ function deriveDark(t, accentHueLight) {
     'color-syntax-punctuation': synPunctuation,
     'color-syntax-variable': synVariable,
     'color-syntax-link': synLink,
+    'color-error': stateError,
+    'color-error-subtle': stateErrorSubtle,
+    'color-success': stateSuccess,
+    'color-success-subtle': stateSuccessSubtle,
+    'color-warning': stateWarning,
+    'color-warning-subtle': stateWarningSubtle,
+    'color-disabled': { ref: 'color-muted' },
   };
   const tokens = {};
   for (const [name, v] of Object.entries(raw)) tokens[name] = v.ref ? `var(--${v.ref})` : fmt(v);
@@ -564,6 +690,17 @@ const CHECKS = [
   ['color-syntax-punctuation', 'color-code-bg', 4.5, 'syntax: punctuation'],
   ['color-syntax-variable', 'color-code-bg', 4.5, 'syntax: variable'],
   ['color-syntax-link', 'color-code-bg', 4.5, 'syntax: link'],
+  ['color-error', 'color-bg', 4.5, 'state: error text'],
+  ['color-error', 'color-surface', 4.5, 'state: error text on surface'],
+  ['color-success', 'color-bg', 4.5, 'state: success text'],
+  ['color-success', 'color-surface', 4.5, 'state: success text on surface'],
+  ['color-warning', 'color-bg', 4.5, 'state: warning text'],
+  ['color-warning', 'color-surface', 4.5, 'state: warning text on surface'],
+  ['color-disabled', 'color-bg', 4.5, 'state: disabled text'],
+  ['color-disabled', 'color-surface', 4.5, 'state: disabled text on surface'],
+  ['color-fg', 'color-error-subtle', 4.5, 'state: fg on error-subtle banner bg'],
+  ['color-fg', 'color-success-subtle', 4.5, 'state: fg on success-subtle banner bg'],
+  ['color-fg', 'color-warning-subtle', 4.5, 'state: fg on warning-subtle banner bg'],
 ];
 
 function resolveRaw(raw, name, seen = new Set()) {

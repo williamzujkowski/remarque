@@ -37,6 +37,13 @@ const LIGHT = `:root {
   --color-syntax-punctuation: oklch(0.52 0.01 80);
   --color-syntax-variable: oklch(0.26 0.01 80);
   --color-syntax-link: var(--color-accent);
+  --color-error: oklch(0.54 0.14 25);
+  --color-error-subtle: oklch(0.95 0.02 25);
+  --color-success: oklch(0.51 0.12 145);
+  --color-success-subtle: oklch(0.95 0.02 145);
+  --color-warning: oklch(0.52 0.105 85);
+  --color-warning-subtle: oklch(0.95 0.02 85);
+  --color-disabled: var(--color-muted);
 }`;
 const DARK_DECLS = `
   --color-bg: oklch(0.16 0.01 80);
@@ -60,6 +67,13 @@ const DARK_DECLS = `
   --color-syntax-punctuation: oklch(0.60 0.005 80);
   --color-syntax-variable: oklch(0.82 0.005 80);
   --color-syntax-link: var(--color-accent);
+  --color-error: oklch(0.64 0.12 25);
+  --color-error-subtle: oklch(0.22 0.04 25);
+  --color-success: oklch(0.61 0.11 145);
+  --color-success-subtle: oklch(0.22 0.04 145);
+  --color-warning: oklch(0.62 0.11 85);
+  --color-warning-subtle: oklch(0.22 0.04 85);
+  --color-disabled: var(--color-muted);
 `;
 
 const cases = [
@@ -75,6 +89,11 @@ const cases = [
   // A syntax slot too close to code-bg must fail — proves the 9 new
   // pairings (issue #53) are actually wired into CHECKS, not just parsed.
   ['syntax-slot-fails.css', `${LIGHT.replace('--color-syntax-comment: oklch(0.52 0.01 80);', '--color-syntax-comment: oklch(0.90 0.01 80);')}\n[data-theme="dark"] {${DARK_DECLS}}`, false],
+  // A state color too close to bg/surface must fail — proves the semantic
+  // state pairings (issue #26) are actually wired into CHECKS, not just
+  // parsed. oklch(0.90 0.105 85) sits far too light on --color-bg
+  // (oklch(0.975 0.005 80)) to hold 4.5:1.
+  ['state-color-fails.css', `${LIGHT.replace('--color-warning: oklch(0.52 0.105 85);', '--color-warning: oklch(0.90 0.105 85);')}\n[data-theme="dark"] {${DARK_DECLS}}`, false],
 ];
 
 let bad = 0;
