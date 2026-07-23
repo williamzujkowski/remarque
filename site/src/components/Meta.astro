@@ -37,7 +37,7 @@ function formatDate(iso: string): string {
   {links && links.length > 0 && (
     <span class="flex gap-3">
       {links.map((link) => (
-        <a href={link.href} class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)]">{link.label}</a>
+        <a href={link.href} class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">{link.label}</a>
       ))}
     </span>
   )}

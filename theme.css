@@ -24,6 +24,9 @@
  * is never overridden (mt-12 stays 3rem; use mt-remarque-9 for 6rem).
  * Motion utilities: use arbitrary values with the tokens —
  * duration-[var(--motion-fast)] — so reduced-motion zeroing applies.
+ * Pair every duration-[var(--motion-*)] utility with ease-remarque
+ * (mapped below from --motion-easing) — without it Tailwind falls back
+ * to its default `ease` timing function instead of the token (issue #31).
  */
 
 @theme inline {
@@ -74,4 +77,8 @@
   /* Radius (rounded-sm / rounded-md — the system's ceiling) */
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
+
+  /* Easing (ease-remarque) — pair with duration-[var(--motion-*)] so
+     transitions use the token instead of Tailwind's default `ease` */
+  --ease-remarque: var(--motion-easing);
 }

@@ -19,11 +19,11 @@ const base = import.meta.env.BASE_URL;
       Remarque is an opinionated design system built for personal websites, blogs, project pages, and technical writing. It prioritizes reading comfort, typographic hierarchy, and visual consistency over component variety or decorative flourish.
     </p>
     <div class="mt-8 flex gap-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)]">
-      <a href={`${base}start`} class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] no-underline">Get Started</a>
+      <a href={`${base}start`} class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque no-underline">Get Started</a>
       <span class="text-[var(--color-border)]">|</span>
-      <a href="https://github.com/williamzujkowski/remarque" class="text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] no-underline">GitHub</a>
+      <a href="https://github.com/williamzujkowski/remarque" class="text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] ease-remarque no-underline">GitHub</a>
       <span class="text-[var(--color-border)]">|</span>
-      <a href={`${base}rss.xml`} class="text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] no-underline">RSS</a>
+      <a href={`${base}rss.xml`} class="text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] ease-remarque no-underline">RSS</a>
     </div>
   </div>
 
@@ -32,15 +32,15 @@ const base = import.meta.env.BASE_URL;
     <p class="text-label mb-6">System</p>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
       <a href={`${base}specimen`} class="group block no-underline">
-        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Specimen</h2>
+        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque">Specimen</h2>
         <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">The three-font system rendered at every scale step.</p>
       </a>
       <a href={`${base}tokens`} class="group block no-underline">
-        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Tokens</h2>
+        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque">Tokens</h2>
         <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">Colors, spacing, widths, motion — the visual source of truth.</p>
       </a>
       <a href={`${base}start`} class="group block no-underline">
-        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Start</h2>
+        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque">Start</h2>
         <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">Install, configure, and copy-paste page archetypes.</p>
       </a>
     </div>
@@ -51,15 +51,15 @@ const base = import.meta.env.BASE_URL;
     <p class="text-label mb-6">Content</p>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
       <a href={`${base}writing`} class="group block no-underline">
-        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Writing</h2>
+        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque">Writing</h2>
         <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">Long-form essays on design, typography, and craft.</p>
       </a>
       <a href={`${base}projects`} class="group block no-underline">
-        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Projects</h2>
+        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque">Projects</h2>
         <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">Technical work, architecture, and open source.</p>
       </a>
       <a href={`${base}notes`} class="group block no-underline">
-        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)]">Notes</h2>
+        <h2 class="text-section font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque">Notes</h2>
         <p class="mt-2 text-[var(--text-body)] text-[var(--color-fg-muted)]">Short observations, bookmarks, and references.</p>
       </a>
     </div>
@@ -70,15 +70,15 @@ const base = import.meta.env.BASE_URL;
     <p class="text-label mb-6">Recent</p>
     <ul class="space-y-4 list-none p-0">
       <li>
-        <a href={`${base}writing/typography-as-interface`} class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] no-underline">Typography as Interface</a>
+        <a href={`${base}writing/typography-as-interface`} class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque no-underline">Typography as Interface</a>
         <span class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] ml-3">Apr 8, 2026</span>
       </li>
       <li>
-        <a href={`${base}projects/remarque`} class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] no-underline">Remarque Design System</a>
+        <a href={`${base}projects/remarque`} class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque no-underline">Remarque Design System</a>
         <span class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] ml-3">Apr 6, 2026</span>
       </li>
       <li>
-        <a href={`${base}writing/against-decoration`} class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] no-underline">Against Decoration</a>
+        <a href={`${base}writing/against-decoration`} class="text-[var(--color-fg)] hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque no-underline">Against Decoration</a>
         <span class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] ml-3">Mar 29, 2026</span>
       </li>
     </ul>
