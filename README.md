@@ -119,6 +119,39 @@ See the [live demo](https://williamzujkowski.github.io/remarque/) for the origin
 | Border radius | 0.5rem max | Restrained. No "friendly SaaS" over-rounding |
 | Motion | 120ms/180ms | Hover and theme transitions only. No scroll-triggered, entrance, or staggered animations |
 
+## Graduation — when a site invention becomes system vocabulary
+
+Consumer sites invent things (the flagship's sidenotes and theme deck, tsundoku's gallery
+grid). Some of those inventions belong upstream; most are the site's own remarque in the
+margin and should stay there. A local invention is upstreamable when **all four** hold:
+
+1. **Wanted by 2+ sites** (or one site plus a ratified case that it generalizes).
+2. **Consumes only tokens** — no hardcoded colors, sizes, or faces.
+3. **Passes the audit tooling** (`remarque-audit`, and `remarque-drift` reports it as
+   palette-tier INFO, not a core FAIL).
+4. **Violates no Never-list entry** in the spec — or arrives together with an explicit
+   spec amendment arguing the change.
+
+**Three destinations.** Core spec (rare — core is identity, the bar is a fork-level
+argument); optional module (sidenotes, TOC rail, palette deck); or *documented site-local
+pattern* — explicitly not shared. The zine layer that inspired this checklist is the
+exemplar of the third: sanctioned personality that would be diluted by generalizing it.
+
+**Process (single-maintainer scale, no ceremony):** open an issue with before/after
+screenshots and the token-purity check; record the decision in the changelog. Historical
+examples: measure compensation and the Gallery archetype graduated; the theme deck was
+re-scoped on the way up ([#56](https://github.com/williamzujkowski/remarque/issues/56));
+the zine layer deliberately stayed local.
+
+**Standing rulings** (ratified 3-0, 2026-07-23) on patterns the reviews kept re-flagging:
+
+| Pattern | Ruling |
+|---------|--------|
+| Share links in post footers | Site-local, never a system module. If you build one: URL-encode every interpolated value and reject non-`https` schemes — title/frontmatter injection into share-intent URLs is the classic mistake. |
+| Cross-hue hover accents | Not sanctioned anywhere. The hover move is a lightness/chroma shift within the accent hue (`--color-accent-hover` models it). A cross-hue hover is a documented deviation, not personalization. |
+| Ambient/decorative animation | Site-local only, never in system modules — and the `prefers-reduced-motion` guard is mandatory, not advisory. A future audit scan may flag unguarded infinite animations (as a heuristic check, not a soundness proof). |
+| Landing-page entry counts | Permitted as meta-voice data in the Landing archetype **only when computed from real inventory at build time**. A hardcoded count is a violation — counts drift (see the upstream count-drift bug class this system just fixed in its own theme provider). |
+
 ## Named For
 
 In fine art printmaking, a *remarque* is a small original drawing made by the artist in the margin of a proof print. Found only in limited editions, it is the mark that says: this was made by someone specific, with intention.
