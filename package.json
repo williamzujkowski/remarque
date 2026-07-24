@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "engines": {
     "node": ">=18"
   },
@@ -29,7 +29,8 @@
   },
   "scripts": {
     "audit": "node scripts/audit.mjs",
-    "drift": "node scripts/drift-check.mjs"
+    "drift": "node scripts/drift-check.mjs",
+    "prepack": "node scripts/build-skills.mjs"
   },
   "devDependencies": {
     "@williamzujkowski/oklch-terminal-themes": "0.5.0",
@@ -84,6 +85,8 @@
     "./registry-item.schema.json": "./registry-item.schema.json",
     "./registry.schema.json": "./registry.schema.json",
     "./registry/*": "./registry/*.json",
+    "./skills/remarque": "./skills/remarque/SKILL.md",
+    "./skills/adopt": "./skills/remarque-adopt/SKILL.md",
     "./package.json": "./package.json"
   },
   "files": [
@@ -117,6 +120,9 @@
     "registry-item.schema.json",
     "registry.schema.json",
     "scripts/build-registry.mjs",
-    "scripts/lib/registry-extract.mjs"
+    "scripts/lib/registry-extract.mjs",
+    "skills/",
+    "scripts/build-skills.mjs",
+    "scripts/lib/skills.mjs"
   ]
 }
