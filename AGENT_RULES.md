@@ -325,9 +325,10 @@ the documented DTCG divergences.
 
 ## Installing the Skills
 
-This package ships two Claude Code skills under the npm subpath exports
-`remarque-tokens/skills/remarque` and `remarque-tokens/skills/adopt`
-(resolving to `skills/remarque/SKILL.md` and `skills/remarque-adopt/
+This package ships three Claude Code skills under the npm subpath
+exports `remarque-tokens/skills/remarque`, `remarque-tokens/skills/adopt`,
+and `remarque-tokens/skills/new-page` (resolving to `skills/remarque/
+SKILL.md`, `skills/remarque-adopt/SKILL.md`, and `skills/remarque-new-page/
 SKILL.md` in the installed package). Claude Code only discovers skills
 from a project's own `.claude/skills/` (or `~/.claude/skills/`), never
 from `node_modules` — copy them in explicitly, one `cp` per skill:
@@ -336,14 +337,16 @@ from `node_modules` — copy them in explicitly, one `cp` per skill:
 mkdir -p .claude/skills
 cp -r node_modules/remarque-tokens/skills/remarque .claude/skills/remarque
 cp -r node_modules/remarque-tokens/skills/remarque-adopt .claude/skills/remarque-adopt
+cp -r node_modules/remarque-tokens/skills/remarque-new-page .claude/skills/remarque-new-page
 ```
 
 The copies are versioned with the installed package, not auto-updating —
-re-copy both after a MAJOR bump, or any time this file's
+re-copy all three after a MAJOR bump, or any time this file's
 "Machine-Readable Output" shape changes.
 
 - `remarque` — the build/review contract for pages on the current version (tier rules, archetypes, pitfalls #6/#7).
 - `remarque-adopt` — the version-bump/migration playbook (this file's "Machine-Readable Output" section is its main dependency): verify the resolved version past the 0.x caret freeze, discover newly-required tokens from `remarque-audit --json`, solve missing values against the consumer's own backgrounds, classify `remarque-drift --json` output, report against a fixed PR-body contract.
+- `remarque-new-page` — the page-building procedure, companion to (not a restatement of) the `remarque` loader skill: pick the archetype, fetch-and-verify the relevant registry item instead of transcribing its markup, wire the page per the pitfalls above, gate acceptance on `remarque-audit --json` plus the registry item's own markup-contract assertions.
 
 ---
 

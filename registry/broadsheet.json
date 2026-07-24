@@ -4,7 +4,7 @@
   "type": "remarque:contract",
   "title": "Broadsheet Pattern",
   "description": "The editorial Landing/archive pattern: masthead, lead article, numbered entry list, and post-header kicker. Entry numerals are generated from `data-entry-number` via `attr()`, never `counter()`, and every kicker/dateline row is true `font-variant-caps: all-small-caps`, never `text-transform: uppercase`.",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "integrity": "sha256-BZea38PRdob4OfmdGN0eDw3U0adl7SEsdrjKgSewK9A=",
   "dependencies": [
     "remarque-tokens"

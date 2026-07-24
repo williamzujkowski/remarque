@@ -62,14 +62,15 @@ try {
   expect('npm pack succeeded', false, e.stderr?.toString() || e.message);
 }
 
-// The two Claude Code skills (issue #107) must land in the tarball —
-// `npm pack`'s own "prepack" lifecycle hook runs scripts/build-skills.mjs
-// first, so this also transitively proves that hook actually fires
-// (rather than relying on a committed skills/ dir happening to be fresh).
+// The three Claude Code skills (issues #107, #108) must land in the
+// tarball — `npm pack`'s own "prepack" lifecycle hook runs
+// scripts/build-skills.mjs first, so this also transitively proves that
+// hook actually fires (rather than relying on a committed skills/ dir
+// happening to be fresh).
 if (tarballPath && existsSync(tarballPath)) {
   try {
     const listing = execFileSync('tar', ['-tzf', tarballPath], { encoding: 'utf8' });
-    for (const p of ['package/skills/remarque/SKILL.md', 'package/skills/remarque-adopt/SKILL.md']) {
+    for (const p of ['package/skills/remarque/SKILL.md', 'package/skills/remarque-adopt/SKILL.md', 'package/skills/remarque-new-page/SKILL.md']) {
       expect(`tarball contains ${p}`, listing.includes(p));
     }
   } catch (e) {
@@ -99,9 +100,10 @@ if (tarballPath && existsSync(tarballPath)) {
     );
   }
 
-  for (const p of ['skills/remarque/SKILL.md', 'skills/remarque-adopt/SKILL.md']) {
+  for (const p of ['skills/remarque/SKILL.md', 'skills/remarque-adopt/SKILL.md', 'skills/remarque-new-page/SKILL.md']) {
     const installedPath = join(consumerDir, 'node_modules', 'remarque-tokens', p);
-    expect(`installed package ships ${p} (resolves the "./skills/${p.includes('adopt') ? 'adopt' : 'remarque'}" export)`, existsSync(installedPath) && readFileSync(installedPath, 'utf8').length > 0);
+    const exportName = p.includes('new-page') ? 'new-page' : p.includes('adopt') ? 'adopt' : 'remarque';
+    expect(`installed package ships ${p} (resolves the "./skills/${exportName}" export)`, existsSync(installedPath) && readFileSync(installedPath, 'utf8').length > 0);
   }
 
   const outCss = join(consumerDir, 'out.css');

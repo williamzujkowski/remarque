@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "engines": {
     "node": ">=18"
   },
@@ -87,6 +87,7 @@
     "./registry/*": "./registry/*.json",
     "./skills/remarque": "./skills/remarque/SKILL.md",
     "./skills/adopt": "./skills/remarque-adopt/SKILL.md",
+    "./skills/new-page": "./skills/remarque-new-page/SKILL.md",
     "./package.json": "./package.json"
   },
   "files": [

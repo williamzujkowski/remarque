@@ -26,6 +26,34 @@ name: Token Drift Check
 # — no change needed here, and `remarque-ref` simply goes unused. At that
 # point callers may also switch to a plain `npx remarque-drift` step and
 # drop this reusable workflow entirely; both remain equivalent.
+#
+# issue #110: three OPTIONAL inputs (`run-audit`, `palette-path`,
+# `src-dir`) let a caller also run the `remarque-audit` gate from this
+# same workflow_call instead of wiring a second script step in their own
+# workflow. `run-audit` defaults to `false`, so every existing caller
+# (williamzujkowski.github.io's audits.yml, tsundoku's deploy.yml — both
+# call this workflow today with only `css-file`/`package-dir`/
+# `remarque-ref`) is unaffected without opting in; verified by reading
+# both call sites on their own `main` branches. The audit step runs `npx
+# remarque-audit` from the CONSUMER's own checkout, against the
+# remarque-tokens the consumer already installed in `inputs.package-dir`
+# — no `remarque-ref` fallback here, unlike the drift engine above,
+# because `remarque-audit` has shipped as a published bin since 0.1.0
+# (there was never a pre-release gap to bridge).
+#
+# A `run-golden` input (paralleling scripts/palette-golden.mjs) was
+# considered, per the issue text, and deliberately NOT added:
+# palette-golden.mjs is remarque-internal tooling — it binds THIS
+# package's own tokens-palette.css to the `remarque-light`/`remarque-dark`
+# reference palettes from @williamzujkowski/oklch-terminal-themes and
+# checks remarque's own release hasn't drifted from its golden values. It
+# has no CLI bin (package.json's `bin` only exports `remarque-audit`/
+# `remarque-drift`/`remarque-theme`), takes no `--palette`/`--src`
+# arguments a generic consumer could point at their own stylesheet, and
+# has no consumer-facing analog to generify. Exposing it here would not
+# be "the same gate, wired in one call" the way `run-audit` is — it would
+# be a different, remarque-repo-specific tool with nothing for a
+# consumer's palette to hook into.
 
 on:
   workflow_call:
@@ -53,6 +81,39 @@ on:
         required: false
         type: string
         default: main
+      run-audit:
+        description: >-
+          Optional. When true, also runs `npx remarque-audit` (from the
+          consumer's own checkout, against their own installed
+          remarque-tokens under package-dir) as a second gate in this same
+          workflow_call. Default false — existing callers that only pass
+          css-file/package-dir/remarque-ref are unaffected.
+        required: false
+        type: boolean
+        default: false
+      palette-path:
+        description: >-
+          Path to the palette stylesheet to pass as `remarque-audit
+          --palette`, relative to package-dir (the audit step's working
+          directory — matching how `npx remarque-audit` is normally
+          invoked locally, and how the "Install consumer dependencies"
+          step above already treats package-dir as its own cwd). Required
+          when run-audit is true; ignored otherwise. Left required:false
+          at the schema level (workflow_call has no conditional-required
+          inputs) but the audit step fails fast with a clear error if
+          run-audit is true and this is left blank.
+        required: false
+        type: string
+        default: ''
+      src-dir:
+        description: >-
+          Directory `remarque-audit` scans for hardcoded colors/font-size
+          floors (its `--src` argument), relative to package-dir — same
+          convention as palette-path. Only consulted when run-audit is
+          true.
+        required: false
+        type: string
+        default: '.'
 
 permissions:
   contents: read
@@ -98,3 +159,22 @@ jobs:
             ENGINE=".remarque-drift-engine/scripts/drift-check.mjs"
           fi
           node "$ENGINE" --css-file "${{ inputs.css-file }}" --package-dir "${{ inputs.package-dir }}"
+
+      # Optional second gate (issue #110) — off by default, see the file
+      # header for why this is opt-in and why there is no run-golden
+      # counterpart. Runs from the consumer's own checkout, against the
+      # remarque-tokens the consumer already installed above (`npx`
+      # resolves the `remarque-audit` bin from package-dir's own
+      # node_modules/.bin — no remarque-ref checkout needed, unlike the
+      # drift engine, because remarque-audit has been a published bin
+      # since 0.1.0).
+      - name: Token audit (optional — npx remarque-audit against the consumer's own installed remarque-tokens)
+        if: ${{ inputs.run-audit }}
+        working-directory: ${{ inputs.package-dir }}
+        run: |
+          set -e
+          if [ -z "${{ inputs.palette-path }}" ]; then
+            echo "::error::run-audit is true but palette-path was not provided" >&2
+            exit 1
+          fi
+          npx remarque-audit --palette "${{ inputs.palette-path }}" --src "${{ inputs.src-dir }}"
