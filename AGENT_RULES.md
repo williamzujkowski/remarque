@@ -323,6 +323,30 @@ the documented DTCG divergences.
 
 ---
 
+## Installing the Skills
+
+This package ships two Claude Code skills under the npm subpath exports
+`remarque-tokens/skills/remarque` and `remarque-tokens/skills/adopt`
+(resolving to `skills/remarque/SKILL.md` and `skills/remarque-adopt/
+SKILL.md` in the installed package). Claude Code only discovers skills
+from a project's own `.claude/skills/` (or `~/.claude/skills/`), never
+from `node_modules` — copy them in explicitly, one `cp` per skill:
+
+```bash
+mkdir -p .claude/skills
+cp -r node_modules/remarque-tokens/skills/remarque .claude/skills/remarque
+cp -r node_modules/remarque-tokens/skills/remarque-adopt .claude/skills/remarque-adopt
+```
+
+The copies are versioned with the installed package, not auto-updating —
+re-copy both after a MAJOR bump, or any time this file's
+"Machine-Readable Output" shape changes.
+
+- `remarque` — the build/review contract for pages on the current version (tier rules, archetypes, pitfalls #6/#7).
+- `remarque-adopt` — the version-bump/migration playbook (this file's "Machine-Readable Output" section is its main dependency): verify the resolved version past the 0.x caret freeze, discover newly-required tokens from `remarque-audit --json`, solve missing values against the consumer's own backgrounds, classify `remarque-drift --json` output, report against a fixed PR-body contract.
+
+---
+
 ## How to Reference This System
 
 In prompts, issues, or agent instructions, use:

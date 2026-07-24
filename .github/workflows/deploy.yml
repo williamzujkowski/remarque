@@ -72,7 +72,15 @@ jobs:
         run: node scripts/test-registry.mjs
         working-directory: .
 
-      - name: "Consumer pack smoke test (npm pack + real install + peerDependencies resolution, no --legacy-peer-deps)"
+      - name: "skills/ packaging freshness (packaged copies match canonical .claude/skills/ — issue #107)"
+        run: node scripts/build-skills.mjs --check
+        working-directory: .
+
+      - name: "Skill fixture tests (frontmatter, referenced CLI flags, referenced file paths, packaging freshness — issue #107)"
+        run: node scripts/test-skills.mjs
+        working-directory: .
+
+      - name: "Consumer pack smoke test (npm pack + real install + peerDependencies resolution, no --legacy-peer-deps; skills land in the pack)"
         run: node scripts/test-pack.mjs
         working-directory: .
 

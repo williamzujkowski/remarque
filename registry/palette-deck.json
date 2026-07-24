@@ -4,7 +4,7 @@
   "type": "remarque:contract",
   "title": "Palette Deck (markup contract only — no executable content)",
   "description": "Markup/wiring contract for the Palette Deck: set `data-palette` on the same root element as `data-theme` and the two compose independently. This item ships ONLY that HTML fragment. `deck.js` — the runtime module itself, a dependency-free ~60-line ESM file — is deliberately NOT embedded here: the registry’s blocking no-executable-content condition is held to an unambiguous zero-`<script>`-tag bar across every item, so neither `deck.js` nor the FOUC-restore `<script>` sample documented alongside it in REMARQUE.md is included. Consume `deck.js` the normal way, via the `remarque-tokens/deck` package import (`dependencies` below); read the FOUC-restore snippet from the `docs` URL.",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "integrity": "sha256-WGgBZ2j0VnLPRAZlzv/4G1Wu9rKqTdXf1536dWWu8nU=",
   "dependencies": [
     "remarque-tokens"

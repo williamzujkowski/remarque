@@ -69,9 +69,31 @@ The agent rules define build order, non-negotiable rules, disallowed patterns, a
 
 Packaging for agent tooling:
 - **npm exports:** `remarque-tokens/agent-rules` (→ `AGENT_RULES.md`) and `remarque-tokens/spec` (→ `REMARQUE.md`), alongside the existing `remarque-tokens/tokens.json`, so a project can point an agent at `node_modules/remarque-tokens/AGENT_RULES.md` without hardcoding a filename.
-- **Claude Code skill:** [`.claude/skills/remarque/SKILL.md`](.claude/skills/remarque/SKILL.md) — triggers on "remarque" / "design system" / new-page work, loads all three files, and states the tier rules, the audit command, and the two build-time pitfalls (unlayered-token-import, string-form `@import`) that pass a green build while silently breaking.
+- **Claude Code skills (two):**
+  - [`.claude/skills/remarque/SKILL.md`](.claude/skills/remarque/SKILL.md) — triggers on "remarque" / "design system" / new-page work, loads all three files, and states the tier rules, the audit command, and the two build-time pitfalls (unlayered-token-import, string-form `@import`) that pass a green build while silently breaking.
+  - [`.claude/skills/remarque-adopt/SKILL.md`](.claude/skills/remarque-adopt/SKILL.md) — triggers on "bump remarque-tokens" / "upgrade the design system" / "adopt remarque in an existing site" / an audit that starts failing after a version bump. The consumer-conformance playbook (issue #107): verify the resolved version past the 0.x caret freeze, discover newly-required tokens from `remarque-audit --json` mechanically, solve missing values against the *consumer's own* backgrounds (keep-if-passing), classify `remarque-drift --json` output (FAIL/WARN/INFO), and report against a fixed PR-body contract. Every step ends in a machine gate — `passed: true`, not agent judgment.
+
+  Both ship in the npm tarball under `skills/` (see "Installing the skills" below) as well as living at `.claude/skills/` in this repo.
 - **Live tokens endpoint:** the demo site serves the current `tokens.json` at **https://williamzujkowski.github.io/remarque/tokens.json**, and its schema at **https://williamzujkowski.github.io/remarque/tokens.schema.json** — a remote agent can fetch current token values (and validate their shape) directly instead of trusting training data.
 - **Markup-contract registry:** a shadcn-`registry-item.json`-shaped, version-pinned, hash-verified registry of known-good markup for the Essay/Broadsheet/Forms/Palette Deck modules — **https://williamzujkowski.github.io/remarque/registry.json** (index) and **https://williamzujkowski.github.io/remarque/registry/essay.json** (per item; also `broadsheet`/`forms`/`palette-deck`). Fetch and apply the markup instead of transcribing it from spec prose — see REMARQUE.md's "The Registry" and AGENT_RULES.md's "Prefer the Registry Over Transcribing Prose."
+
+### Installing the skills
+
+`npm install remarque-tokens` does not put anything into your project's
+`.claude/skills/` automatically — Claude Code only reads skills from
+there (or from `~/.claude/skills/`), never from `node_modules`. Copy them
+in explicitly, one `cp` per skill:
+
+```bash
+mkdir -p .claude/skills
+cp -r node_modules/remarque-tokens/skills/remarque .claude/skills/remarque
+cp -r node_modules/remarque-tokens/skills/remarque-adopt .claude/skills/remarque-adopt
+```
+
+The copies are versioned with whatever `remarque-tokens` version is
+installed at copy time, not auto-updating — re-run both `cp` commands
+after any MAJOR bump (and any time `AGENT_RULES.md`'s "Machine-Readable
+Output" shape changes) to pick up the current playbook.
 
 ## Files
 
@@ -89,6 +111,7 @@ Packaging for agent tooling:
 | `tokens.schema.json` | Generated JSON Schema (draft 2020-12) for `tokens.json`, published alongside it |
 | `registry.json` + `registry/` | Generated markup-contract registry index + per-item files for essay/broadsheet/forms/palette-deck (`scripts/build-registry.mjs`) — see REMARQUE.md "The Registry" |
 | `registry-item.schema.json` + `registry.schema.json` | Generated JSON Schemas (draft 2020-12) for the per-item and index registry files |
+| `skills/remarque/SKILL.md` + `skills/remarque-adopt/SKILL.md` | Generated packaging copies of the two Claude Code skills (`scripts/build-skills.mjs`) — canonical source is `.claude/skills/*/SKILL.md`; see "Installing the skills" above |
 | `fonts.css` + `fonts/` | Self-hosted @font-face declarations and woff2 files (no CDN requests) |
 | `tailwind.config.js` | Tailwind CSS **v3** configuration (v4 projects use an `@theme` block instead) |
 | `package.json` | npm package manifest for `remarque-tokens` |
