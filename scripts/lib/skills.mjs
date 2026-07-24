@@ -1,7 +1,8 @@
 /*
- * Shared table + tiny helpers for the two Claude Code skills this package
- * ships and packages — used by scripts/build-skills.mjs (prepack copy +
- * CI freshness gate) and scripts/test-skills.mjs (content validation).
+ * Shared table + tiny helpers for the three Claude Code skills this
+ * package ships and packages — used by scripts/build-skills.mjs (prepack
+ * copy + CI freshness gate) and scripts/test-skills.mjs (content
+ * validation).
  *
  * `.claude/skills/<name>/SKILL.md` is the ONE canonical, hand-authored
  * copy of each skill (also what a local Claude Code session in this repo
@@ -23,6 +24,12 @@ export const SKILLS = [
     canonical: '.claude/skills/remarque-adopt/SKILL.md',
     packaged: 'skills/remarque-adopt/SKILL.md',
     exportName: './skills/adopt',
+  },
+  {
+    name: 'remarque-new-page',
+    canonical: '.claude/skills/remarque-new-page/SKILL.md',
+    packaged: 'skills/remarque-new-page/SKILL.md',
+    exportName: './skills/new-page',
   },
 ];
 

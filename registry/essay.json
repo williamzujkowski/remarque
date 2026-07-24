@@ -4,7 +4,7 @@
   "type": "remarque:contract",
   "title": "Essay Module",
   "description": "Sidenotes + sticky TOC rail for long-form Essay pages: margin notes relocated into real DOM order, right after the paragraph that cites them, numbered by CSS counter and labeled `aria-label=\"Note N\"` in the same order the counter advances — the mechanism that prevents the sidenote aria-label/DOM-order transcription bug found in the flagship migration (#89, williamzujkowski.github.io#380).",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "integrity": "sha256-zr04H0+0xf01OWLk6B2A9ziZOYJd4Sq5q5/cib65lbU=",
   "dependencies": [
     "remarque-tokens"

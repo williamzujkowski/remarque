@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /*
- * Fixture/validation tests for the two Claude Code skills this package
+ * Fixture/validation tests for the three Claude Code skills this package
  * ships and packages (`.claude/skills/remarque`, `.claude/skills/
- * remarque-adopt`) — the "enforce, don't instruct" gate applied to the
- * skills themselves, not just the CSS they document.
+ * remarque-adopt`, `.claude/skills/remarque-new-page`) — the "enforce,
+ * don't instruct" gate applied to the skills themselves, not just the
+ * CSS they document.
  *
  * Checks, per skill:
  *   1. Frontmatter parses, and `name`/`description` are present and
