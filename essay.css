@@ -306,8 +306,12 @@
   list-style: none;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* Marker sits beside its label, not at the far end of the row — a
+     triangle stranded 190px from its text reads as a stray glyph and
+     the row stops reading as a control (2026-10 design review). */
+  justify-content: flex-start;
   gap: var(--space-2);
+  min-height: 44px; /* touch-target floor — same shape as .nav-link */
   padding-block: var(--space-2);
   border-bottom: var(--border-width) var(--border-style) var(--color-border);
   /* Mono meta voice — same declarations as .text-label (tokens-core.css),
@@ -349,11 +353,17 @@
   margin: var(--space-3) 0 0;
 }
 
-.remarque-toc-rail li + li {
-  margin-top: var(--space-1);
-}
+/* No li + li margin: each link's own 44px min-height is the rhythm. */
 
 .remarque-toc-rail a {
+  /* Block-level flex so every entry is a full-width, >= 44px touch
+     target (AGENT_RULES.md quality checklist) — these are navigation,
+     not inline links in running text, so the WCAG 2.5.8 inline
+     exception doesn't cover them. Multi-line entries grow past the
+     floor naturally. */
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   font-family: var(--font-mono);
   font-size: var(--text-meta);
   color: var(--color-fg-muted);
@@ -441,8 +451,16 @@
        number in consumer CSS. */
     z-index: var(--z-sticky);
     top: var(--space-6);
-    width: 100%;
     max-height: calc(100vh - var(--space-8));
     overflow-y: auto;
+    /* overflow-y makes the rail a scroll container, which clips anything
+       painted outside its padding box — including the 2px ring +
+       2px offset on a focused link or summary (issue #115). Pad the
+       container past the ring's reach and pull it back by the same
+       amount so the rail's text stays on the track edge. */
+    box-sizing: border-box;
+    padding: var(--space-2);
+    margin-inline-start: calc(-1 * var(--space-2));
+    width: calc(100% + var(--space-2));
   }
 }
