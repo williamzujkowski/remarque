@@ -281,6 +281,10 @@
 .remarque-prose td.num {
   font-variant-numeric: tabular-nums lining-nums;
   text-align: right;
+  /* A value never breaks across lines — "44–80" split after its en
+     dash reads as two numbers (2026-10 design review). Numeric cells
+     are short; a genuinely wide table still belongs in .scroll-wrap. */
+  white-space: nowrap;
 }
 
 /* ─── Definition Lists ───────────────────────────────────── */
