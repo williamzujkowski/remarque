@@ -9,20 +9,21 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Meta from '../../components/Meta.astro';
 import Prose from '../../components/Prose.astro';
+const base = import.meta.env.BASE_URL;
 ---
 
-<BaseLayout title="Remarque" description="A typography-first design system for editorial, technical, and personal web projects.">
+<BaseLayout title="Remarque (project)" description="A typography-first design system for editorial, technical, and personal web projects.">
   <article class="pt-[var(--space-9)]">
     <header class="mb-8">
       <h1 class="text-display font-display text-[var(--color-fg)]">Remarque</h1>
-      <p class="mt-4 text-[var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg-muted)] max-w-reading">
+      <p class="mt-4 text-[length:var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg-muted)] max-w-reading">
         A typography-first design system for editorial, technical, and personal web projects. Named for the small sketches printmakers draw in the margins of proof editions — the mark that says this was made by someone specific, with intention.
       </p>
     </header>
 
     <div class="mb-12 p-6 border border-[var(--color-border)] rounded-[var(--radius-md)] bg-[var(--color-surface)]">
       <h2 class="text-label mb-4">Metadata</h2>
-      <dl class="grid grid-cols-[auto_1fr] gap-x-8 gap-y-2 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)]">
+      <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-8 gap-y-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">
         <dt class="text-[var(--color-muted)]">Status</dt>
         <dd class="text-[var(--color-fg)]">Active</dd>
         <dt class="text-[var(--color-muted)]">Stack</dt>
@@ -32,7 +33,7 @@ import Prose from '../../components/Prose.astro';
         <dt class="text-[var(--color-muted)]">License</dt>
         <dd class="text-[var(--color-fg)]">MIT</dd>
         <dt class="text-[var(--color-muted)]">Source</dt>
-        <dd><a href="https://github.com/williamzujkowski/remarque" class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">github.com/williamzujkowski/remarque</a></dd>
+        <dd><a href="https://github.com/williamzujkowski/remarque" class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">github.com/<wbr />williamzujkowski/<wbr />remarque</a></dd>
       </dl>
     </div>
 
@@ -53,7 +54,7 @@ import Prose from '../../components/Prose.astro';
 
       <h3>Three-Font System</h3>
       <p>
-        Newsreader for display, Inter for body, JetBrains Mono for metadata and code. Each font has a defined role and never crosses into another role's territory. Three fonts is enough for clear hierarchy without confusion.
+        Newsreader for display, Inter for body, JetBrains Mono for metadata and code. Each font has a defined role and never crosses into another role’s territory. Three fonts is enough for clear hierarchy without confusion.
       </p>
 
       <h3>17px Minimum Body Text</h3>
@@ -61,9 +62,9 @@ import Prose from '../../components/Prose.astro';
         Most systems default to 16px or smaller. The single-pixel increase to 17px measurably improves reading comfort on screens, especially for extended reading sessions.
       </p>
 
-      <h3>46rem Reading Column</h3>
+      <h3>38rem Reading Column</h3>
       <p>
-        Derived from the typographic standard of 45-75 characters per line. At 17px Inter, 46rem produces approximately 70 characters per line — near the upper end of the comfortable range, optimized for technical content that includes code snippets and longer words.
+        Derived from the typographic standard of 45–75 characters per line. At 17px Inter, 38rem sets a median of about 71 characters per line — measured on rendered text, since <code>ch</code> arithmetic overstates the count (46rem, the earlier default, actually set 86).
       </p>
 
       <h3>OKLCH Color Space</h3>
@@ -78,5 +79,9 @@ import Prose from '../../components/Prose.astro';
         <li><strong>2026-04-08</strong> — Demo site built with Astro. All four page archetypes implemented.</li>
       </ul>
     </Prose>
+
+    <nav class="content-reading mt-12 pt-8 border-t border-[var(--color-border)] flex" aria-label="More projects">
+      <a href={`${base}projects`} class="footer-link -ml-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">&larr; All projects</a>
+    </nav>
   </article>
 </BaseLayout>

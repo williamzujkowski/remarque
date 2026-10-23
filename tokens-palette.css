@@ -47,8 +47,11 @@
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Fira Code", monospace;
 
   /* Reading measure — tuned to the body font (see REMARQUE.md measure table).
-     46rem ≈ 70 characters per line at 17px Inter. */
-  --content-reading: 46rem;
+     38rem ≈ 71 characters per line at 17px Inter — MEASURED (median of
+     rendered body lines), not computed from the `ch` unit, which is the
+     width of "0" and overstates Inter's average glyph (46rem, the pre-0.27
+     default, measured a median of 86). */
+  --content-reading: 38rem;
 
   /* Display weight — palette-tier because it is theme-conditional:
      light-on-dark text renders optically thinner (halation), so dark

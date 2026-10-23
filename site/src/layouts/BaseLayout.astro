@@ -12,6 +12,14 @@ const base = import.meta.env.BASE_URL;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const fullTitle = title === "Home" ? "Remarque — A typography-first design system" : `${title} — Remarque`;
 const ogImageURL = ogImage || `${Astro.site?.origin || ''}${base}og-image.svg`;
+
+// "You are here" (2026-10 design review): the section index gets
+// aria-current="page"; pages inside a section (an essay, a dossier) mark
+// their section link aria-current="true".
+const here = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
+const current = (section: string) =>
+  here === section ? 'page' : here.startsWith(`${section}/`) ? 'true' : undefined;
+const nav = [['writing', 'Writing'], ['projects', 'Projects'], ['notes', 'Notes'], null, ['start', 'Start'], ['specimen', 'Specimen'], ['tokens', 'Tokens'], ['components', 'Components']] as const;
 ---
 
 <!doctype html>
@@ -84,50 +92,52 @@ const ogImageURL = ogImage || `${Astro.site?.origin || ''}${base}og-image.svg`;
     <!-- Skip to content -->
     <a
       href="#main-content"
-      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[var(--z-skip-link)] focus:px-4 focus:py-2 focus:bg-[var(--color-fg)] focus:text-[var(--color-bg)] focus:rounded-[var(--radius-sm)] focus:text-[var(--text-meta)] focus:no-underline focus:outline-none"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[var(--z-skip-link)] focus:px-4 focus:py-2 focus:bg-[var(--color-fg)] focus:text-[var(--color-bg)] focus:rounded-[var(--radius-sm)] focus:text-[length:var(--text-meta)] focus:no-underline focus:outline-none"
     >
       Skip to content
     </a>
 
     <div class="content-standard px-5 sm:px-8">
       <header class="pt-6 sm:pt-8 pb-4 sm:pb-6">
-        <nav class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0" aria-label="Main navigation">
+        <nav class="grid grid-cols-[1fr_auto] items-center gap-y-2 lg:flex" aria-label="Main navigation">
           <a
             href={base}
-            class="font-display text-[1.375rem] leading-[1.2] tracking-[-0.015em] text-[var(--color-fg)] no-underline transition-colors duration-[var(--motion-fast)] ease-remarque"
+            class="inline-flex items-center min-h-[44px] justify-self-start font-display text-[1.375rem] leading-[1.2] tracking-[-0.015em] text-[var(--color-fg)] no-underline transition-colors duration-[var(--motion-fast)] ease-remarque"
           >
             Remarque
           </a>
-          <div class="flex items-center gap-4 sm:gap-6 flex-wrap">
-            <a href={`${base}writing`} class="nav-link">Writing</a>
-            <a href={`${base}projects`} class="nav-link">Projects</a>
-            <a href={`${base}notes`} class="nav-link">Notes</a>
-            <span class="hidden sm:inline text-[var(--color-border)] select-none" aria-hidden="true">|</span>
-            <a href={`${base}start`} class="nav-link">Start</a>
-            <a href={`${base}specimen`} class="nav-link">Specimen</a>
-            <a href={`${base}tokens`} class="nav-link">Tokens</a>
-            <button
-              id="theme-toggle"
-              type="button"
-              aria-label="Toggle dark mode"
-              class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] ease-remarque cursor-pointer bg-transparent border-none min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
-            >
-              <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="hidden">
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-              </svg>
-              <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-              </svg>
-            </button>
+          <!-- Mobile: wordmark + toggle share row 1, links wrap below (a
+               toggle orphaned on its own third row cost ~44px of the
+               first screen); lg+: one row (seven links need ~850px). DOM/tab order is unchanged. -->
+          <div class="col-span-2 row-start-2 flex items-center gap-x-2 gap-y-0 -ml-2 lg:ml-auto lg:gap-x-6 flex-wrap">
+            {nav.map((item) =>
+              item === null
+                ? <span class="hidden lg:inline text-[var(--color-border)] select-none" aria-hidden="true">|</span>
+                : <a href={`${base}${item[0]}`} class="nav-link" aria-current={current(item[0])}>{item[1]}</a>
+            )}
           </div>
+          <button
+            id="theme-toggle"
+            type="button"
+            aria-label="Dark mode"
+            aria-pressed="false"
+            class="col-start-2 row-start-1 -mr-3 lg:mr-0 lg:ml-6 text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] ease-remarque cursor-pointer bg-transparent border-none min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
+          >
+            <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
         </nav>
       </header>
 
@@ -137,13 +147,12 @@ const ogImageURL = ogImage || `${Astro.site?.origin || ''}${base}og-image.svg`;
 
       <footer class="mt-16 py-8 border-t border-[var(--color-border)]">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <p class="font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
+          <p class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
             Built with the Remarque design system
           </p>
-          <div class="flex gap-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)]">
+          <div class="flex gap-4 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">
             <a href="https://github.com/williamzujkowski/remarque" class="footer-link">GitHub</a>
             <a href={`${base}start`} class="footer-link">Get Started</a>
-            <a href={`${base}components`} class="footer-link footer-link--desktop-only">Components</a>
             <a href={`${base}rss.xml`} class="footer-link">RSS</a>
           </div>
         </div>
@@ -168,6 +177,7 @@ const ogImageURL = ogImage || `${Astro.site?.origin || ''}${base}og-image.svg`;
         function updateIcons(t) {
           var sun = document.getElementById('sun-icon');
           var moon = document.getElementById('moon-icon');
+          document.getElementById('theme-toggle').setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
           if (t === 'dark') { sun.classList.remove('hidden'); moon.classList.add('hidden'); }
           else { sun.classList.add('hidden'); moon.classList.remove('hidden'); }
         }

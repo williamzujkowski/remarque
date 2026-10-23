@@ -4,6 +4,32 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.27.0 — 2026-10-23
+
+Design review of the system and its demo site, run with Open Design's `design-review` methodology (gstack's 10-category / ~80-item rubric, calibrated against REMARQUE.md and AGENT_RULES.md): five independent reviewers, about 50 findings, AI-slop grade A throughout. The defects were in implementation, not identity. Two identity-level calls were put to a nexus consensus vote, and both passed 7–0. Closes #115 and #116.
+
+### Changed — default reading measure (consumer-visible; Governance "token value" minor case)
+
+- **`--content-reading` default 46rem → 38rem.** REMARQUE.md calls the *measured character count* the invariant: a median of 66–72 per line. 46rem was documented as "≈ 70 ch at 17px Inter", but measured over rendered body lines (one `Range` per character, the paragraph's last line dropped) it set a **median of 86** (p90 93, past Butterick's 90). The claim came from `ch` arithmetic, and `ch` is the width of "0". 38rem measures a median of 71 (p90 76). Source Serif's reference consumer independently landed on 38rem ≈ 73 (#116). Ratified 7–0 (vote-1792782673313-gff1bdc): fix the value and keep the invariant. **Every consumer that doesn't override `--content-reading` gets a narrower prose column.** To keep the old measure, set `--content-reading: 46rem` in your palette override. It's palette tier, so one line does it.
+- REMARQUE.md "Measure Compensation" is now stated in measured median/p90 characters, and documents how to measure them. AGENT_RULES, the README, the Butterick conformance row and the tailwind comment are updated. A new computed-style gate asserts that the demo essays measure a median of 66–72.
+- **Essay sidenote gutter `--space-10` → `--space-11` (8 → 10rem).** At 8rem a mono note held about 15 characters per line, so a two-sentence note ran 19 lines tall. 10rem still clears the 80rem breakpoint with a 46rem column.
+
+### Added
+
+- **`remarque-audit` fails on `text-[var(--text-*)]`** (new `srcScans.ambiguousTextSize`; AGENT_RULES Pitfall #8). Tailwind v4 can't infer a bare `var()`'s type. It compiles `text-[var(--text-meta)]` to **`color: var(--text-meta)`**, so no size is ever set and the invalid color clobbers the element's real color utility, with no build error. The demo shipped 134 of these: every date, lede, footer line and code block rendered at 17px full contrast instead of the 14px muted meta register. Use `text-[length:var(--text-meta)]`. `theme.css` documents why it deliberately maps no `--text-*` keys: they would collide with the unlayered `.text-meta`/`.text-body` classes.
+- **Prose `a:visited`** shifts only `text-decoration-color` to `--color-fg-muted`. The link text keeps the accent, per the one-accent rule. There's no new token, so the upstream themes, `remarque-theme`, the audit and the golden gate are untouched. Ratified 7–0 (vote-1792782672108-js2he54).
+
+### Fixed
+
+- **essay.css: TOC rail focus rings were clipped (#115).** The sticky rail's `overflow-y` made it a scroll container, which clipped the left edge of every link's 2px+2px ring and three sides of the summary's. The rail now pads past the ring's reach and pulls back by the same amount. TOC links and the summary get a 44px min-height (they were 18px tall below 80rem), and the disclosure marker sits beside its label.
+- **broadsheet.css:** the lead's drop cap renders only from 40rem up. On a phone column the 3.5em italic capital left the deck a sliver about 20 characters wide.
+- **prose.css:** `th.num`/`td.num` never wrap a value ("44–80" was breaking after its en dash).
+- **AGENT_RULES Pitfall #2** recommended `max-w-reading mx-auto`, which its own Layout section forbids. That pattern also escapes `print.css`'s full-width reset, so printed headers were indented. It now recommends `.content-reading`.
+
+### Demo site (not part of the package)
+
+No horizontal scroll at 375px on any page; nav "you are here" (`aria-current`) and Components reachable on mobile; the theme toggle exposes `aria-pressed`; an on-brand 404; onward links from essays, the dossier and Start; typographic quotes throughout; 44px hit areas; no autofocus scroll-jump on Components; the Specimen states the real meta/micro sizes; the tokens page prints its oklch values with tabular numerals; titles share their content's axis. New computed-style regression gates cover each of these, and the visual baselines were regenerated.
+
 ## 0.26.0 — 2026-07-23
 
 `remarque-new-page` skill (closes #108) + `token-drift.yml` optional audit input (closes #110) — the last two items of the skill-suite/CI program.

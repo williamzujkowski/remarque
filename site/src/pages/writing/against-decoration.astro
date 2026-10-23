@@ -10,7 +10,7 @@ const base = import.meta.env.BASE_URL;
          kicker, demoed here rather than on writing/typography-as-interface
          (that page is the Essay archetype's own VR baseline) so this
          change doesn't touch an existing baseline. -->
-    <header class="remarque-post-header max-w-reading mx-auto">
+    <header class="remarque-post-header content-reading">
       <p class="remarque-post-kicker">
         <span class="remarque-post-kicker-section">Essay</span>
         <span class="remarque-dot" aria-hidden="true">&middot;</span>
@@ -22,7 +22,7 @@ const base = import.meta.env.BASE_URL;
     </header>
 
     <Prose dropcap>
-      <p class="text-[var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg-muted)]">
+      <p class="text-[length:var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg-muted)]">
         The modern web is drowning in visual noise. Every landing page has a gradient. Every SaaS product has glassmorphism. Every portfolio site has scroll-triggered animations. What if the antidote is not more innovation, but deliberate restraint?
       </p>
 
@@ -43,7 +43,7 @@ const base = import.meta.env.BASE_URL;
       </p>
 
       <p>
-        These costs are invisible to the builder and cumulative for the reader. A single animated element is fine. Twelve of them — staggered, parallaxed, and glassmorphed — produce a page that is exhausting to look at, even if each individual element is "well-designed."
+        These costs are invisible to the builder and cumulative for the reader. A single animated element is fine. Twelve of them — staggered, parallaxed, and glassmorphed — produce a page that is exhausting to look at, even if each individual element is “well-designed.”
       </p>
 
       <h2>The Case for Quiet</h2>
@@ -63,21 +63,22 @@ const base = import.meta.env.BASE_URL;
       </blockquote>
 
       <p>
-        Antoine de Saint-Exupery was talking about aircraft. But the principle applies to every page on the web. The best designs are the ones where you cannot point to a single element and say "this is decorative."
+        Antoine de Saint-Exupery was talking about aircraft. But the principle applies to every page on the web. The best designs are the ones where you cannot point to a single element and say “this is decorative.”
       </p>
 
       <hr />
 
       <p>
-        Decoration is not evil. It is just overused. When every tool in your toolbox is a gradient, every problem looks like it needs more color. When your primary tool is typography, problems look different — and the solutions are quieter, more durable, and more respectful of the reader's attention.
+        Decoration is not evil. It is just overused. When every tool in your toolbox is a gradient, every problem looks like it needs more color. When your primary tool is typography, problems look different — and the solutions are quieter, more durable, and more respectful of the reader’s attention.
       </p>
     </Prose>
 
     <div class="remarque-endmark content-reading" aria-hidden="true"></div>
 
-    <nav class="max-w-reading mx-auto mt-12 pt-8 border-t border-[var(--color-border)] flex justify-between">
+    <nav class="w-full content-reading mt-12 pt-8 border-t border-[var(--color-border)] flex flex-wrap items-center justify-between gap-x-4 sm:grid sm:grid-cols-[1fr_auto_1fr]" aria-label="More writing">
       <span></span>
-      <a href={`${base}writing/typography-as-interface`} class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque text-[var(--text-body)]">Typography as Interface &rarr;</a>
+      <a href={`${base}writing`} class="footer-link -ml-2 sm:ml-0 order-last basis-full justify-start sm:order-none sm:basis-auto font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">All writing</a>
+      <a href={`${base}writing/typography-as-interface`} class="inline-flex items-center min-h-[44px] justify-self-end text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque text-[length:var(--text-body)]">Typography as Interface &rarr;</a>
     </nav>
   </article>
 </BaseLayout>

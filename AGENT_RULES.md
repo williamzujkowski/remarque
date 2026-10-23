@@ -58,7 +58,7 @@ These are not guidelines. Agents must follow them literally.
 ### Typography
 
 - Body text is never smaller than `--text-body` (17px / 1.0625rem)
-- Prose columns never exceed `--content-reading` (46rem)
+- Prose columns never exceed `--content-reading` (38rem default — ~71 measured characters of 17px Inter)
 - Display/title text always uses `--font-display` (Newsreader)
 - Body text always uses `--font-body` (Inter)
 - Mono text is *only* for: metadata, code, labels, timestamps, technical accents
@@ -70,7 +70,7 @@ These are not guidelines. Agents must follow them literally.
 - The first screen contains only: title, metadata, and the start of content
 - Top padding before the main heading is at least `--space-9` (6rem)
 - The site uses a **single centered column** layout: BaseLayout constrains all content to `content-standard` (72rem) centered. Individual pages do NOT set their own outer width constraints.
-- Within the centered column, use `.content-reading` for prose-width sections (46rem, auto-centered within the 72rem column)
+- Within the centered column, use `.content-reading` for prose-width sections (38rem default, auto-centered within the 72rem column)
 - Do NOT use Tailwind's `max-w-reading` or `max-w-standard` on page sections — these only set max-width without centering. Use the CSS classes `.content-reading` / `.content-standard` instead, which include `margin-inline: auto`
 - Code blocks (`<pre>`) inherit the width of their parent container — no special wrapping needed when the parent is already constrained
 - Stacking order is structural, not personalization: never author a bare `z-index` number — reference `tokens-core.css`'s `--z-*` scale (`--z-base`/`--z-sticky`/`--z-dropdown`/`--z-overlay`/`--z-modal`/`--z-toast`/`--z-skip-link`). Tailwind v4 has no `--z-index-*` theme namespace, so use arbitrary values (`z-[var(--z-modal)]`) rather than bare Tailwind numbers. See REMARQUE.md "Stacking."
@@ -186,7 +186,7 @@ Three further archetypes — Reference/Docs, Changelog, Gallery — are specifie
 
 1. **Tailwind spacing collision:** Never map Remarque's `--space-N` values onto Tailwind's default numeric spacing keys — in v4 `@theme` that means no `--spacing-9`…`--spacing-12`, and in the v3 config no `spacing: { "5"…"12" }` overrides — or `mt-12` produces 192px instead of 48px. Both shipped artifacts namespace instead: the v3 config exposes `mt-remarque-9` etc., the reference v4 `@theme` uses `--spacing-remarque-N`. Use those, or `var(--space-N)` in arbitrary values.
 
-2. **Prose alignment:** The essay header and prose body must BOTH use centered max-width (`max-w-reading mx-auto`) to prevent misalignment. The `.content-reading` class auto-centers; match headers with `mx-auto`.
+2. **Prose alignment:** The essay header and prose body must BOTH sit in the same centered reading column to prevent misalignment — put `.content-reading` on both (it sets `max-width` and `margin-inline: auto`). Not Tailwind's `max-w-reading mx-auto`: it renders the same on screen, but `print.css`'s full-width reset is keyed on `.content-reading`, so a `max-w-reading` header prints indented from its body (the demo shipped exactly that until the 2026-10 design review).
 
 3. **Dark mode specificity:** Define `[data-theme="light"]` and `[data-theme="dark"]` overrides in addition to the `:root` defaults. Without an explicit light override, users with `prefers-color-scheme: dark` cannot toggle to light mode. Since 0.24.0 (`light-dark()` + `color-scheme`, REMARQUE.md "Color Scheme & light-dark()"), the shipped default palette's own `[data-theme="light"]` override is just `color-scheme: light` — a consumer palette that still authors the older two-declaration convention needs the fuller override this rule originally describes.
 
@@ -198,6 +198,8 @@ Three further archetypes — Reference/Docs, Changelog, Gallery — are specifie
 
 7. **Tokens must be imported unlayered (Tailwind v4):** never `@import "remarque-tokens" layer(...)`. theme.css's `@theme inline` mappings emit same-named self-referencing declarations inside `@layer theme`; the real token values win only because unlayered declarations beat layered ones. Layering the tokens makes every mapped utility circular and invalid, with no build error.
 
+8. **Arbitrary type-scale sizes need the `length:` hint (Tailwind v4):** write `text-[length:var(--text-meta)]`, never `text-[var(--text-meta)]`. Tailwind cannot infer a bare `var()`'s type, treats `text-[…]` as a color, and emits `color: var(--text-meta)` — the size never applies and the invalid color clobbers the element's real color utility, with no build error. `theme.css` deliberately maps no `--text-*` keys (they would collide with the unlayered `.text-meta`/`.text-body` classes). `remarque-audit` fails on the ambiguous form (`srcScans.ambiguousTextSize`). The demo site shipped 134 of these until the 2026-10 design review.
+
 ---
 
 ## Quality Checklist
@@ -207,7 +209,7 @@ Before considering any implementation complete, verify:
 - [ ] Fonts load: Newsreader for display, Inter for body, JetBrains Mono for meta
 - [ ] Fonts are self-hosted (no Google CDN requests in network tab)
 - [ ] Body text is ≥17px on all viewports
-- [ ] Prose column is ≤46rem on desktop
+- [ ] Prose column is ≤ `--content-reading` on desktop, and body lines measure a median of 66–72 rendered characters (REMARQUE.md "Measure Compensation" — count characters, not `ch`)
 - [ ] Prose header and body are aligned (both centered with `mx-auto` or both left-aligned)
 - [ ] Line height for body text is 1.75
 - [ ] Dark mode is readable and independently tuned (not just inverted)
@@ -235,6 +237,7 @@ Before considering any implementation complete, verify:
 - [ ] `<html lang="en">` attribute set
 - [ ] The site looks more like a book than a web app
 - [ ] Tailwind spacing utilities (`mt-12`, `pt-8`) produce expected values (not overridden by `@theme`)
+- [ ] Arbitrary type-scale sizes use `text-[length:var(--text-*)]` — verify a computed `font-size` on one meta element, not just the class name (Pitfall #8)
 
 ---
 
@@ -280,6 +283,7 @@ npx remarque-audit --palette <file> --src <dir> --json
     unverifiableFontSize: Array<{ file: string; line: number; snippet: string }>;
     hardcodedColors: Array<{ file: string; line: number; snippet: string }>;
     oklchLiteral: Array<{ file: string; line: number; snippet: string }>;
+    ambiguousTextSize: Array<{ file: string; line: number; snippet: string }>; // Tailwind text-[var(--text-*)] (Pitfall #8)
   };
   failures: string[];      // every failure as a human-readable message, same text the non-JSON run prints
 }

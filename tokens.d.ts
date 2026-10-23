@@ -1,6 +1,6 @@
 /*
  * Remarque design tokens — GENERATED from tokens.json by
- * scripts/tokens-json.mjs (v0.26.0). Do not edit — the CSS
+ * scripts/tokens-json.mjs (v0.27.0). Do not edit — the CSS
  * (tokens-core.css + tokens-palette.css) is the source of truth;
  * tokens.json is the intermediate machine-readable form this file is
  * generated from. Regenerate with: node scripts/tokens-json.mjs
@@ -255,8 +255,8 @@ export interface RemarqueTokenValues {
       readonly dark: "\"JetBrains Mono\", ui-monospace, \"Cascadia Code\", \"Fira Code\", monospace";
     };
     readonly 'content-reading': {
-      readonly light: "46rem";
-      readonly dark: "46rem";
+      readonly light: "38rem";
+      readonly dark: "38rem";
     };
     readonly 'weight-display': {
       readonly light: 400;

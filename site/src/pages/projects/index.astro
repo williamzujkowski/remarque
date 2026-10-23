@@ -6,7 +6,7 @@ const base = import.meta.env.BASE_URL;
 <BaseLayout title="Projects" description="Technical work, architecture, and open source.">
   <div class="pt-[var(--space-9)]">
     <h1 class="text-display font-display text-[var(--color-fg)]">Projects</h1>
-    <p class="mt-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
+    <p class="mt-4 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
       Technical work, open source, and experiments.
     </p>
   </div>
@@ -14,12 +14,12 @@ const base = import.meta.env.BASE_URL;
   <div class="mt-12 space-y-8">
     <a href={`${base}projects/remarque`} class="group block pb-8 border-b border-[var(--color-border)]">
       <h2 class="text-title font-display text-[var(--color-fg)] group-hover:text-[var(--color-accent)] transition-colors duration-[var(--motion-fast)] ease-remarque">Remarque</h2>
-      <div class="mt-2 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] flex gap-4">
+      <div class="mt-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] flex flex-wrap gap-x-4 gap-y-1 [&>*]:whitespace-nowrap">
         <span>active</span>
         <span>CSS / Tailwind / Astro</span>
         <time datetime="2026-04-06">Apr 6, 2026</time>
       </div>
-      <p class="mt-3 text-[var(--text-body)] text-[var(--color-fg-muted)]">
+      <p class="mt-3 text-[length:var(--text-body)] text-[var(--color-fg-muted)]">
         A typography-first design system for editorial, technical, and personal web projects.
       </p>
     </a>

@@ -82,7 +82,7 @@ module.exports = {
        * container (e.g. a lead paragraph).
        */
       maxWidth: {
-        "reading": "var(--content-reading)",      // 46rem — prose
+        "reading": "var(--content-reading)",      // 38rem — prose
         "standard": "var(--content-standard)",    // 72rem — project pages
         "wide": "var(--content-wide)",            // 88rem — outer container
       },

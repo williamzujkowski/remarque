@@ -161,13 +161,15 @@ Remarque uses a three-slot font system. Each slot has a strict role, and each sl
 
 ### Measure Compensation
 
-`--content-reading` is calibrated to the body font — 46rem gives ~70 characters per line at 17px **Inter**, but the same width in a text serif runs ~85 characters, well past comfortable. When you swap the body slot, change the measure with it (target 66–72 ch/line at `--text-body`):
+`--content-reading` is calibrated to the body font — 38rem gives a median of ~71 characters per line at 17px **Inter**. When you swap the body slot, change the measure with it (target: a **median of 66–72 measured characters per line** at `--text-body`, p90 under ~78):
 
-| Body face | `--content-reading` | Rationale |
+| Body face | `--content-reading` | Measured at 17px (median / p90 chars per line) |
 |-----------|--------------------:|-----------|
-| Inter (default) | 46rem | ~70 ch/line at 17px |
-| system-ui stack | 46rem | metrics close to Inter |
-| Source Serif 4 | 40rem | ~71 ch/line — measured on williamzujkowski.github.io, the reference consumer |
+| Inter (default) | 38rem | 71 / 76 — this repo's demo essays, 2026-10 |
+| system-ui stack | 38rem | metrics close to Inter — measure your target platform's face |
+| Source Serif 4 | 38rem | 73 / 78 — measured on williamzujkowski.github.io, the reference consumer (#116) |
+
+**Measure in rendered characters, never in `ch`.** `1ch` is the advance width of the digit "0", which is wider than the average letter-plus-space of proportional text, so `ch` arithmetic overstates how few characters fit. Until 0.27.0 this table said 46rem ≈ 70 ch for Inter; rendered, 46rem set a median of **86** characters per line (p90 93) — past Butterick's 90 at the tail. To measure: for each body paragraph, walk its text nodes with a `Range` per character, group `getClientRects()[0].top` into lines, drop each paragraph's last (short) line, and take the median and p90 across the page (spaces count; skip `code`/`sup`). The demo's computed-style suite runs exactly this check.
 
 This is why the measure is palette-tier: it is a property of the font choice, not of the system's identity. The *target character count* is the invariant.
 
@@ -233,7 +235,7 @@ Never mix the two: a numeral inside running prose should never be tabular, and a
 
 - Use spacious layouts with generous whitespace
 - Use a slightly oversized type scale (body text at 17px minimum)
-- Constrain reading widths for prose (max 46rem / ~740px)
+- Constrain reading widths for prose (max 38rem / ~608px — about 71 characters of Inter)
 - Use quiet, subtle borders over shadows
 - Use strong vertical rhythm and consistent spacing
 - Keep components visually quiet and subordinate to content
@@ -578,7 +580,7 @@ deviate — values below are asserted against `tokens.json` in CI:
 | 1. Body text first | Typographic quality is determined largely by body text | AGENT_RULES.md Build Order steps 1–4 are tokens → typography → shell → prose, before any component | Aligned by construction |
 | 2. Point size | 15–25 px on the web | `--text-body: 1.0625rem` (17px); lead paragraphs `--text-body-lg: 1.1875rem` (19px) | Aligned |
 | 3. Line spacing | 120–145% of point size | `--leading-body: 1.75` (175%) | **Deliberate deviation** — see below |
-| 4. Line length | 45–90 characters per line | `--content-reading: 46rem` ≈ 70 ch at 17px Inter; the measure-compensation table targets 66–72 ch for every approved body face | Aligned |
+| 4. Line length | 45–90 characters per line | `--content-reading: 38rem` ≈ 71 measured characters (median, p90 76) at 17px Inter; the measure-compensation table targets a 66–72 median for every approved body face | Aligned |
 | 5. Font choice | Professional fonts, never default system faces | Newsreader (Production Type), Inter (Rasmus Andersson), JetBrains Mono — professionally designed, self-hosted | Aligned in spirit: these are free but professional-grade faces; Butterick's stricter preference is paid fonts |
 
 ### The line-spacing deviation, argued

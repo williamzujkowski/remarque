@@ -90,6 +90,15 @@
   color: var(--color-link-hover);
 }
 
+/* Visited links keep accent text (the one-accent rule) and shift only the
+   underline to an existing, audited neutral — a color-only change, the
+   one kind browsers honor on :visited. No new palette token, so every
+   remarque-theme palette gets it for free. Ratified 7-0 (2026-10 design
+   review); forced-colors maps it to the system VisitedText color. */
+.remarque-prose a:visited {
+  text-decoration-color: var(--color-fg-muted);
+}
+
 .remarque-prose strong {
   font-weight: var(--weight-semibold);
 }
@@ -281,6 +290,10 @@
 .remarque-prose td.num {
   font-variant-numeric: tabular-nums lining-nums;
   text-align: right;
+  /* A value never breaks across lines — "44–80" split after its en
+     dash reads as two numbers (2026-10 design review). Numeric cells
+     are short; a genuinely wide table still belongs in .scroll-wrap. */
+  white-space: nowrap;
 }
 
 /* ─── Definition Lists ───────────────────────────────────── */
