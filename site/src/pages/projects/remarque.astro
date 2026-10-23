@@ -22,7 +22,7 @@ import Prose from '../../components/Prose.astro';
 
     <div class="mb-12 p-6 border border-[var(--color-border)] rounded-[var(--radius-md)] bg-[var(--color-surface)]">
       <h2 class="text-label mb-4">Metadata</h2>
-      <dl class="grid grid-cols-[auto_1fr] gap-x-8 gap-y-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">
+      <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-8 gap-y-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">
         <dt class="text-[var(--color-muted)]">Status</dt>
         <dd class="text-[var(--color-fg)]">Active</dd>
         <dt class="text-[var(--color-muted)]">Stack</dt>
@@ -32,7 +32,7 @@ import Prose from '../../components/Prose.astro';
         <dt class="text-[var(--color-muted)]">License</dt>
         <dd class="text-[var(--color-fg)]">MIT</dd>
         <dt class="text-[var(--color-muted)]">Source</dt>
-        <dd><a href="https://github.com/williamzujkowski/remarque" class="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">github.com/williamzujkowski/remarque</a></dd>
+        <dd><a href="https://github.com/williamzujkowski/remarque" class="[overflow-wrap:anywhere] text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">github.com/williamzujkowski/remarque</a></dd>
       </dl>
     </div>
 
