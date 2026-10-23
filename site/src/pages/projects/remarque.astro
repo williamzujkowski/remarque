@@ -9,9 +9,10 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Meta from '../../components/Meta.astro';
 import Prose from '../../components/Prose.astro';
+const base = import.meta.env.BASE_URL;
 ---
 
-<BaseLayout title="Remarque" description="A typography-first design system for editorial, technical, and personal web projects.">
+<BaseLayout title="Remarque (project)" description="A typography-first design system for editorial, technical, and personal web projects.">
   <article class="pt-[var(--space-9)]">
     <header class="mb-8">
       <h1 class="text-display font-display text-[var(--color-fg)]">Remarque</h1>
@@ -78,5 +79,9 @@ import Prose from '../../components/Prose.astro';
         <li><strong>2026-04-08</strong> — Demo site built with Astro. All four page archetypes implemented.</li>
       </ul>
     </Prose>
+
+    <nav class="max-w-reading mx-auto mt-12 pt-8 border-t border-[var(--color-border)] flex" aria-label="More projects">
+      <a href={`${base}projects`} class="footer-link -ml-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">&larr; All projects</a>
+    </nav>
   </article>
 </BaseLayout>
