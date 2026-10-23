@@ -319,23 +319,29 @@
    (3.5em / 0.85 line-height / initial-letter progressive enhancement)
    for one consistent drop-cap voice across the system, rather than a
    second bespoke number. */
-.remarque-lead-lede::first-letter {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: var(--weight-display, var(--weight-regular));
-  font-size: 3.5em;
-  line-height: 0.85;
-  float: left;
-  padding: 0.08em 0.12em 0 0;
-  color: var(--color-fg);
-}
-
-@supports (initial-letter: 4) or (-webkit-initial-letter: 4) {
+/* Wide viewports only (2026-10 design review): on a phone-width column
+   the 3.5em italic capital (~110px for a "W") left the italic deck a
+   ~20-character sliver for four lines and sat against the title above
+   it. Below 40rem the lede reads as plain italic text. */
+@media (min-width: 40rem) {
   .remarque-lead-lede::first-letter {
-    initial-letter: 3.5;
-    -webkit-initial-letter: 3.5;
-    float: none;
-    padding: 0 0.08em 0 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: var(--weight-display, var(--weight-regular));
+    font-size: 3.5em;
+    line-height: 0.85;
+    float: left;
+    padding: 0.08em 0.12em 0 0;
+    color: var(--color-fg);
+  }
+
+  @supports (initial-letter: 4) or (-webkit-initial-letter: 4) {
+    .remarque-lead-lede::first-letter {
+      initial-letter: 3.5;
+      -webkit-initial-letter: 3.5;
+      float: none;
+      padding: 0 0.08em 0 0;
+    }
   }
 }
 
