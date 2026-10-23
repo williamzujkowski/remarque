@@ -183,6 +183,21 @@
   transition: color var(--motion-fast) var(--motion-easing), border-color var(--motion-fast) var(--motion-easing);
 }
 
+/* 44px hit area without enlarging the quiet visible chip. */
+.copy-btn::after {
+  content: "";
+  position: absolute;
+  inset: -0.5rem;
+}
+
+/* Narrow screens: the absolutely positioned chip sat on top of the
+   first line of code (2026-10 design review) — reserve a band for it. */
+@media (max-width: 40rem) {
+  pre:has(> .copy-btn) {
+    padding-top: 2.75rem;
+  }
+}
+
 .copy-btn:hover {
   color: var(--color-fg);
   border-color: var(--color-border-bold);
