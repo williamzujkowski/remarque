@@ -240,3 +240,74 @@ test.describe('palette deck (remarque-tokens/deck, issue #56)', () => {
     expect(bgAfter).not.toBe(bgBefore);
   });
 });
+
+/* ── 2026-10 design review (Open Design → gstack design-review) ──────
+   Each block below guards a defect the review found shipped. */
+
+const ALL_PATHS = ['', 'start', 'writing', 'writing/typography-as-interface', 'writing/against-decoration',
+  'projects', 'projects/remarque', 'notes', 'specimen', 'tokens', 'components'];
+
+test.describe('no horizontal scroll at 375px', () => {
+  for (const path of ALL_PATHS) {
+    test(`/${path}`, async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 812 });
+      await gotoWithTheme(page, path, 'light');
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(overflow).toBeLessThanOrEqual(0);
+    });
+  }
+});
+
+test.describe('meta register renders at --text-meta', () => {
+  // AGENT_RULES Pitfall #8: text-[var(--text-meta)] compiles to a color
+  // and sets no size — 134 demo elements rendered at 17px body size.
+  test('footer meta line computes to the --text-meta size', async ({ page }) => {
+    await gotoWithTheme(page, PAGES[0].path, 'light');
+    const { size, token } = await page.evaluate(() => {
+      const probe = document.createElement('div');
+      probe.style.fontSize = 'var(--text-meta)';
+      document.body.appendChild(probe);
+      const token = parseFloat(getComputedStyle(probe).fontSize);
+      probe.remove();
+      return { size: parseFloat(getComputedStyle(document.querySelector('footer p')!).fontSize), token };
+    });
+    expect(token).toBeCloseTo(14, 0);
+    expect(size).toBe(token);
+  });
+});
+
+test.describe('nav wayfinding', () => {
+  test('section index is aria-current="page"; a page inside it marks the section "true"', async ({ page }) => {
+    await gotoWithTheme(page, 'writing', 'light');
+    expect(await page.locator('header nav a[aria-current]').evaluateAll((as) => as.map((a) => `${a.textContent?.trim()}=${a.getAttribute('aria-current')}`))).toEqual(['Writing=page']);
+    await gotoWithTheme(page, 'projects/remarque', 'light');
+    expect(await page.locator('header nav a[aria-current]').evaluateAll((as) => as.map((a) => `${a.textContent?.trim()}=${a.getAttribute('aria-current')}`))).toEqual(['Projects=true']);
+  });
+});
+
+test.describe('essay module — TOC rail focus rings (issue #115)', () => {
+  test('a focused rail link’s ring stays inside the rail’s scroll box', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await gotoWithTheme(page, 'writing/typography-as-interface', 'light');
+    const link = page.locator('.remarque-toc-rail a').first();
+    await link.focus();
+    const gap = await link.evaluate((a) => {
+      const rail = a.closest('.remarque-toc-rail')!;
+      const cs = getComputedStyle(a);
+      const reach = parseFloat(cs.outlineWidth) + parseFloat(cs.outlineOffset);
+      const r = a.getBoundingClientRect();
+      const box = rail.getBoundingClientRect();
+      return Math.min(r.left - reach - box.left, box.right - (r.right + reach), r.top - reach - box.top);
+    });
+    expect(gap).toBeGreaterThanOrEqual(0);
+  });
+});
+
+test.describe('404 page', () => {
+  test('unknown routes get the site chrome and a way home', async ({ page }) => {
+    const res = await page.goto('does-not-exist');
+    expect(res?.status()).toBe(404);
+    await expect(page.locator('header nav[aria-label="Main navigation"]')).toBeVisible();
+    await expect(page.locator('main a', { hasText: 'Home' })).toBeVisible();
+  });
+});
