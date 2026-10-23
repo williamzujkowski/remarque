@@ -27,7 +27,7 @@ const tableRows = [
 <BaseLayout title="Components" description="Reference form controls, buttons, and a data table built on the Remarque forms module.">
   <div class="pt-[var(--space-9)]">
     <h1 class="text-display font-display text-[var(--color-fg)]">Components</h1>
-    <p class="mt-4 font-mono text-[var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
+    <p class="mt-4 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
       Reference form controls, from remarque-tokens/forms — every input state, both button variants, and a standalone table.
     </p>
   </div>
@@ -35,8 +35,8 @@ const tableRows = [
   <!-- Buttons -->
   <section class="mt-12 content-reading">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Buttons</h2>
-    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6">
-      Quiet by rule — text-only or bordered, never filled/solid as default. <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">--primary</code> is the one sanctioned accent placement per viewport, and stays unfilled even there.
+    <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6">
+      Quiet by rule — text-only or bordered, never filled/solid as default. <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">--primary</code> is the one sanctioned accent placement per viewport, and stays unfilled even there.
     </p>
     <div class="flex flex-wrap items-center gap-4">
       <Button>Cancel</Button>
@@ -48,8 +48,8 @@ const tableRows = [
   <!-- Inputs: every field state -->
   <section class="mt-12 content-reading">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Inputs</h2>
-    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6">
-      Every <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-field</code> state — default, focus, error, success, and disabled. The "Focused" field is autofocused (try loading this page directly) and additionally carries a static ring below so this page's own reference screenshot always shows it — headless full-page capture can transiently drop window focus mid-stitch, which native <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">:focus-visible</code> would miss.
+    <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6">
+      Every <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-field</code> state — default, focus, error, success, and disabled. The "Focused" field is autofocused (try loading this page directly) and additionally carries a static ring below so this page's own reference screenshot always shows it — headless full-page capture can transiently drop window focus mid-stitch, which native <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">:focus-visible</code> would miss.
     </p>
     <div class="flex flex-col gap-6">
       <Input
@@ -109,8 +109,8 @@ const tableRows = [
   <!-- Checkbox & Radio -->
   <section class="mt-12 content-reading">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Checkbox &amp; Radio</h2>
-    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6">
-      Native controls, recolored with <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">accent-color</code> only — no fake replacements.
+    <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6">
+      Native controls, recolored with <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">accent-color</code> only — no fake replacements.
     </p>
     <div class="flex flex-col gap-3">
       <label class="remarque-checkbox">
@@ -135,8 +135,8 @@ const tableRows = [
   <!-- Standalone Table -->
   <section class="mt-12 mb-12 content-standard">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Table</h2>
-    <p class="text-[var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">
-      <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-table</code> — the same visual language as a prose table, outside <code class="font-mono text-[var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-prose</code>.
+    <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">
+      <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-table</code> — the same visual language as a prose table, outside <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-prose</code>.
     </p>
     <Table caption="Font size floors" columns={tableColumns} rows={tableRows} />
   </section>
