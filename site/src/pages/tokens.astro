@@ -61,6 +61,9 @@ const spacing = [
 ---
 
 <BaseLayout title="Tokens" description="Visual reference for all Remarque design tokens — colors, spacing, content widths, and motion.">
+  <!-- Tabular lining numerals page-wide: every value here is a number
+       meant to be compared down a column (2026-10 design review). -->
+  <div class="tabular-nums lining-nums">
   <div class="pt-[var(--space-9)]">
     <h1 class="text-display font-display text-[var(--color-fg)]">Design Tokens</h1>
     <p class="mt-4 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
@@ -78,8 +81,9 @@ const spacing = [
       {colorPairs.map((c) => (
         <div class="py-4 border-b border-[var(--color-border)] grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_100px_100px] gap-3 items-center">
           <div>
-            <p class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg)]">{c.name}</p>
+            <p class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg)] whitespace-nowrap">{c.name}</p>
             <p class="text-[length:var(--text-micro)] text-[var(--color-fg-muted)]">{c.desc}</p>
+            <p class="mt-1 font-mono text-[length:var(--text-micro)] text-[var(--color-muted)]">{c.light}<br />{c.dark}</p>
           </div>
           <div class="flex flex-col items-center gap-1">
             <div class="remarque-color-swatch w-16 h-8 rounded-sm border border-[var(--color-border)]" style={`background: ${c.light};`}></div>
@@ -110,17 +114,17 @@ const spacing = [
               {i % 3 === 2 && <polygon points="8,1 15,15 1,15" fill="currentColor" class="text-[var(--color-fg-muted)]" />}
             </svg>
             <div>
-              <p class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg)]">{v.name}</p>
+              <p class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-fg)] whitespace-nowrap">{v.name}</p>
               <p class="text-[length:var(--text-micro)] text-[var(--color-fg-muted)]">Series {i + 1}</p>
             </div>
           </div>
           <div class="flex flex-col items-center gap-1">
             <div class="remarque-color-swatch w-16 h-8 rounded-sm border border-[var(--color-border)]" style={`background: ${v.light};`}></div>
-            <span class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)]">light {v.ratioLight}</span>
+            <span class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)] text-center">light {v.ratioLight}</span>
           </div>
           <div class="flex flex-col items-center gap-1">
             <div class="remarque-color-swatch w-16 h-8 rounded-sm border border-[var(--color-border-bold)]" style={`background: ${v.dark};`}></div>
-            <span class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)]">dark {v.ratioDark}</span>
+            <span class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)] text-center">dark {v.ratioDark}</span>
           </div>
         </div>
       ))}
@@ -212,18 +216,18 @@ const spacing = [
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
       <div>
         <h3 class="font-body text-[length:var(--text-body)] font-semibold text-[var(--color-fg)] mb-4">Border Radius</h3>
-        <div class="flex items-end gap-6">
+        <div class="flex items-end gap-4 sm:gap-6">
           <div class="text-center">
-            <div class="w-16 h-16 border border-[var(--color-border-bold)] rounded-sm"></div>
-            <p class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)] mt-2">--radius-sm<br/>0.25rem</p>
+            <div class="mx-auto w-16 h-16 border border-[var(--color-border-bold)] rounded-sm"></div>
+            <p class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)] mt-2 whitespace-nowrap">--radius-sm<br/>0.25rem</p>
           </div>
           <div class="text-center">
-            <div class="w-16 h-16 border border-[var(--color-border-bold)] rounded-[var(--radius-md)]"></div>
-            <p class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)] mt-2">--radius-md<br/>0.5rem (max)</p>
+            <div class="mx-auto w-16 h-16 border border-[var(--color-border-bold)] rounded-[var(--radius-md)]"></div>
+            <p class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)] mt-2 whitespace-nowrap">--radius-md<br/>0.5rem (max)</p>
           </div>
           <div class="text-center">
-            <div class="w-16 h-16 border border-[var(--color-border-bold)]"></div>
-            <p class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)] mt-2">--radius-none<br/>0</p>
+            <div class="mx-auto w-16 h-16 border border-[var(--color-border-bold)]"></div>
+            <p class="font-mono text-[length:var(--text-micro)] text-[var(--color-muted)] mt-2 whitespace-nowrap">--radius-none<br/>0</p>
           </div>
         </div>
       </div>
@@ -249,6 +253,7 @@ const spacing = [
       </div>
     </div>
   </section>
+  </div>
 </BaseLayout>
 
 <script>
