@@ -284,8 +284,8 @@ if (bad) process.exit(1);
       good.gamut.every((g) => 'theme' in g && 'token' in g && 'value' in g && 'ok' in g)
   );
   expect(
-    'report.srcScans has the fontFloor/unverifiableFontSize/hardcodedColors/oklchLiteral arrays',
-    good.srcScans && ['fontFloor', 'unverifiableFontSize', 'hardcodedColors', 'oklchLiteral'].every((k) => Array.isArray(good.srcScans[k]))
+    'report.srcScans has the fontFloor/unverifiableFontSize/hardcodedColors/oklchLiteral/ambiguousTextSize arrays',
+    good.srcScans && ['fontFloor', 'unverifiableFontSize', 'hardcodedColors', 'oklchLiteral', 'ambiguousTextSize'].every((k) => Array.isArray(good.srcScans[k]))
   );
   expect('report.failures is an empty array on a passing fixture', Array.isArray(good.failures) && good.failures.length === 0);
 
@@ -309,6 +309,27 @@ if (bad) process.exit(1);
   expect(
     'must-fail fixture: report.failures[] names the offending pairing',
     badReport?.failures?.some((m) => m.includes('color-fg-muted/color-bg'))
+  );
+
+  // Tailwind v4 compiles text-[var(--text-meta)] to `color:` — the
+  // ambiguous form must fail; the length:-hinted forms must not.
+  const twDir = join(dir, 'src-tw');
+  mkdirSync(twDir, { recursive: true });
+  writeFileSync(join(twDir, 'Page.astro'), [
+    '<p class="font-mono text-[var(--text-meta)] text-[var(--color-muted)]">bad</p>',
+    '<p class="text-(--text-micro)">bad</p>',
+    '<p class="text-[length:var(--text-meta)] text-(length:--text-micro) text-[var(--color-fg)]">ok</p>',
+  ].join('\n'));
+  let twReport;
+  try {
+    execFileSync('node', ['scripts/audit.mjs', '--palette', goodFile, '--src', twDir, '--json'], { encoding: 'utf8' });
+  } catch (e) {
+    twReport = JSON.parse(e.stdout);
+  }
+  expect(
+    'ambiguous text-[var(--text-*)]: exactly the two unhinted size utilities are flagged (lines 1 and 2)',
+    twReport?.passed === false &&
+      twReport.srcScans.ambiguousTextSize.map((x) => `${x.line}:${x.snippet}`).join(' ') === '1:text-[var(--text-meta)] 2:text-(--text-micro)'
   );
 
   if (jsonBad) {

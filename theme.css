@@ -28,6 +28,15 @@
  * (mapped below from --motion-easing) — without it Tailwind falls back
  * to its default `ease` timing function instead of the token (issue #31).
  *
+ * Type-scale sizes: there are deliberately NO --text-* mappings here —
+ * a Tailwind text-meta/text-body utility would collide with the
+ * unlayered .text-meta/.text-body semantic classes in tokens-core.css
+ * (which also set font-family and color, and always win). For a size
+ * alone use an arbitrary value WITH the length: hint —
+ * text-[length:var(--text-meta)]. The bare text-[var(--text-meta)] form
+ * is ambiguous to Tailwind, compiles to `color: var(--text-meta)`, and
+ * silently applies no size (remarque-audit fails on it).
+ *
  * Z-index utilities: Tailwind v4 ships z-* as a static, non-themable
  * scale (there is no --z-index-* entry in its default @theme, so there
  * is nothing here to map into). Use arbitrary values with the tokens

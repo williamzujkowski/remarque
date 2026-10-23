@@ -54,7 +54,7 @@ const report = {
   passed: false,
   contrast: [],
   gamut: [],
-  srcScans: { fontFloor: [], unverifiableFontSize: [], hardcodedColors: [], oklchLiteral: [] },
+  srcScans: { fontFloor: [], unverifiableFontSize: [], hardcodedColors: [], oklchLiteral: [], ambiguousTextSize: [] },
   failures: [],
 };
 
@@ -270,6 +270,16 @@ for (const file of walk(SRC)) {
     if (!isTokenFile(rel) && /\boklch\(/.test(line) && !line.includes('var(--')) {
       report.srcScans.oklchLiteral.push({ file: rel, line: i + 1, snippet: line.trim().slice(0, 80) });
       fail(`${rel}:${i + 1} oklch() literal outside token files: ${line.trim().slice(0, 80)}`);
+    }
+    // 4. Tailwind v4 ambiguous arbitrary value: `text-[var(--text-meta)]`
+    // cannot be type-inferred from a bare var(), so Tailwind emits it as a
+    // COLOR (`color: var(--text-meta)`) — the size never applies and the
+    // invalid color clobbers the element's real color utility. No build
+    // error, no audit signal until now. The size form needs the `length:`
+    // hint: `text-[length:var(--text-meta)]` (or `text-(length:--text-meta)`).
+    for (const m of line.matchAll(/\btext-(\[var\(--text-[\w-]+\)\]|\(--text-[\w-]+\))/g)) {
+      report.srcScans.ambiguousTextSize.push({ file: rel, line: i + 1, snippet: m[0] });
+      fail(`${rel}:${i + 1} ambiguous Tailwind ${m[0]} compiles to a color, not a font-size — write text-[length:var(--text-…)]`);
     }
   });
 }

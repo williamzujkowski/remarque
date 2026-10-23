@@ -198,6 +198,8 @@ Three further archetypes — Reference/Docs, Changelog, Gallery — are specifie
 
 7. **Tokens must be imported unlayered (Tailwind v4):** never `@import "remarque-tokens" layer(...)`. theme.css's `@theme inline` mappings emit same-named self-referencing declarations inside `@layer theme`; the real token values win only because unlayered declarations beat layered ones. Layering the tokens makes every mapped utility circular and invalid, with no build error.
 
+8. **Arbitrary type-scale sizes need the `length:` hint (Tailwind v4):** write `text-[length:var(--text-meta)]`, never `text-[var(--text-meta)]`. Tailwind cannot infer a bare `var()`'s type, treats `text-[…]` as a color, and emits `color: var(--text-meta)` — the size never applies and the invalid color clobbers the element's real color utility, with no build error. `theme.css` deliberately maps no `--text-*` keys (they would collide with the unlayered `.text-meta`/`.text-body` classes). `remarque-audit` fails on the ambiguous form (`srcScans.ambiguousTextSize`). The demo site shipped 134 of these until the 2026-10 design review.
+
 ---
 
 ## Quality Checklist
@@ -235,6 +237,7 @@ Before considering any implementation complete, verify:
 - [ ] `<html lang="en">` attribute set
 - [ ] The site looks more like a book than a web app
 - [ ] Tailwind spacing utilities (`mt-12`, `pt-8`) produce expected values (not overridden by `@theme`)
+- [ ] Arbitrary type-scale sizes use `text-[length:var(--text-*)]` — verify a computed `font-size` on one meta element, not just the class name (Pitfall #8)
 
 ---
 
@@ -280,6 +283,7 @@ npx remarque-audit --palette <file> --src <dir> --json
     unverifiableFontSize: Array<{ file: string; line: number; snippet: string }>;
     hardcodedColors: Array<{ file: string; line: number; snippet: string }>;
     oklchLiteral: Array<{ file: string; line: number; snippet: string }>;
+    ambiguousTextSize: Array<{ file: string; line: number; snippet: string }>; // Tailwind text-[var(--text-*)] (Pitfall #8)
   };
   failures: string[];      // every failure as a human-readable message, same text the non-JSON run prints
 }
