@@ -187,7 +187,7 @@
 .copy-btn::after {
   content: "";
   position: absolute;
-  inset: -0.5rem;
+  inset: -0.625rem;
 }
 
 /* Narrow screens: the absolutely positioned chip sat on top of the
