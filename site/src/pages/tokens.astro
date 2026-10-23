@@ -193,19 +193,19 @@ const spacing = [
   <!-- Content Widths -->
   <section class="mt-12">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Content Widths</h2>
-    <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">The three content widths are the most critical layout tokens. Prose is always constrained to the reading width.</p>
+    <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">The three content widths are the most critical layout tokens. Prose is always constrained to the reading width. Bars are drawn to scale against the widest.</p>
     <div class="space-y-4">
       <div>
         <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">--content-reading: 46rem (~740px) — prose, essays, articles</div>
-        <div class="h-4 rounded-sm bg-[var(--color-accent)] opacity-40" style="max-width: 46rem;"></div>
+        <div class="h-4 rounded-sm bg-[var(--color-accent)] opacity-40" style="width: calc(46 / 88 * 100%);"></div>
       </div>
       <div>
         <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">--content-standard: 72rem (~1152px) — project pages, wider layouts</div>
-        <div class="h-4 rounded-sm bg-[var(--color-accent)] opacity-60" style="max-width: 72rem;"></div>
+        <div class="h-4 rounded-sm bg-[var(--color-accent)] opacity-60" style="width: calc(72 / 88 * 100%);"></div>
       </div>
       <div>
         <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">--content-wide: 88rem (~1408px) — outer container, navigation</div>
-        <div class="h-4 rounded-sm bg-[var(--color-accent)] opacity-80" style="max-width: 88rem;"></div>
+        <div class="h-4 rounded-sm bg-[var(--color-accent)] opacity-80" style="width: 100%;"></div>
       </div>
     </div>
   </section>
