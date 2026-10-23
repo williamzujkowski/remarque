@@ -28,6 +28,8 @@ interface Props {
   help?: string;
   error?: string;
   success?: string;
+  /** Freeze a state specimen so editing it can't contradict its own data-state (an edited "success" field would go :user-invalid under a green border). */
+  readonly?: boolean;
   /** Demo/reference use only (e.g. exercising the focus-ring state on the components page) — not something a real form should reach for more than once per page. */
   autofocus?: boolean;
 }
@@ -46,6 +48,7 @@ const {
   help,
   error,
   success,
+  readonly = false,
   autofocus = false,
 } = Astro.props;
 
@@ -71,6 +74,7 @@ const messageId = message ? `${id}-message` : undefined;
         placeholder={placeholder}
         required={required}
         disabled={disabled}
+        readonly={readonly}
         autofocus={autofocus}
         aria-invalid={error ? "true" : undefined}
         aria-describedby={messageId}
@@ -87,6 +91,7 @@ const messageId = message ? `${id}-message` : undefined;
         placeholder={placeholder}
         required={required}
         disabled={disabled}
+        readonly={readonly}
         autofocus={autofocus}
         aria-invalid={error ? "true" : undefined}
         aria-describedby={messageId}

@@ -49,7 +49,7 @@ const tableRows = [
   <section class="mt-12 content-reading">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Inputs</h2>
     <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6">
-      Every <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-field</code> state — default, focus, error, success, and disabled. The “Focused” field is autofocused (try loading this page directly) and additionally carries a static ring below so this page’s own reference screenshot always shows it — headless full-page capture can transiently drop window focus mid-stitch, which native <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">:focus-visible</code> would miss.
+      Every <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-field</code> state — default, focus, error, success, and disabled.
     </p>
     <div class="flex flex-col gap-6">
       <Input
@@ -59,18 +59,17 @@ const tableRows = [
         help="Shown alongside your comment."
       />
       <div class="remarque-field">
-        <label class="remarque-field-label" for="focused-field">Focused</label>
+        <label class="remarque-field-label" for="focused-field">Focus</label>
         <input
           class="remarque-input demo-focus-ring"
           type="text"
           id="focused-field"
           name="focused-field"
-          placeholder="Click elsewhere, then Tab back to see the ring"
-          autofocus
+          placeholder="Static preview of the focus ring"
           aria-describedby="focused-field-message"
         />
         <p class="remarque-field-message" id="focused-field-message">
-          Autofocused on load; the ring below is a static reference copy of the real <code>:focus-visible</code> style (tokens-core.css) for this screenshot.
+          The <code>:focus-visible</code> ring from tokens-core.css — Tab into any field for the live one.
         </p>
       </div>
       <Input
@@ -87,6 +86,7 @@ const tableRows = [
         type="email"
         value="ada@example.com"
         success="Looks good."
+        readonly
       />
       <Input
         id="message"
@@ -133,9 +133,9 @@ const tableRows = [
   </section>
 
   <!-- Standalone Table -->
-  <section class="mt-12 mb-12 content-standard">
+  <section class="mt-12 mb-12 content-reading">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Table</h2>
-    <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">
+    <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6">
       <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-table</code> — the same visual language as a prose table, outside <code class="font-mono text-[length:var(--text-meta)] bg-[var(--color-code-bg)] px-1 rounded-[var(--radius-sm)]">.remarque-prose</code>.
     </p>
     <Table caption="Font size floors" columns={tableColumns} rows={tableRows} />
@@ -146,13 +146,10 @@ const tableRows = [
   /*
    * Static stand-in for tokens-core.css's real `:focus-visible` outline —
    * demo-page-only (scoped to this file, not part of the forms.css
-   * package contract). The "Focused" field above is genuinely
-   * autofocused (a real page load does show the native ring, no CSS
-   * trick involved), but headless Chrome's full-page screenshot capture
-   * can transiently drop window focus mid-stitch, which would make
-   * :focus-visible intermittently miss in this page's own VR baseline.
-   * This class reproduces that exact declaration so the reference
-   * screenshot deterministically shows the ring regardless.
+   * package contract), so the focus state is visible as a specimen and
+   * in this page's VR baseline without autofocus. (Autofocus was removed
+   * in the 2026-10 design review: on a phone it scrolled the page ~990px
+   * past the title and raised the keyboard on arrival.)
    */
   .demo-focus-ring {
     outline: 2px solid var(--color-focus-ring);
