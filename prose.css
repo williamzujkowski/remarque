@@ -90,6 +90,15 @@
   color: var(--color-link-hover);
 }
 
+/* Visited links keep accent text (the one-accent rule) and shift only the
+   underline to an existing, audited neutral — a color-only change, the
+   one kind browsers honor on :visited. No new palette token, so every
+   remarque-theme palette gets it for free. Ratified 7-0 (2026-10 design
+   review); forced-colors maps it to the system VisitedText color. */
+.remarque-prose a:visited {
+  text-decoration-color: var(--color-fg-muted);
+}
+
 .remarque-prose strong {
   font-weight: var(--weight-semibold);
 }
