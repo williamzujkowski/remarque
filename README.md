@@ -14,7 +14,7 @@ Most developer sites inherit the visual language of SaaS dashboards or component
 
 - **Typography is the interface** — not color, not illustration, not animation. Three fonts (Newsreader, Inter, JetBrains Mono), each with a strict role.
 - **17px minimum body text** — one pixel above the industry default. The difference in reading comfort is immediate.
-- **46rem reading column** — derived from the typographic standard of 45-75 characters per line.
+- **38rem reading column** — ~71 measured characters per line at 17px Inter, inside the typographic standard of 45–75.
 - **OKLCH color space** — perceptually uniform. A lightness of 0.50 actually looks mid-brightness.
 - **Self-hosted fonts** — no Google CDN dependency. Strict CSP. GDPR-compliant.
 - **AI-native** — designed to be consumed by Claude Code, Cursor, Copilot, and other AI coding tools with zero aesthetic drift.
@@ -146,7 +146,7 @@ See the [live demo](https://williamzujkowski.github.io/remarque/) for the origin
 |----------|-------|-----|
 | Body size | 17px | Measurably improves reading comfort over 16px default |
 | Line height | 1.75 | Generous — this is what makes prose readable |
-| Reading width | 46rem | ~70 chars/line at 17px Inter. Upper end of comfortable range for technical content |
+| Reading width | 38rem | ~71 measured chars/line at 17px Inter (median; p90 76) |
 | Color space | OKLCH | Perceptual uniformity. Consistent across hues without manual tuning |
 | Top padding | 6rem min | The breathing room that says "this is editorial, not a dashboard" |
 | Border radius | 0.5rem max | Restrained. No "friendly SaaS" over-rounding |

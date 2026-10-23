@@ -349,7 +349,7 @@ const lineageChecks = [
   ['--text-body-lg: 1.1875rem', tokens.core['text-body-lg'].$value === '1.1875rem'],
   ['--leading-body: 1.75', tokens.core['leading-body'].$value === 1.75],
   ['--leading-meta: 1.5', tokens.core['leading-meta'].$value === 1.5],
-  ['--content-reading: 46rem', tokens.palette['content-reading'].light.$value === '46rem'],
+  ['--content-reading: 38rem', tokens.palette['content-reading'].light.$value === '38rem'],
 ];
 let lineageBad = 0;
 for (const [quoted, matches] of lineageChecks) {

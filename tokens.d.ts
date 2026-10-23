@@ -255,8 +255,8 @@ export interface RemarqueTokenValues {
       readonly dark: "\"JetBrains Mono\", ui-monospace, \"Cascadia Code\", \"Fira Code\", monospace";
     };
     readonly 'content-reading': {
-      readonly light: "46rem";
-      readonly dark: "46rem";
+      readonly light: "38rem";
+      readonly dark: "38rem";
     };
     readonly 'weight-display': {
       readonly light: 400;

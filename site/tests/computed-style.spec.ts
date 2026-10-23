@@ -31,7 +31,7 @@ test.describe('body typography floor', () => {
 });
 
 test.describe('prose measure', () => {
-  test('reading column max-width <= 46rem', async ({ page }) => {
+  test('reading column max-width <= 38rem', async ({ page }) => {
     await gotoWithTheme(page, 'writing/typography-as-interface', 'light');
 
     const { maxWidthPx, rootFontSizePx } = await page.evaluate(() => {
@@ -43,7 +43,44 @@ test.describe('prose measure', () => {
       };
     });
 
-    expect(maxWidthPx).toBeLessThanOrEqual(46 * rootFontSizePx + 0.5);
+    expect(maxWidthPx).toBeLessThanOrEqual(38 * rootFontSizePx + 0.5);
+  });
+
+  // REMARQUE.md "Measure Compensation": the invariant is the MEASURED
+  // character count, not the rem value — `ch` arithmetic said 46rem ≈ 70
+  // when it actually set 86. Count rendered characters per line.
+  test('body lines measure a median of 66–72 characters', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const counts: number[] = [];
+    for (const path of ['writing/typography-as-interface', 'writing/against-decoration']) {
+      await gotoWithTheme(page, path, 'light');
+      await page.evaluate(() => document.fonts.ready);
+      counts.push(...(await page.evaluate(() => {
+        const out: number[] = [];
+        for (const para of document.querySelectorAll('.remarque-prose > p')) {
+          const lines = new Map<number, number>();
+          const walker = document.createTreeWalker(para, NodeFilter.SHOW_TEXT);
+          while (walker.nextNode()) {
+            const node = walker.currentNode as Text;
+            if (node.parentElement?.closest('code, sup, .remarque-sidenote')) continue;
+            for (let i = 0; i < node.length; i++) {
+              const range = document.createRange();
+              range.setStart(node, i);
+              range.setEnd(node, i + 1);
+              const rect = range.getClientRects()[0];
+              if (rect) lines.set(Math.round(rect.top), (lines.get(Math.round(rect.top)) ?? 0) + 1);
+            }
+          }
+          out.push(...[...lines.values()].slice(0, -1)); // drop the short last line
+        }
+        return out;
+      })));
+    }
+    counts.sort((a, b) => a - b);
+    const median = counts[Math.floor(counts.length / 2)];
+    expect(counts.length).toBeGreaterThan(20);
+    expect(median).toBeGreaterThanOrEqual(66);
+    expect(median).toBeLessThanOrEqual(72);
   });
 });
 

@@ -58,7 +58,7 @@ These are not guidelines. Agents must follow them literally.
 ### Typography
 
 - Body text is never smaller than `--text-body` (17px / 1.0625rem)
-- Prose columns never exceed `--content-reading` (46rem)
+- Prose columns never exceed `--content-reading` (38rem default — ~71 measured characters of 17px Inter)
 - Display/title text always uses `--font-display` (Newsreader)
 - Body text always uses `--font-body` (Inter)
 - Mono text is *only* for: metadata, code, labels, timestamps, technical accents
@@ -70,7 +70,7 @@ These are not guidelines. Agents must follow them literally.
 - The first screen contains only: title, metadata, and the start of content
 - Top padding before the main heading is at least `--space-9` (6rem)
 - The site uses a **single centered column** layout: BaseLayout constrains all content to `content-standard` (72rem) centered. Individual pages do NOT set their own outer width constraints.
-- Within the centered column, use `.content-reading` for prose-width sections (46rem, auto-centered within the 72rem column)
+- Within the centered column, use `.content-reading` for prose-width sections (38rem default, auto-centered within the 72rem column)
 - Do NOT use Tailwind's `max-w-reading` or `max-w-standard` on page sections — these only set max-width without centering. Use the CSS classes `.content-reading` / `.content-standard` instead, which include `margin-inline: auto`
 - Code blocks (`<pre>`) inherit the width of their parent container — no special wrapping needed when the parent is already constrained
 - Stacking order is structural, not personalization: never author a bare `z-index` number — reference `tokens-core.css`'s `--z-*` scale (`--z-base`/`--z-sticky`/`--z-dropdown`/`--z-overlay`/`--z-modal`/`--z-toast`/`--z-skip-link`). Tailwind v4 has no `--z-index-*` theme namespace, so use arbitrary values (`z-[var(--z-modal)]`) rather than bare Tailwind numbers. See REMARQUE.md "Stacking."
@@ -209,7 +209,7 @@ Before considering any implementation complete, verify:
 - [ ] Fonts load: Newsreader for display, Inter for body, JetBrains Mono for meta
 - [ ] Fonts are self-hosted (no Google CDN requests in network tab)
 - [ ] Body text is ≥17px on all viewports
-- [ ] Prose column is ≤46rem on desktop
+- [ ] Prose column is ≤ `--content-reading` on desktop, and body lines measure a median of 66–72 rendered characters (REMARQUE.md "Measure Compensation" — count characters, not `ch`)
 - [ ] Prose header and body are aligned (both centered with `mx-auto` or both left-aligned)
 - [ ] Line height for body text is 1.75
 - [ ] Dark mode is readable and independently tuned (not just inverted)
