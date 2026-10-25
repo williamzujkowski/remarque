@@ -1,35 +1,39 @@
 {
   "broadsheet.css": {
-    "gzip": 8100,
-    "brotli": 6800
+    "gzip": 8300,
+    "brotli": 6900
+  },
+  "chrome.css": {
+    "gzip": 3700,
+    "brotli": 3100
   },
   "essay.css": {
-    "gzip": 8700,
-    "brotli": 7300
+    "gzip": 8800,
+    "brotli": 7400
   },
   "fonts.css": {
     "gzip": 700,
     "brotli": 600
   },
   "forms.css": {
-    "gzip": 8400,
-    "brotli": 7000
+    "gzip": 8500,
+    "brotli": 7100
   },
   "print.css": {
     "gzip": 2800,
     "brotli": 2400
   },
   "prose.css": {
-    "gzip": 5300,
-    "brotli": 4500
+    "gzip": 5500,
+    "brotli": 4600
   },
   "theme.css": {
     "gzip": 2000,
     "brotli": 1600
   },
   "tokens-core.css": {
-    "gzip": 4900,
-    "brotli": 4000
+    "gzip": 5300,
+    "brotli": 4400
   },
   "tokens-palette.css": {
     "gzip": 7800,
@@ -40,7 +44,7 @@
     "brotli": 500
   },
   "tokens.css (effective)": {
-    "gzip": 16900,
-    "brotli": 14200
+    "gzip": 17400,
+    "brotli": 14600
   }
 }

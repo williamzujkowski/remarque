@@ -80,7 +80,7 @@ for (const k of Object.keys(budgets)) {
 }
 
 // ---- 2. module closure ----------------------------------------------------
-const MODULES = ['prose.css', 'essay.css', 'broadsheet.css', 'forms.css', 'print.css'];
+const MODULES = ['prose.css', 'essay.css', 'broadsheet.css', 'forms.css', 'chrome.css', 'print.css'];
 /* Intentional consumer hooks: referenced but not declared by the package.
    One entry per name, each with the reason. Empty on purpose. */
 const ALLOW = new Set([

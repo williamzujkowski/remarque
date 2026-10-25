@@ -107,14 +107,15 @@ Output" shape changes) to pick up the current playbook.
 | `tokens-core.css` | Core tier — type scale, spacing, widths, radius, motion, prose styling. Never overridden |
 | `tokens-palette.css` | Palette tier — font slots, colors, accent, reading measure. The sanctioned personalization surface |
 | `prose.css` | `.remarque-prose` long-form styling — own subpath so sites with their own prose system can skip it |
+| `chrome.css` | Site chrome and wayfinding (`remarque-tokens/chrome`, 0.29): skip link + `.remarque-sr-only`, breadcrumb, pager/pagination, tags — see REMARQUE.md "Chrome Module" |
 | `scripts/audit.mjs` | `npm run audit` — enforces the spec's contrast/gamut/font-floor/no-hardcoded-color checklist (`--json` for structured output) |
 | `scripts/drift-check.mjs` | `npx remarque-drift` — token drift check for consumers (`--json` for structured output) |
 | `tokens.json` + `tokens.d.ts` | Generated machine-readable token inventory + TypeScript types (`scripts/tokens-json.mjs`) |
 | `tokens.schema.json` | Generated JSON Schema (draft 2020-12) for `tokens.json`, published alongside it |
-| `registry.json` + `registry/` | Generated markup-contract registry index + per-item files for essay/broadsheet/forms/palette-deck (`scripts/build-registry.mjs`) — see REMARQUE.md "The Registry" |
+| `registry.json` + `registry/` | Generated markup-contract registry index + per-item files for essay/broadsheet/forms/skip-link/breadcrumb/pager/tags/palette-deck (`scripts/build-registry.mjs`) — see REMARQUE.md "The Registry" |
 | `registry-item.schema.json` + `registry.schema.json` | Generated JSON Schemas (draft 2020-12) for the per-item and index registry files |
 | `skills/remarque/SKILL.md` + `skills/remarque-adopt/SKILL.md` | Generated packaging copies of the two Claude Code skills (`scripts/build-skills.mjs`) — canonical source is `.claude/skills/*/SKILL.md`; see "Installing the skills" above |
-| `fonts.css` + `fonts/` | Self-hosted @font-face declarations and woff2 files (no CDN requests) |
+| `fonts.css` + `fonts/` | Self-hosted @font-face declarations and woff2 files (no CDN requests); `fonts/features.json` lists each face's OpenType features for `remarque-audit`'s font-feature check |
 | `tailwind.config.js` | Tailwind CSS **v3** configuration (v4 projects use an `@theme` block instead) |
 | `package.json` | npm package manifest for `remarque-tokens` |
 

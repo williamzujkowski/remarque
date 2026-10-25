@@ -75,10 +75,12 @@ const base = import.meta.env.BASE_URL;
 
     <div class="remarque-endmark content-reading" aria-hidden="true"></div>
 
-    <nav class="w-full content-reading mt-12 pt-8 border-t border-[var(--color-border)] flex flex-wrap items-center justify-between gap-x-4 sm:grid sm:grid-cols-[1fr_auto_1fr]" aria-label="More writing">
-      <span></span>
-      <a href={`${base}writing`} class="footer-link -ml-2 sm:ml-0 order-last basis-full justify-start sm:order-none sm:basis-auto font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">All writing</a>
-      <a href={`${base}writing/typography-as-interface`} class="inline-flex items-center min-h-[44px] justify-self-end text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque text-[length:var(--text-body)]">Typography as Interface &rarr;</a>
+    <nav class="remarque-pager content-reading" aria-label="More writing">
+      <a class="remarque-pager-next" href={`${base}writing/typography-as-interface`} rel="next">
+        <span class="remarque-pager-label">Next</span>
+        <span class="remarque-pager-title">Typography as Interface</span>
+      </a>
     </nav>
+    <p class="content-reading mt-4"><a href={`${base}writing`} class="footer-link -ml-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">All writing</a></p>
   </article>
 </BaseLayout>

@@ -15,6 +15,7 @@
 @import "remarque-tokens/essay.css";
 @import "remarque-tokens/broadsheet.css";
 @import "remarque-tokens/forms.css";
+@import "remarque-tokens/chrome.css";
 
 /* ─── Self-hosted Fonts ────────────────────────────────── */
 /* Demo-specific @font-face (not the package's fonts.css) because URLs
