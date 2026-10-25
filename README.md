@@ -124,18 +124,18 @@ Gzip (level 9) / brotli (max) bytes per shipped stylesheet, enforced by `scripts
 
 | File | gzip | brotli |
 |------|-----:|-------:|
-| `tokens.css` (effective: core + palette + prose) | 14,527 | 12,233 |
-| `tokens-core.css` | 3,920 | 3,253 |
+| `tokens.css` (effective: core + palette + prose) | 15,788 | 13,269 |
+| `tokens-core.css` | 4,790 | 3,995 |
 | `tokens-palette.css` | 7,036 | 5,848 |
-| `prose.css` | 4,501 | 3,734 |
-| `essay.css` | 7,437 | 6,259 |
-| `broadsheet.css` | 6,609 | 5,536 |
-| `forms.css` | 7,625 | 6,316 |
+| `prose.css` | 4,949 | 4,139 |
+| `essay.css` | 7,914 | 6,680 |
+| `broadsheet.css` | 7,463 | 6,241 |
+| `forms.css` | 7,709 | 6,378 |
 | `print.css` | 2,529 | 2,093 |
 | `theme.css` | 1,744 | 1,452 |
 | `fonts.css` | 612 | 484 |
 
-Minimal import: `tokens-core.css` + `tokens-palette.css` alone (about 11 KB gzip) work without `prose.css`; the same test checks that every `var(--x)` in the optional modules resolves to a core or palette token.
+Minimal import: `tokens-core.css` + `tokens-palette.css` alone (about 12 KB gzip) work without `prose.css`; the same test checks that every `var(--x)` in the optional modules resolves to a core or palette token.
 
 ## Three-Font System
 
