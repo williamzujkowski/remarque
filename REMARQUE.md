@@ -1719,9 +1719,42 @@ already uses) with negative fixtures proving the schemas actually reject
 malformed input, and an independent recomputation of every `integrity`
 hash proving it wasn't just carried over from a stale build.
 
-**What this deliberately is NOT.** No CLI installer — there is no
-`npx remarque-registry add essay` command, and no `files[].target`
-field to resolve an install path against. An agent's expected workflow
+**Installing with the shadcn CLI (#130).** The `remarque:contract` items
+above fail shadcn's `type` enum, so a parallel, schema-valid copy is
+generated from the same definitions into `registry/shadcn/` (an index
+`registry.json` plus one `<name>.json` per item, freshness-checked by
+`build-registry.mjs --check`). Each is `type: "registry:item"` (the
+schema's catch-all for a bundle that is neither a component nor a theme),
+with `files[]` entries of `type: "registry:file"` and a `target`
+(`src/styles/remarque/<name>.css`, `src/components/remarque/<name>.usage.html`;
+the palette-deck item is markup-only). `remarque-tokens` is listed under
+`dependencies` (npm packages, which the CLI installs), and Remarque-only
+fields (`version`, `integrity`, `docs` URL, `cssVars` names) sit under
+`meta`. Verified against `shadcn@latest` (needs a `components.json`):
+
+```sh
+npx shadcn@latest add https://williamzujkowski.github.io/remarque/registry/shadcn/essay.json
+```
+
+or, with `"registries": { "@remarque": "https://williamzujkowski.github.io/remarque/registry/shadcn/{name}.json" }`
+in `components.json`:
+
+```sh
+npx shadcn@latest add @remarque/essay
+```
+
+The CLI copies files only; import the stylesheet after `remarque-tokens`
+yourself. The chrome items (`skip-link`, `breadcrumb`, `pager`, `tags`)
+share one `chrome.css`, so adding several writes the same file. The
+validating schemas are vendored from shadcn in `scripts/vendor/` and
+enforced in `scripts/test-registry.mjs`. The package export
+`remarque-tokens/registry/shadcn/essay` resolves via the existing
+`./registry/*` wildcard.
+
+**What this deliberately is NOT.** No Remarque-specific installer — there
+is no `npx remarque-registry add essay` command (the shadcn CLI above is
+the optional install path for the Tailwind/Astro subset; the
+`remarque:contract` items carry no `files[].target`). An agent's expected workflow
 is fetch the JSON, read `usage.html`/the CSS `content`, and apply it with
 its own editing tools — the registry replaces transcription-from-prose,
 not an installer. No archetype "starter-page" items this round: the

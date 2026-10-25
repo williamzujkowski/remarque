@@ -45,3 +45,13 @@ for (const entry of readdirSync(registrySrcDir)) {
   if (!entry.endsWith('.json')) continue;
   copy(join(registrySrcDir, entry), join(registryDestDir, entry));
 }
+
+// shadcn-shaped copies (#130): /registry/shadcn/<name>.json + registry.json,
+// so `npx shadcn add <url>` and a namespaced "@remarque" registry resolve.
+const shadcnSrcDir = join(registrySrcDir, 'shadcn');
+const shadcnDestDir = join(registryDestDir, 'shadcn');
+mkdirSync(shadcnDestDir, { recursive: true });
+for (const entry of readdirSync(shadcnSrcDir)) {
+  if (!entry.endsWith('.json')) continue;
+  copy(join(shadcnSrcDir, entry), join(shadcnDestDir, entry));
+}

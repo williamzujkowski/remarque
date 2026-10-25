@@ -17,6 +17,9 @@
  * scripts/lib/registry-extract.mjs) — REMARQUE.md's prose stays the one
  * hand-authored copy of each known-good sample.
  *
+ * #130: also emits registry/shadcn/<name>.json + registry/shadcn/registry.json,
+ * the same items in shadcn's own registry-item shape so `npx shadcn add` works.
+ *
  * Mandatory scope is the four modules named in issue #100 (essay,
  * broadsheet, forms, palette-deck) — the per-archetype "starter-page"
  * items floated as an IF-cheap extra are SKIPPED this round: archetype
@@ -38,6 +41,7 @@
  */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { basename } from 'node:path';
 import { extractUsageHtml, sha256OfFiles, cssVarsOf } from './lib/registry-extract.mjs';
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
@@ -121,10 +125,12 @@ const ITEM_DEFS = [
   },
 ];
 
-mkdirSync('registry', { recursive: true });
+mkdirSync('registry/shadcn', { recursive: true });
 
 const indexItems = [];
 const itemFiles = {}; // name -> { path, json }
+const shadcnFiles = {}; // name -> { path, json } (registry/shadcn/*, #130)
+const shadcnIndexItems = [];
 
 for (const def of ITEM_DEFS) {
   const files = [...def.cssPaths.map(cssFile), markupFile(def.name)];
@@ -148,6 +154,38 @@ for (const def of ITEM_DEFS) {
   const json = JSON.stringify(item, null, 2) + '\n';
   itemFiles[def.name] = { path, json };
 
+  // Parallel shadcn-installable copy (#130). Additive: the remarque:contract
+  // shape above is untouched. "registry:item" is the schema's catch-all for
+  // a bundle that is neither a UI component nor a theme; every file is
+  // "registry:file" with an explicit target (the schema requires one for
+  // registry:file). Remarque-only fields live under meta.
+  const shadcnFilesOut = item.files.map((f) =>
+    f.type === 'remarque:css'
+      ? { path: f.path, type: 'registry:file', target: `src/styles/remarque/${basename(f.path)}`, content: f.content }
+      : { path: `${def.name}.usage.html`, type: 'registry:file', target: `src/components/remarque/${def.name}.usage.html`, content: f.content }
+  );
+  const shadcnItem = {
+    $schema: 'https://ui.shadcn.com/schema/registry-item.json',
+    name: def.name,
+    type: 'registry:item',
+    title: def.title,
+    description: def.description,
+    dependencies: ['remarque-tokens'],
+    files: shadcnFilesOut,
+    docs: `Docs: ${def.docs}\n\nImport the stylesheet after remarque-tokens. The .usage.html file is a known-good markup sample to copy from, not a runtime file.`,
+    meta: { version, integrity: item.integrity, docs: def.docs, cssVars: item.cssVars },
+  };
+  shadcnFiles[def.name] = { path: `registry/shadcn/${def.name}.json`, json: JSON.stringify(shadcnItem, null, 2) + '\n' };
+  shadcnIndexItems.push({
+    name: def.name,
+    type: shadcnItem.type,
+    title: shadcnItem.title,
+    description: shadcnItem.description,
+    dependencies: shadcnItem.dependencies,
+    files: shadcnFilesOut.map(({ path, type, target }) => ({ path, type, target })),
+    meta: shadcnItem.meta,
+  });
+
   indexItems.push({
     name: item.name,
     type: item.type,
@@ -168,11 +206,19 @@ const registryIndex = {
 };
 const indexJson = JSON.stringify(registryIndex, null, 2) + '\n';
 
+const shadcnIndex = {
+  $schema: 'https://ui.shadcn.com/schema/registry.json',
+  name: 'remarque',
+  homepage: pkg.homepage,
+  items: shadcnIndexItems,
+};
+shadcnFiles.registry = { path: 'registry/shadcn/registry.json', json: JSON.stringify(shadcnIndex, null, 2) + '\n' };
+
 if (process.argv.includes('--check')) {
   let stale = [];
   const currentIndex = existsSync('registry.json') ? readFileSync('registry.json', 'utf8') : '';
   if (currentIndex !== indexJson) stale.push('registry.json');
-  for (const [name, { path, json }] of Object.entries(itemFiles)) {
+  for (const [name, { path, json }] of Object.entries({ ...itemFiles, ...shadcnFiles })) {
     const current = existsSync(path) ? readFileSync(path, 'utf8') : '';
     if (current !== json) stale.push(path);
   }
@@ -183,6 +229,6 @@ if (process.argv.includes('--check')) {
   console.log(`registry.json + registry/*.json are fresh ✓ (${indexItems.length} items)`);
 } else {
   writeFileSync('registry.json', indexJson);
-  for (const { path, json } of Object.values(itemFiles)) writeFileSync(path, json);
+  for (const { path, json } of [...Object.values(itemFiles), ...Object.values(shadcnFiles)]) writeFileSync(path, json);
   console.log(`registry.json + ${indexItems.length} registry/*.json item(s) written (v${version})`);
 }
