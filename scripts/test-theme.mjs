@@ -74,6 +74,12 @@ mkdirSync(srcDir, { recursive: true });
 
 let corpusPass = 0;
 const corpusFailures = [];
+const guardFailures = [];
+// A genuinely monochrome theme has no chromatic ANSI color to rotate to, so
+// accent-vs-fg cannot be satisfied by construction (the generator warns on
+// stderr instead); accent-vs-error and the text tiers still apply to it.
+const ACHROMATIC = new Set(['sequoia-monochrome-light']);
+const GUARDED = new Set(['accent-vs-error', 'accent-vs-fg', 'text-tier-monotonic']);
 for (const [lightSlug, darkSlug] of pairs) {
   const out = join(dir, `${lightSlug}__${darkSlug}.css`);
   const derived = run(['scripts/theme.mjs', lightSlug, '--dark', darkSlug, '-o', out]);
@@ -81,10 +87,17 @@ for (const [lightSlug, darkSlug] of pairs) {
     corpusFailures.push(`${lightSlug}/${darkSlug}: derivation failed — ${derived.stderr.trim().slice(0, 200)}`);
     continue;
   }
-  const audited = run(['scripts/audit.mjs', '--palette', out, '--src', srcDir]);
+  const audited = run(['scripts/audit.mjs', '--palette', out, '--src', srcDir, '--json']);
   if (audited.code !== 0) {
-    corpusFailures.push(`${lightSlug}/${darkSlug}: audit failed — ${audited.stdout.split('\n').filter((l) => l.includes('✗')).join(' | ')}`);
+    corpusFailures.push(`${lightSlug}/${darkSlug}: audit failed — ${(JSON.parse(audited.stdout || '{"failures":[]}').failures || []).join(' | ')}`);
     continue;
+  }
+  // Generator guards (issue #125): the audit's coherence WARNINGS for the
+  // rules theme.mjs enforces must never fire on generated output.
+  const warned = JSON.parse(audited.stdout).warnings.filter(
+    (w) => GUARDED.has(w.id) && !(w.id === 'accent-vs-fg' && ACHROMATIC.has(lightSlug)));
+  if (warned.length) {
+    guardFailures.push(`${lightSlug}/${darkSlug}: ${warned.map((w) => `${w.theme}:${w.id}(${w.actual})`).join(', ')}`);
   }
   corpusPass++;
 }
@@ -92,6 +105,12 @@ expect(
   `corpus: all ${pairs.length} pairs pass remarque-audit (${corpusPass}/${pairs.length})`,
   corpusFailures.length === 0,
   corpusFailures.slice(0, 10).join('\n')
+);
+
+expect(
+  `corpus: no accent/error collision, accent distinct from fg, monotonic text tiers across all ${pairs.length} pairs (#125)`,
+  guardFailures.length === 0,
+  guardFailures.slice(0, 10).join('\n')
 );
 
 /* ── Counterpart default: --dark is optional when the dataset pairs ── */

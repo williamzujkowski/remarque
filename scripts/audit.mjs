@@ -20,6 +20,11 @@
  *   3. NO HARDCODED COLORS — no hex/rgb()/hsl() literals in src styles;
  *      oklch() literals are allowed only in token files.
  *
+ *   4. PALETTE COHERENCE (warnings only; never affect exit code) — text-tier
+ *      monotonicity, accent vs fg/error/viz-1, error vs success under
+ *      deuteranopia, surface-ramp steps, viz slots under CVD simulation.
+ *      See scripts/lib/palette-coherence.mjs and REMARQUE.md.
+ *
  * --json: suppresses all human console output and emits ONE JSON document
  * to stdout instead (exit codes unchanged) — for agents/tooling to parse
  * instead of scraping colored stdout. Shape documented in AGENT_RULES.md
@@ -29,6 +34,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { coherenceWarnings } from './lib/palette-coherence.mjs';
 import { extractBlocks, declsOf, isLightRoot, isDarkBlock, resolveSide, darkOverridesOf } from './lib/css-tokens.mjs';
 
 const args = process.argv.slice(2);
@@ -56,6 +62,7 @@ const report = {
   gamut: [],
   srcScans: { fontFloor: [], unverifiableFontSize: [], hardcodedColors: [], oklchLiteral: [], ambiguousTextSize: [] },
   failures: [],
+  warnings: [],
 };
 
 function log(...a) {
@@ -214,6 +221,22 @@ for (const [themeName, decls] of [['light', lightDecls], ['dark', darkDecls]]) {
   }
 }
 
+/* ── Palette coherence (issue #125) — WARNINGS, not failures ─────────
+ * Do the roles that must look different actually look different (accent
+ * vs error, viz slots under CVD simulation, text-tier ordering, surface
+ * ramp)? Thresholds + rationale live in scripts/lib/palette-coherence.mjs.
+ * Warnings never change `passed` or the exit code in this minor; they are
+ * promoted to failures in a later one. */
+for (const [themeName, decls] of [['light', lightDecls], ['dark', darkDecls]]) {
+  const lookup = (name) => resolveColor(decls, name).color || null;
+  const ws = coherenceWarnings(lookup, themeName);
+  if (ws.length) log(`\n${themeName} palette coherence (warnings)`);
+  for (const w of ws) {
+    report.warnings.push(w);
+    if (!JSON_MODE) console.log(`  ⚠ [${w.id}] ${w.message}`);
+  }
+}
+
 /* ── Source scans ───────────────────────────────────────── */
 
 function* walk(dir) {
@@ -291,7 +314,8 @@ if (JSON_MODE) {
 } else if (failures) {
   console.error(`\naudit FAILED — ${failures} problem(s)\n`);
 } else {
-  console.log('\naudit passed ✓\n');
+  const w = report.warnings.length;
+  console.log(`\naudit passed ✓${w ? ` (${w} palette-coherence warning${w === 1 ? '' : 's'} — see above; not failures in this release)` : ''}\n`);
 }
 
 if (failures) process.exit(1);

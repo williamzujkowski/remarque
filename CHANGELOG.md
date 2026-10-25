@@ -14,6 +14,13 @@ these entries when syncing.
 - **`.github/dependabot.yml`**: weekly version updates for the root and `site/` npm trees and for the SHA-pinned actions, with a 7-day cooldown. `@williamzujkowski/oklch-terminal-themes` stays a hand bump because `palette-golden.mjs` gates it.
 - `main` is now branch-protected and requires the CI and visual-regression checks.
 
+### Added — palette coherence warnings (#125)
+
+- **`remarque-audit` now checks palette coherence**, as **warnings** for this minor (printed in the human output and in `--json` under a new additive `warnings` array; `passed` and the exit code are unchanged). Rules: monotonic text tiers (`fg` ≥ `fg-muted` ≥ `muted` contrast); accent vs `fg` ≥ 3:1 or ΔE2000 ≥ 15; accent vs `error` and vs `viz-1` ΔE ≥ 8; `error` vs `success` ΔE ≥ 5 under deuteranopia; adjacent `bg`/`surface`/`bg-subtle`/`code-bg` steps ΔE ≥ 3; minimum pairwise ΔE ≥ 5 across `--color-viz-1..6` under normal, protan, deutan and tritan simulation. Thresholds sit in one block, `THRESHOLDS` in `scripts/lib/palette-coherence.mjs`; rationale in REMARQUE.md "Palette Coherence". The warnings are slated to become failures in a later minor.
+- **No new runtime dependency.** The audit ships to consumers who do not install culori, so the color math (OKLCH to sRGB, Machado CVD matrices, CIEDE2000) is implemented in the new shipped `scripts/lib/palette-coherence.mjs`; `scripts/test-coherence-math.mjs` cross-checks it against culori's `differenceCiede2000` and `filterDeficiency*` so the two cannot drift.
+- **`remarque-theme` enforces the accent guards when generating.** If the default accent source collides with the derived error color (ΔE < 8) or with `fg`, it rotates to the nearest-hue other chromatic ANSI color that clears both, and it keeps `fg` at least as high-contrast as `fg-muted`. This fixes the Palette Deck's gruvbox (accent == error) and rose-pine (accent ≈ fg, fg-muted above fg) palettes on regeneration. `scripts/test-theme.mjs` now asserts the guards across the whole terminal-theme corpus.
+- The default palette emits warnings today (viz-1 near accent, dark `surface` == `bg-subtle`, viz slots under CVD). That is the evidence base for #128; no default token values change here.
+
 ## 0.27.0 — 2026-10-23
 
 Design review of the system and its demo site, run with Open Design's `design-review` methodology (gstack's 10-category / ~80-item rubric, calibrated against REMARQUE.md and AGENT_RULES.md): five independent reviewers, about 50 findings, AI-slop grade A throughout. The defects were in implementation, not identity. Two identity-level calls were put to a nexus consensus vote, and both passed 7–0. Closes #115 and #116.

@@ -261,7 +261,7 @@ npx remarque-audit --palette <file> --src <dir> --json
   version: string;       // the remarque-tokens package version running the audit
   palette: string;       // the --palette path as given
   src: string;            // the --src path as given
-  passed: boolean;       // true iff failures.length === 0
+  passed: boolean;       // true iff failures.length === 0 (warnings do not count)
   contrast: Array<{
     theme: 'light' | 'dark';
     fg: string;            // fg token name, no leading --
@@ -286,8 +286,18 @@ npx remarque-audit --palette <file> --src <dir> --json
     ambiguousTextSize: Array<{ file: string; line: number; snippet: string }>; // Tailwind text-[var(--text-*)] (Pitfall #8)
   };
   failures: string[];      // every failure as a human-readable message, same text the non-JSON run prints
+  warnings: Array<{        // palette-coherence warnings (REMARQUE.md "Palette Coherence"); added in 0.28.0, additive
+    id: string;             // 'text-tier-monotonic' | 'accent-vs-fg' | 'accent-vs-error' | 'accent-vs-viz-1' | 'error-vs-success-deutan' | 'surface-step' | 'viz-cvd-normal' | 'viz-cvd-protan' | 'viz-cvd-deutan' | 'viz-cvd-tritan'
+    theme: 'light' | 'dark';
+    tokens: string[];       // the token names involved, no leading --
+    actual: number;         // measured value (ΔE2000, or the contrast shortfall for text tiers), 2dp
+    threshold: number;      // the minimum it was compared to
+    message: string;        // human-readable, same text the non-JSON run prints
+  }>;
 }
 ```
+
+`warnings` never affects `passed` or the exit code in this release — only `failures` does. The warning set is expected to grow and to be promoted to failures in a later minor, so treat an unknown `id` as informational.
 
 `contrast` and `gamut` list EVERY check performed (passing and failing);
 only `srcScans` and `failures` are violation-only lists, since a source

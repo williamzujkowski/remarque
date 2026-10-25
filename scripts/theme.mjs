@@ -46,6 +46,7 @@ import { createRequire } from 'node:module';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { readFileSync, writeFileSync } from 'node:fs';
+import { deltaE, wcagRatio, THRESHOLDS } from './lib/palette-coherence.mjs';
 
 const PKG_SPEC = '@williamzujkowski/oklch-terminal-themes';
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -300,7 +301,13 @@ function solveL(C, H, bg, target, dir) {
 /* Accent source: cursor if it's chromatic, else the most-chromatic classic
  * ANSI. Carries l too (not just h/c) — keep-if-passing needs the source's
  * own lightness as the candidate to test before falling back to solveL. */
-function accentHue(theme, label) {
+function accentHue(theme, label, pick) {
+  // `pick` (an ANSI slot name) overrides the default source — used by the
+  // accent-collision guard (#125) to rotate to a different source color.
+  if (pick) {
+    const [l, c, h] = slotLch(theme, pick, `${label} accent (rotated)`);
+    return { l, c, h, from: `ansi:${pick}` };
+  }
   // Dataset 0.3.0+ publishes a curated/computed accent per theme — prefer
   // it (it's this same heuristic, computed upstream where it can be
   // curated per-theme). Validated like any other theme color; the local
@@ -564,9 +571,21 @@ function deriveVizCategorical(t, label, slug, bg, dir) {
   });
 }
 
+/* Monotonic text tiers (issue #125): primary text must never be LOWER
+ * contrast than secondary. fg keeps the theme's own lightness when it
+ * clears 7:1 on surface, but that can land below fg-muted's solved
+ * contrast on bg (rose-pine-dawn: fg 7.42 < fg-muted 7.52). Re-solve fg
+ * on surface (the stricter background for both directions) so it sits
+ * 0.1 above fg-muted's ratio on bg. */
+function monotonicFg(fg, fgMuted, fgC, fgH, bg, surface, dir) {
+  const want = ratio(fgMuted, bg);
+  if (ratio(fg, bg) >= want + 0.05) return fg;
+  return solveL(fgC, fgH, surface, Math.max(7.0, want + 0.1), dir);
+}
+
 /* ── LIGHT derivation ─────────────────────────────────────────────── */
 
-function deriveLight(t) {
+function deriveLight(t, pick) {
   const [bgL0, bgC0, bgH0] = slotLch(t, 'background', 'light');
   const bgH = r1(bgH0);
   const bgL = r3(Math.max(bgL0, 0.93));
@@ -578,11 +597,12 @@ function deriveLight(t) {
   // fg: keep the theme's own foreground lightness if it already clears the
   // AAA floor (7:1) against surface; solve only if it doesn't (#76 — this
   // used to always solve to 10:1, flattening well-designed themes).
-  const fg = keepOrSolve(fgL0, fgC, fgH, surface, 7.0, 'darker');
+  let fg = keepOrSolve(fgL0, fgC, fgH, surface, 7.0, 'darker');
   const fgMuted = withHeadroom(solveL(fgC, fgH, bg, 7.0, 'darker'), 0.01, 'darker', fgC);
+  fg = monotonicFg(fg, fgMuted, fgC, fgH, bg, surface, 'darker');
   const muted = solveL(Math.min(fgC0, 0.02), fgH, surface, 4.5, 'darker');
   const borderBold = withHeadroom(solveL(0.01, bgH, bg, 3.0, 'darker'), 0.02, 'darker', 0.01);
-  const ac = accentHue(t, 'light');
+  const ac = accentHue(t, 'light', pick);
   const acC = Math.min(ac.c, 0.14);
   // accent: keep the accent-source's own lightness (cursor or chosen ANSI
   // color) if it already clears 4.5:1 on bg; solve only if it doesn't.
@@ -660,7 +680,7 @@ function deriveLight(t) {
 
 /* ── DARK derivation ──────────────────────────────────────────────── */
 
-function deriveDark(t, accentHueLight) {
+function deriveDark(t, accentHueLight, pick) {
   const [bgL0, bgC0, bgH0] = slotLch(t, 'background', 'dark');
   const bgH = r1(bgH0);
   const bgL = r3(Math.min(Math.max(bgL0, 0.14), 0.22));
@@ -672,11 +692,12 @@ function deriveDark(t, accentHueLight) {
   // fg: keep the theme's own foreground lightness if it already clears the
   // AAA floor (7:1) against surface; solve only if it doesn't (mirrors
   // light — direction flipped, see #76).
-  const fg = keepOrSolve(fgL0, fgC, fgH, surface, 7.0, 'lighter');
+  let fg = keepOrSolve(fgL0, fgC, fgH, surface, 7.0, 'lighter');
   const fgMuted = withHeadroom(solveL(fgC, fgH, bg, 7.0, 'lighter'), 0.01, 'lighter', fgC);
+  fg = monotonicFg(fg, fgMuted, fgC, fgH, bg, surface, 'lighter');
   const muted = solveL(fgC, fgH, surface, 4.5, 'lighter');
   const borderBold = withHeadroom(solveL(0.01, bgH, bg, 3.0, 'lighter'), 0.02, 'lighter', 0.01);
-  const ac = accentHue(t, 'dark');
+  const ac = accentHue(t, 'dark', pick);
   const h = accentHueLight ?? ac.h; // keep hue consistent across the pair
   const acC = Math.min(ac.c, 0.12);
   // accent: keep the accent-source's own lightness if it already clears
@@ -761,8 +782,56 @@ function deriveDark(t, accentHueLight) {
   return { raw, tokens };
 }
 
-const light = deriveLight(themeLight);
-const dark = deriveDark(themeDark, light.accentH);
+/* ── Accent collision guard (issue #125) ──────────────────────────────
+ * The default accent source (dataset accent / cursor / most-chromatic
+ * ANSI) can land on the same hue as the theme's red — gruvbox shipped
+ * --color-accent == --color-error == --color-viz-1 — or on fg itself
+ * (accent/fg 1.02:1). Required, in BOTH themes: accent vs error
+ * dE2000 >= ACCENT_ERROR_MIN_DE, and accent distinguishable from fg
+ * (>= 3:1 OR dE >= ACCENT_FG_MIN_DE). When the default source fails, try
+ * the theme's other chromatic ANSI colors (nearest hue to the default
+ * accent first; red excluded — it IS the error color) and keep the first that passes
+ * everything. If none do, fall back to the candidate with the best
+ * accent-vs-error separation and say so on stderr. A theme whose default
+ * accent already passes is derived exactly as before. */
+function accentGuard(d) {
+  const T = THRESHOLDS;
+  const a = d.raw['color-accent'], e = d.raw['color-error'], fg = d.raw['color-fg'];
+  const errDe = deltaE(a, e);
+  const fgOk = wcagRatio(a, fg) >= T.ACCENT_FG_MIN_RATIO || deltaE(a, fg) >= T.ACCENT_FG_MIN_DE;
+  return { errDe, errOk: errDe >= T.ACCENT_ERROR_MIN_DE, fgOk };
+}
+const hueDist = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+function deriveWithGuard() {
+  const tryPick = (pick) => {
+    const l = deriveLight(themeLight, pick);
+    const d = deriveDark(themeDark, l.accentH, pick);
+    const gl = accentGuard(l), gd = accentGuard(d);
+    return {
+      pick, l, d,
+      ok: gl.errOk && gd.errOk && gl.fgOk && gd.fgOk,
+      errOk: gl.errOk && gd.errOk,
+      errDe: Math.min(gl.errDe, gd.errDe),
+    };
+  };
+  const first = tryPick(undefined);
+  if (first.ok) return first;
+  const names = ['blue', 'purple', 'cyan', 'green', 'yellow']
+    .filter((n) => themeLight.colors && themeLight.colors[n] && themeLight.colors[n].oklch && themeDark.colors && themeDark.colors[n] && themeDark.colors[n].oklch)
+    // Nearest hue to the default accent first, so the rotation changes the
+    // theme's personality as little as the guard allows.
+    .sort((x, y) => hueDist(themeLight.colors[x].oklch.h, first.l.accentH) - hueDist(themeLight.colors[y].oklch.h, first.l.accentH));
+  const tried = [first, ...names.map(tryPick)];
+  const good = tried.find((t) => t.ok);
+  const best = good || tried.filter((t) => t.errOk)[0] || tried.sort((x, y) => y.errDe - x.errDe)[0];
+  if (!good) {
+    console.error(`remarque-theme: warning: no accent source clears the collision guard (accent vs error dE >= ${THRESHOLDS.ACCENT_ERROR_MIN_DE}, accent distinct from fg) for ${lightSlug}/${darkSlug}; using ${best.pick || 'default'} (dE ${best.errDe.toFixed(1)})`);
+  } else if (best.pick) {
+    console.error(`remarque-theme: note: default accent source collided with error/fg for ${lightSlug}/${darkSlug}; rotated accent to ANSI ${best.pick} (issue #125)`);
+  }
+  return best;
+}
+const { l: light, d: dark } = deriveWithGuard();
 
 /* ── Self-verify — the same pairings + gamut rule as scripts/audit.mjs,
  * run in-process against the raw [L,C,H] triples (mirrored here rather

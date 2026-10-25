@@ -558,6 +558,22 @@ Every PR that ships Remarque pages MUST pass (`npm run audit` automates the colo
 
 Agents reviewing PRs should reject changes that violate any line above without explicit rationale.
 
+### Palette Coherence (warnings, issue #125)
+
+Contrast floors say each color is readable; they do not say the roles that must look *different* actually do. `remarque-audit` therefore also checks palette **coherence**, as **warnings** in this release (they print in the human output and appear in `--json` under `warnings`; they never change `passed` or the exit code). They are scheduled to be promoted to failures in a later minor. CIEDE2000 (ΔE) is computed on the sRGB-rendered color; "under protan/deutan/tritan" means after a Machado et al. 2009 severity-1.0 simulation (the same matrices as culori's `filterDeficiencyProt/Deuter/Trit`). All thresholds live in one block, `THRESHOLDS` in `scripts/lib/palette-coherence.mjs`.
+
+| Rule (id) | Warns when | Why |
+|---|---|---|
+| Monotonic text tiers (`text-tier-monotonic`) | contrast(`fg`) < contrast(`fg-muted`), or contrast(`fg-muted`) < contrast(`muted`), against `bg` | Primary text must never be fainter than secondary (rose-pine light had fg 7.42:1 under fg-muted 7.52:1). |
+| Accent vs body text (`accent-vs-fg`) | accent/fg < 3:1 **and** ΔE < 15 | A link must differ from body text by value or by hue; hue alone at ~1:1 is invisible. |
+| Accent vs error (`accent-vs-error`) | ΔE < 8 | A link and an error message must not be the same color (gruvbox shipped accent == error). |
+| Accent vs chart 1 (`accent-vs-viz-1`) | ΔE < 8 | Enforces "chart color is never mistaken for the system's one interactive signal" (see "Dataviz Tokens"). |
+| Error vs success (`error-vs-success-deutan`) | ΔE < 5 under deuteranopia | The red/green state pair is the classic CVD collapse. |
+| Surface ramp (`surface-step`) | any adjacent step in `bg` → `surface` → `bg-subtle` → `code-bg` has ΔE < 3 (the warning names the pair) | Redundant surfaces are noise; separate the steps or drop the token. |
+| Viz under CVD (`viz-cvd-normal/protan/deutan/tritan`) | minimum pairwise ΔE across `--color-viz-1..6` < 5 under that vision | ~5 is where marks become confusable. The six slots differ mostly by hue, so below this "never color alone" is the only thing separating series: label directly, or vary marker/dash. |
+
+`remarque-theme` applies the accent guards as generation constraints: when the default accent source lands within ΔE 8 of the derived `--color-error`, or indistinguishable from `--color-fg`, in either theme, it rotates to the nearest-hue other chromatic ANSI color that clears both (and says so on stderr); it also keeps `fg` at least as high-contrast as `fg-muted`. Generated palettes therefore never emit `accent-vs-error` or `text-tier-monotonic`. The viz/surface rules are not generator guards: viz comes from the dataset's categorical block, and the surface ramp is the fixed offsets above.
+
 ### APCA: Considered, Not Adopted (2026-07-23)
 
 APCA (Accessible Perceptual Contrast Algorithm) was pulled into the WCAG3 working draft in 2023 and remains exploratory — no ratified conformance model specifies it, and that status is unchanged as of this writing. Remarque holds **WCAG 2.x's ratio-based contrast** as the enforcement gate (see "Contrast Ratios" above and the Enforcement Checklist) rather than building the audit toward an unratified algorithm.
