@@ -118,6 +118,25 @@ Output" shape changes) to pick up the current playbook.
 | `tailwind.config.js` | Tailwind CSS **v3** configuration (v4 projects use an `@theme` block instead) |
 | `package.json` | npm package manifest for `remarque-tokens` |
 
+### Sizes
+
+Gzip (level 9) / brotli (max) bytes per shipped stylesheet, enforced by `scripts/test-budget.mjs` against `budgets.json` (current size + 10%, repo-only, not in the package). Bare `remarque-tokens` imports core + palette + prose.
+
+| File | gzip | brotli |
+|------|-----:|-------:|
+| `tokens.css` (effective: core + palette + prose) | 14,527 | 12,233 |
+| `tokens-core.css` | 3,920 | 3,253 |
+| `tokens-palette.css` | 7,036 | 5,848 |
+| `prose.css` | 4,501 | 3,734 |
+| `essay.css` | 7,437 | 6,259 |
+| `broadsheet.css` | 6,609 | 5,536 |
+| `forms.css` | 7,625 | 6,316 |
+| `print.css` | 2,529 | 2,093 |
+| `theme.css` | 1,744 | 1,452 |
+| `fonts.css` | 612 | 484 |
+
+Minimal import: `tokens-core.css` + `tokens-palette.css` alone (about 11 KB gzip) work without `prose.css`; the same test checks that every `var(--x)` in the optional modules resolves to a core or palette token.
+
 ## Three-Font System
 
 | Role | Font | Usage |
