@@ -295,8 +295,19 @@ npx remarque-audit --palette <file> --src <dir> --json
     threshold: number;      // the minimum it was compared to
     message: string;        // human-readable, same text the non-JSON run prints
   }>;
+  fontFeatures: Array<{    // font-feature requests the face can't render (REMARQUE.md "Small Caps"); added in 0.28.0, additive
+    file: string;           // 'remarque-tokens/<module>.css' for the package's own modules, else the --src-relative path
+    line: number; selector: string;
+    family: string | null;  // first family of the rule's font-family (or --font-body when the rule sets none)
+    inferred: boolean;      // true when the family was inferred as --font-body
+    tag: string;            // OpenType feature tag, e.g. 'smcp', 'onum'
+    via: string;            // the declaration that asked for it
+    status: 'missing' | 'conditional' | 'unverifiable'; // only 'missing' is also a failure
+  }>;
 }
 ```
+
+`--font-features <manifest.json>` (repeatable) adds your own faces to the check, in the shape of the package's `fonts/features.json` (`{ families: { "<family>": { figures: { style, spacing }, files: { "<file>": { features: [tags] } } } } }`). Faces missing from every manifest are reported `unverifiable` and never fail.
 
 `warnings` never affects `passed` or the exit code in this release — only `failures` does. The warning set is expected to grow and to be promoted to failures in a later minor, so treat an unknown `id` as informational.
 
