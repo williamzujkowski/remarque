@@ -1,8 +1,8 @@
 {
   "name": "remarque-tokens",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "description": "Typography-first design tokens for editorial, technical, and personal web projects",
   "keywords": [

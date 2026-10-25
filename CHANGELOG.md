@@ -4,7 +4,22 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
-## Unreleased
+## 0.28.0 — 2026-10-24
+
+The "truth" minor of the 2026-10 roadmap (#133): it makes the spec's claims true on the default stack. It was researched with Open Design and nexus-agents, ratified 7–0 (`vote-1792819887868-esau595`), and landed as one PR per issue, each with its own regression test proven red on 0.27.0. **Consumer-visible changes:**
+- labels render in tracked capitals instead of synthesized small caps (#124);
+- the broadsheet masthead box widens to `--content-standard`, with its title sized from that box (#121);
+- the essay column moves onto the page axis (#119);
+- long strings wrap (#122);
+- RTL and non-Latin scripts get logical properties and `:lang()` guards (#123);
+- `remarque-audit` gains a failing font-feature check (#124) and palette-coherence warnings (#125);
+- `html` reserves the scrollbar gutter.
+
+No token was removed or renamed, and no token value changed.
+
+### Changed — Node engines
+
+- **`engines.node` raised from `>=18` to `>=22`** (#120). Node 18 and 20 are end-of-life, and CI now tests 22 and 24. The CSS itself has no Node requirement; this covers the bins (`remarque-audit`, `remarque-drift`, `remarque-theme`).
 
 ### Changed — labels in tracked capitals; font-feature gate (#124; consumer-visible, ratified 7–0)
 

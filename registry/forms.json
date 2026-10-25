@@ -4,7 +4,7 @@
   "type": "remarque:contract",
   "title": "Forms Primitives",
   "description": "Native field/input/checkbox/radio/button primitives with state-color wiring. Every `.remarque-input` pairs `for`/`id` with its `.remarque-field-label`, and every `.remarque-field-message` is wired via `aria-describedby` on the control — the paint-layer `data-state` attribute is never the only signal; `aria-invalid`/`aria-describedby` on the input carry the real accessibility contract.",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "integrity": "sha256-Vxmu0D2080+Y8n0TcWzF2DGOlDbBNsdJ268j5Odg5BQ=",
   "dependencies": [
     "remarque-tokens"
