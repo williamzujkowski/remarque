@@ -19,10 +19,6 @@ these entries when syncing.
 - **Default palette values are unchanged (#128, ratified 7–0 in `vote-1792892374374-55pw50q`).** REMARQUE.md "Dataviz Tokens" now documents opt-in recipes instead: a verified viz lightness ladder (worst-pair ΔE2000 under color-vision simulation rises from 3.5 to 11.7 in light and from 2.7 to 13.6 in dark, every slot ≥ 3.4:1 on bg and surface) and a dark `--color-muted` lift (5.77:1, APCA Lc −40.3). It also records the revisit triggers: a consumer request, or the coherence warnings being promoted to failures. The default change would then go through an upstream release first, never a golden-gate exception.
 - **`remarque-audit` prints an advisory APCA Lc beside every contrast ratio** (new `apcaLc` field in each `contrast` record; SAPC 0.0.98G constants, checked against the reference values). It's report-only: WCAG 2.x stays the gate, because the WCAG 3 working draft still leaves its contrast algorithm undetermined. It shows what the ratio hides: default dark `--color-muted` passes at 4.92:1 but measures Lc −34.5 against light's 70.0.
 
-## 0.29.0 — 2026-10-24
-
-The "chrome" minor of the 2026-10 roadmap (#133, ratified 7–0 in `vote-1792819887868-esau595`): a new `remarque-tokens/chrome` module and four registry items. Additive: nothing existing changes for consumers who don't import it.
-
 ### Added — distribution (#130)
 
 - shadcn-installable registry, additive: `registry/shadcn/<name>.json` plus an index `registry/shadcn/registry.json`, generated from the same item definitions and freshness-checked by `build-registry.mjs --check`. `type: "registry:item"`, `registry:file` entries with `src/styles/remarque/*` and `src/components/remarque/*` targets, `remarque-tokens` under `dependencies`, Remarque-only fields under `meta`. Validated in `test-registry.mjs` against the vendored official shadcn schemas (`scripts/vendor/`). Existing `registry/*.json` and the `remarque:contract` type are unchanged. Published beside them on the demo site.
