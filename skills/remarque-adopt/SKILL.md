@@ -132,6 +132,19 @@ green**, so a regression traces to one change, not two.
 5. A site that had a hand-rolled deck maps its old stored theme names to
    deck names (or clears them) so returning readers don't lose their
    choice silently.
+6. Three integration gotchas, each found in a real adoption:
+   - **Code that reads a color token as text breaks.** A deck palette's
+     `--color-bg` is `light-dark(…)`, which only the cascade resolves. Read
+     it through a probe instead (`background-color: var(--color-bg);
+     transition: none` on a hidden element, then `getComputedStyle`), for
+     example for a `theme-color` meta sync. The flagship's browser chrome
+     kept the old color until it did this.
+   - **Inline critical CSS with literal colors outranks the deck.** Scope
+     it with `:not([data-palette])` (tsundoku's `<head>` styles hid every
+     palette until scoped).
+   - **Client-side navigation** (Astro view transitions) must carry
+     `data-palette` across the swap, the same way the site carries its
+     theme attribute, and re-bind the picker on each page load.
 
 - Gate: the site's own audit and drift still pass, and a browser check
   (Playwright, or a screenshot) shows a deck palette applied in BOTH
