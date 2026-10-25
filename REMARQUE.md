@@ -1668,6 +1668,8 @@ A `<details>` disclosure holding a `<fieldset>` of **native radio inputs**: one 
 </details>
 ```
 
+**Put it where readers look for it (0.32).** The default is the **popover variant**, `remarque-deck-picker--popover`: a 44px icon button (give the `<summary>` an `aria-label`) beside the light/dark toggle in the header. Its panel drops down from the inline-end edge and becomes a bottom sheet under 40rem. Wire it with `bindPicker(deck, picker, { dismissible: true })` so Escape and an outside click close it. A footer-only picker, which is how the first adopters placed it, was missed on long pages. The plain variant, a disclosure row with a ▸ marker, suits short pages or a settings page.
+
 Render one `<label>` per entry in `deck.json`'s `palettes`. Wire it with an ES module, outside the registry's zero-script bar:
 
 ```js

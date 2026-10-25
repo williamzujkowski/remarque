@@ -368,6 +368,29 @@ main[tabindex="-1"]:focus {
   display: none;
 }
 
+.remarque-deck-picker summary:hover {
+  color: var(--color-fg);
+}
+
+/* The disclosure marker that says "this opens" (0.32: without it the
+   summary read as a line of footer text). It points along the inline
+   direction and turns down when open. The popover variant below drops it:
+   there the summary is an icon button. */
+.remarque-deck-picker:not(.remarque-deck-picker--popover) summary::before {
+  content: "\25B8";
+  content: "\25B8" / "";
+  color: var(--color-muted);
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-deck-picker:not(.remarque-deck-picker--popover)[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.remarque-deck-picker:not(.remarque-deck-picker--popover) summary:dir(rtl)::before {
+  transform: scaleX(-1);
+}
+
 .remarque-deck-picker fieldset {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
@@ -384,6 +407,8 @@ main[tabindex="-1"]:focus {
   gap: var(--space-2);
   min-height: 44px;
   cursor: pointer;
+  /* Rows read from the start edge even inside a centered footer. */
+  text-align: start;
   font-family: var(--font-mono);
   font-size: var(--text-meta);
   color: var(--color-fg-muted);
@@ -417,6 +442,53 @@ main[tabindex="-1"]:focus {
 .remarque-deck-swatches > :nth-child(1) { background: var(--swatch-bg); }
 .remarque-deck-swatches > :nth-child(2) { background: var(--swatch-fg); }
 .remarque-deck-swatches > :nth-child(3) { background: var(--swatch-accent); }
+
+/* Popover variant (0.32): the picker as a 44px header control beside the
+ * light/dark toggle, where readers look for it; a footer-only picker was
+ * missed on long pages. The summary holds the site's icon (give it an
+ * aria-label); the panel drops down from the inline-end edge. On narrow
+ * screens it becomes a bottom sheet instead, so a button far from the
+ * edge can't push it off-screen. bindPicker(..., { dismissible: true })
+ * closes it on Escape and on an outside click. */
+.remarque-deck-picker--popover {
+  position: relative;
+}
+
+.remarque-deck-picker--popover summary {
+  justify-content: center;
+  min-width: 44px;
+}
+
+.remarque-deck-picker--popover fieldset {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-start: calc(100% + var(--space-2));
+  z-index: var(--z-dropdown);
+  /* 26rem fits two 11rem option columns, so 16 palettes are 8 rows. */
+  width: min(26rem, calc(100vw - 2 * var(--space-4)));
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-3);
+  background-color: var(--color-bg);
+  border: var(--border-width) var(--border-style) var(--color-border-bold);
+  border-radius: var(--radius-md);
+}
+
+@media (max-width: 40rem) {
+  .remarque-deck-picker--popover {
+    position: static;
+  }
+
+  .remarque-deck-picker--popover fieldset {
+    position: fixed;
+    inset-inline: var(--space-4);
+    inset-block: auto var(--space-4);
+    width: auto;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
 
 @media (forced-colors: active) {
   .remarque-deck-swatches > span {

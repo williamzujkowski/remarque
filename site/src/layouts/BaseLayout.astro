@@ -111,12 +111,14 @@ const nav = [['writing', 'Writing'], ['projects', 'Projects'], ['notes', 'Notes'
                 : <a href={`${base}${item[0]}`} class="nav-link" aria-current={current(item[0])}>{item[1]}</a>
             )}
           </div>
+          <div class="col-start-2 row-start-1 -mr-3 lg:mr-0 lg:ml-6 flex items-center">
+          <PalettePicker />
           <button
             id="theme-toggle"
             type="button"
             aria-label="Dark mode"
             aria-pressed="false"
-            class="col-start-2 row-start-1 -mr-3 lg:mr-0 lg:ml-6 text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] ease-remarque cursor-pointer bg-transparent border-none min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
+            class="text-[var(--color-muted)] hover:text-[var(--color-fg)] transition-colors duration-[var(--motion-fast)] ease-remarque cursor-pointer bg-transparent border-none min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
           >
             <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="hidden">
               <circle cx="12" cy="12" r="5"></circle>
@@ -133,6 +135,7 @@ const nav = [['writing', 'Writing'], ['projects', 'Projects'], ['notes', 'Notes'
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
           </button>
+          </div>
         </nav>
       </header>
 
@@ -150,9 +153,6 @@ const nav = [['writing', 'Writing'], ['projects', 'Projects'], ['notes', 'Notes'
             <a href={`${base}start`} class="footer-link">Get Started</a>
             <a href={`${base}rss.xml`} class="footer-link">RSS</a>
           </div>
-        </div>
-        <div class="mt-4">
-          <PalettePicker />
         </div>
       </footer>
     </div>

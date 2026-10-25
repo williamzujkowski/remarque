@@ -78,10 +78,24 @@ export function createDeck(palettes, opts = {}) {
  *
  * @param {ReturnType<typeof createDeck>} deck
  * @param {ParentNode} container element holding the radios
- * @param {{ onChange?: (name: string | null) => void }} [opts]
+ * @param {{ onChange?: (name: string | null) => void, dismissible?: boolean }} [opts]
  */
 export function bindPicker(deck, container, opts = {}) {
   const radios = [...container.querySelectorAll('input[type="radio"]')];
+  // Opt-in popover manners for a <details> picker (the --popover variant):
+  // Escape closes it and returns focus to the summary; so does a click
+  // outside it.
+  if (opts.dismissible && container instanceof HTMLDetailsElement) {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && container.open) {
+        container.open = false;
+        container.querySelector('summary')?.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (container.open && !container.contains(e.target)) container.open = false;
+    });
+  }
   const sync = () => {
     const active = deck.current() || '';
     for (const r of radios) r.checked = r.value === active;
