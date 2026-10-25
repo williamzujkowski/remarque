@@ -6,6 +6,15 @@ these entries when syncing.
 
 ## Unreleased
 
+### Accessibility — WCAG 2.2 AA (#126)
+
+- **Spec moves from WCAG 2.1 AA to 2.2 AA.** REMARQUE.md's accessibility section and enforcement checklist now cite 2.2, with a new "WCAG 2.2 AA Criterion Map" (criterion, mechanism, enforcement) and a "Regulatory Context" paragraph (EN 301 549 V4.1.1, the EAA, Section 508). 4.1.1 Parsing is noted as removed in 2.2. No CSS output change.
+- The 44px touch-target line now cites 2.5.8 (AA) as the criterion met, with 2.5.5 (AAA) as the exceeded one; before, it cited only 2.5.5.
+- **2.4.11 note:** consumer sticky/fixed chrome needs `scroll-padding-top`.
+- **Forms contract (3.3.7 / 3.3.8):** inputs that collect known personal data carry a valid `autocomplete` token and never block paste. The forms markup sample now shows `autocomplete="email"`. Mirrored in AGENT_RULES.md.
+- **axe-core gate.** `site/tests/a11y.spec.ts` runs `@axe-core/playwright` (4.13.0) with the wcag2a/2aa/21a/21aa/22aa tags over every demo page in both themes, plus a forced-colors pass, and fails on serious/critical violations. The only exclusion is `color-contrast` in the forced-colors pass (justified in the spec).
+- Demo fix found by axe: the inline link in the Notebook page's body text was distinguished by color alone (2.13:1 against the surrounding text in dark); it is now underlined (`link-in-text-block`).
+
 ### CI and release (not part of the package; #120, roadmap Step 0)
 
 - **Every root gate now runs on pull requests.** The gates moved verbatim from `deploy.yml` into a reusable `.github/workflows/ci.yml` (Node 22 and 24). `deploy.yml` and `release.yml` both `need` it. Before this, pull requests ran only visual regression, and a `v*` tag ran only `audit.mjs`, so a tag on a commit with a stale `tokens.json` or a failing fixture suite would have published.

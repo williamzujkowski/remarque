@@ -475,7 +475,7 @@ Tailwind v4 ships `z-*` as a static, non-themable utility scale — there's no `
 
 ## USWDS Accessibility Compliance
 
-Remarque adopts typography and accessibility standards from the [US Web Design System (USWDS)](https://designsystem.digital.gov/documentation/accessibility/) and [WCAG 2.1](https://www.w3.org/WAI/WCAG21/Understanding/):
+Remarque adopts typography and accessibility standards from the [US Web Design System (USWDS)](https://designsystem.digital.gov/documentation/accessibility/) and [WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/) (Level AA; a superset of 2.1 AA, so 2.1 consumers are covered):
 
 ### Font Size Floors
 
@@ -485,7 +485,7 @@ Remarque adopts typography and accessibility standards from the [US Web Design S
 | `--text-meta` | 14px (0.875rem) | USWDS minimum for small text. Used sparingly for metadata, labels, captions. |
 | `--text-micro` | 13px (0.8125rem) | USWDS floor for timestamps and fine print only. Never for body content. |
 
-### Contrast Ratios (WCAG 2.1 AA)
+### Contrast Ratios (WCAG 2.2 AA)
 
 | Pairing | Requirement | Notes |
 |---------|-------------|-------|
@@ -495,7 +495,29 @@ Remarque adopts typography and accessibility standards from the [US Web Design S
 
 ### Touch Targets
 
-All interactive elements (links, buttons, inputs) must have a minimum touch target of **44x44px** ([WCAG 2.5.5](https://www.w3.org/WAI/WCAG21/Understanding/target-size.html) AAA). This applies to nav links, theme toggles, footer links, chips, and any clickable element.
+All interactive elements (links, buttons, inputs) must have a minimum touch target of **44x44px**. That satisfies [WCAG 2.5.8 Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) (AA, 24x24px) with margin and also meets the stricter [2.5.5 Target Size (Enhanced)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html) (AAA, 44x44px) and the USWDS floor. This applies to nav links, theme toggles, footer links, chips, and any clickable element.
+
+### WCAG 2.2 AA Criterion Map
+
+Remarque already meets most of WCAG 2.2 AA by construction. Each row names the mechanism and what fails the build if it regresses. Pointers are to shipped CSS and the demo's Playwright suite (`site/tests/`).
+
+| SC | Remarque's mechanism | Enforced by |
+|---|---|---|
+| 1.4.3 Contrast (Minimum), 1.4.11 Non-text Contrast | Palette tiers verified at 4.5:1 text / 3:1 functional borders and dataviz marks; `--color-border` decorative only | `npm run audit` (`scripts/audit.mjs`); axe `color-contrast` in `site/tests/a11y.spec.ts` |
+| 2.4.7 Focus Visible, 2.4.13 Focus Appearance (AAA, exceeded) | Global `:focus-visible` 2px outline, 2px offset (`tokens-core.css`, "Focus Styles"); `outline-color: Highlight` under forced-colors | `forced-colors.spec.ts` focus-ring assertions |
+| 2.4.11 Focus Not Obscured (Minimum) | No sticky/fixed chrome ships; the essay TOC rail sticks in its own column, never over the reading column. **Consumers:** any sticky or fixed header/footer you add needs a matching `scroll-padding-top` (or `scroll-padding-bottom`) on `html` so focused elements are not hidden behind it | Convention (AGENT_RULES bans sticky headers); not machine-checked |
+| 2.5.8 Target Size (Minimum) | 44px floor on every interactive element (`forms.css` `.remarque-input`, checkbox/radio label, `.remarque-button`; `essay.css` TOC links; demo `.nav-link`) | `computed-style.spec.ts` "interactive target size (>= 44x44 CSS px)"; axe `target-size` |
+| 1.4.10 Reflow, 1.4.12 Text Spacing | Measure and spacing authored in relative units (`rem`/`ch`/`em`), unitless line-heights | Not yet automated (tracked in #122) |
+| 3.3.7 Redundant Entry, 3.3.8 Accessible Authentication (Minimum) | Forms contract: known-personal-data inputs carry a valid `autocomplete` token; paste is never blocked (see "Forms") | Convention + review (AGENT_RULES forms line) |
+| 3.2.6 Consistent Help | Consumer concern: if a page offers help (contact, chat, FAQ link), place it in the same relative position on every page | Consumer review |
+| 1.3.1, 4.1.2 (ARIA contracts) | Registry markup contracts: sidenote `aria-describedby`, TOC `aria-label`, forms `aria-describedby`/`aria-invalid` | axe on every demo page, both themes, plus a forced-colors pass |
+| 4.1.1 Parsing | **Removed in WCAG 2.2** (obsolete; browsers handle parsing errors uniformly). Nothing to enforce | n/a |
+
+axe-core catches only the machine-checkable subset of WCAG; it complements the computed-style and forced-colors suites rather than replacing manual review.
+
+### Regulatory Context
+
+[EN 301 549](https://www.etsi.org/deliver/etsi_en/301500_301599/301549/) V4.1.1 (published 2026-09-02) is the EU harmonised standard behind the European Accessibility Act (EAA). It moves the web clauses from WCAG 2.1 AA to WCAG 2.2 AA and adds EAA mapping annexes. Until the Commission cites V4.1.1 in the Official Journal of the EU, V3.2.1 (WCAG 2.1 AA) remains the presumption-of-conformity baseline; because 2.2 AA is a superset, a Remarque page that meets 2.2 AA meets both. US Section 508 references WCAG 2.0 A/AA, which this section exceeds. Remarque is a styling layer: conformance claims about a whole site (content, captions, authored alt text, 3.2.6 help placement) remain the consumer's.
 
 ### Line Height
 
@@ -546,7 +568,10 @@ Every PR that ships Remarque pages MUST pass (`npm run audit` automates the colo
 - [ ] `--color-muted` contrast ≥ 4.5:1 against `--color-bg` **and** `--color-surface` in both themes.
 - [ ] `--color-fg-muted` contrast ≥ 7:1 (AAA) for body-adjacent prose.
 - [ ] All transitions use `--motion-fast`/`--motion-normal` tokens (reduced-motion support depends on it).
-- [ ] Every interactive element is ≥ 44×44px (use min-height/padding, not font-size to reach the floor).
+- [ ] Every interactive element is ≥ 44×44px (use min-height/padding, not font-size to reach the floor). Meets WCAG 2.5.8 AA (24px) and 2.5.5 AAA.
+- [ ] Any consumer sticky/fixed chrome has a matching `scroll-padding-top`/`-bottom` so focus is never obscured (WCAG 2.4.11).
+- [ ] Inputs collecting known personal data carry a valid `autocomplete` token and never block paste (WCAG 3.3.7, 3.3.8).
+- [ ] `cd site && npx playwright test tests/a11y.spec.ts` passes: axe-core, WCAG 2.0–2.2 A/AA tags, no serious/critical violations on any demo page in either theme.
 - [ ] `font-variant-numeric: tabular-nums lining-nums` on all metadata that mixes with dates/counts.
 - [ ] No hardcoded hex/rgb colors — only `var(--color-*)` tokens.
 - [ ] Body line-height ≥ 1.5 (Remarque target: 1.75).
@@ -1116,7 +1141,7 @@ existing literal.
 <div class="remarque-field">
   <label class="remarque-field-label" for="email">Email</label>
   <input class="remarque-input" type="email" id="email" name="email"
-    aria-describedby="email-help" />
+    autocomplete="email" aria-describedby="email-help" />
   <p class="remarque-field-message" id="email-help">
     We'll never share your email.
   </p>
@@ -1125,7 +1150,7 @@ existing literal.
 <div class="remarque-field" data-state="error">
   <label class="remarque-field-label" for="email2">Email</label>
   <input class="remarque-input" type="email" id="email2" name="email2"
-    aria-invalid="true" aria-describedby="email2-message" required />
+    autocomplete="email" aria-invalid="true" aria-describedby="email2-message" required />
   <p class="remarque-field-message" id="email2-message" role="alert">
     Enter a valid email address.
   </p>
@@ -1151,6 +1176,7 @@ existing literal.
 | `.remarque-field-label` | `<label>` | Meta voice (mono, small caps, `--color-muted`) — same declarations as `.text-label`, repeated per the non-mixin precedent essay.css/broadsheet.css already set. |
 | `.remarque-field-required` | `<span aria-hidden="true">` inside the label | Accent-colored asterisk. `aria-hidden` — the input's own `required` attribute is the real signal a screen reader announces. |
 | `.remarque-field-message` | `<p>` after the control | Help text by default; recolored by the parent's `data-state`. Wire `aria-describedby` on the input to this element's `id` in every case, valid or not. |
+| `autocomplete` (attribute) | `.remarque-input` collecting known personal data | WCAG 3.3.7 / 3.3.8: inputs that collect known personal data (name, email, tel, address, `current-password`, `one-time-code`, ...) carry a valid [`autocomplete` token](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill), and never block paste (no `onpaste` handlers that cancel it). |
 | `.remarque-input` | `<input>` / `<textarea>` / `<select>` | Body-voice text, `--color-border-bold` boundary, `--radius-sm`, ≥44px tall. |
 | `.remarque-checkbox` / `.remarque-radio` | wrapping `<label>` | `accent-color` on the native control — no `appearance: none`, no hand-drawn replacement. The wrapping label carries the 44px touch target; the control itself stays at its natural (enlarged) size. |
 | `.remarque-button` | `<button>` | Quiet default: bordered, transparent, body-voice text. |
@@ -1201,7 +1227,7 @@ it, only adds a zero-JS enhancement on top for browsers that support it.
   a control the user directly manipulates.
 - **Touch targets**: every interactive control — input, textarea,
   select, button, and the `<label>` wrapping a checkbox/radio — is
-  ≥44×44px (WCAG 2.5.5 AAA, USWDS floor; see "Touch Targets" above and
+  ≥44×44px (exceeds WCAG 2.5.8 AA's 24px minimum and meets 2.5.5 AAA, USWDS floor; see "Touch Targets" above and
   `.nav-link`'s identical convention in the demo site's `globals.css`).
 - **No fake replacements**: checkboxes and radios stay native elements
   recolored with `accent-color` only. No `appearance: none` plus a
