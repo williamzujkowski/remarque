@@ -1,0 +1,95 @@
+name: CI
+
+# Issue #120 (roadmap Step 0, ratified 7-0): every root gate runs on pull
+# requests, and deploy.yml and release.yml both `uses:` this workflow, so
+# nothing deploys or publishes unless it is green. Before this, the gates
+# ran only after a merge (deploy.yml) and a v* tag ran only audit.mjs, so a
+# tag on a commit with stale generated files or failing fixtures published.
+#
+# The steps were moved verbatim from deploy.yml (same installs, same
+# working directories). `npm test` chains the same gates for local runs.
+# Visual regression stays in its own workflow (visual-regression.yml).
+
+on:
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    name: gates (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    defaults:
+      run:
+        working-directory: ./site
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Setup Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true  # astro 7.4 needs >=22.23.4; runner cache lags
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install root devDependencies (oklch-terminal-themes, for remarque-theme)
+        run: npm ci
+        working-directory: .
+
+      - name: Token audit (contrast, gamut, font floors, hardcoded colors)
+        run: node scripts/audit.mjs
+        working-directory: .
+
+      - name: tokens.json + tokens.d.ts freshness (generated from the CSS)
+        run: node scripts/tokens-json.mjs --check
+        working-directory: .
+
+      - name: "registry.json + registry/*.json freshness (generated from the CSS + REMARQUE.md contract samples)"
+        run: node scripts/build-registry.mjs --check
+        working-directory: .
+
+      - name: Audit fixture tests (both theme conventions)
+        run: node scripts/test-audit.mjs
+        working-directory: .
+
+      - name: "tokens.d.ts fixture tests (token-name coverage, exported types, package.json wiring)"
+        run: node scripts/test-types.mjs
+        working-directory: .
+
+      - name: "Drift-check fixture tests (classification: FAIL/WARN/INFO/no-op)"
+        run: node scripts/test-drift.mjs
+        working-directory: .
+
+      - name: "remarque-theme fixture + corpus tests (derive from oklch-terminal-themes, audit every pair)"
+        run: node scripts/test-theme.mjs
+        working-directory: .
+
+      - name: "Palette golden gate (tokens-palette.css bound to remarque-light/remarque-dark, ΔE2000 ≤ 2.0; site mirror check)"
+        run: node scripts/palette-golden.mjs
+        working-directory: .
+
+      - name: "Registry fixture tests (schema validation + mechanical markup-contract checks — issue #100)"
+        run: node scripts/test-registry.mjs
+        working-directory: .
+
+      - name: "skills/ packaging freshness (packaged copies match canonical .claude/skills/ — issue #107)"
+        run: node scripts/build-skills.mjs --check
+        working-directory: .
+
+      - name: "Skill fixture tests (frontmatter, referenced CLI flags, referenced file paths, packaging freshness — issue #107)"
+        run: node scripts/test-skills.mjs
+        working-directory: .
+
+      - name: "Consumer pack smoke test (npm pack + real install + peerDependencies resolution, no --legacy-peer-deps; skills land in the pack)"
+        if: ${{ matrix.node == 22 }}  # needs the network; one leg is enough
+        run: node scripts/test-pack.mjs
+        working-directory: .

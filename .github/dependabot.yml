@@ -1,0 +1,28 @@
+# Issue #120: version updates (security updates were already on). Every
+# action is SHA-pinned with a version comment; without this file those pins
+# rot silently.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    cooldown: { default-days: 7 }
+    ignore:
+      # golden-gated (scripts/palette-golden.mjs binds tokens-palette.css to
+      # its remarque-light/remarque-dark); bump by hand with the golden check
+      - dependency-name: "@williamzujkowski/oklch-terminal-themes"
+    groups:
+      dev:
+        patterns: ["*"]
+        update-types: [minor, patch]
+  - package-ecosystem: npm
+    directory: /site
+    schedule: { interval: weekly }
+    cooldown: { default-days: 7 }
+    groups:
+      astro:
+        patterns: ["astro", "astro-*", "@astrojs/*", "tailwindcss", "@tailwindcss/*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    cooldown: { default-days: 7 }

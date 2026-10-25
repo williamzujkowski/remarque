@@ -191,6 +191,10 @@ deliberately stayed local.
 | Ambient/decorative animation | Site-local only, never in system modules — and the `prefers-reduced-motion` guard is mandatory, not advisory. A future audit scan may flag unguarded infinite animations (as a heuristic check, not a soundness proof). |
 | Landing-page entry counts | Permitted as meta-voice data in the Landing archetype **only when computed from real inventory at build time**. A hardcoded count is a violation — counts drift (see the upstream count-drift bug class this system just fixed in its own theme provider). |
 
+## Development
+
+`npm test` runs every gate CI runs: the token audit, the freshness checks for the generated files (`tokens.json`, the registry, the packaged skills), the palette golden gate, and every `scripts/test-*.mjs` fixture suite, including the consumer pack smoke test, which needs the network. `.github/workflows/ci.yml` runs the same gates on every pull request on Node 22 and 24, and both the Pages deploy and the npm release `need` it, so nothing deploys or publishes from a red commit.
+
 ## Named For
 
 In fine art printmaking, a *remarque* is a small original drawing made by the artist in the margin of a proof print. Found only in limited editions, it is the mark that says: this was made by someone specific, with intention.

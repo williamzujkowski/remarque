@@ -7,6 +7,13 @@ name: Publish to npm
 # package → Settings → Trusted Publisher → GitHub Actions →
 #   repository: williamzujkowski/remarque, workflow: release.yml
 # Until that's configured, tag pushes will fail auth here — expected.
+#
+# Issue #120: publish `needs` the full CI gate set (ci.yml), not just the
+# audit, so a tag on a commit with stale generated files or failing
+# fixtures does not publish. npm is pinned (this is the one workflow that
+# holds publish credentials), and the matching CHANGELOG.md section becomes
+# the GitHub Release notes; a tag with no CHANGELOG section fails before
+# publishing.
 
 on:
   push:
@@ -14,11 +21,17 @@ on:
 
 permissions:
   contents: read
-  id-token: write # OIDC for npm provenance + trusted publishing
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   publish:
+    needs: ci
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # gh release create
+      id-token: write # OIDC for npm provenance + trusted publishing
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
@@ -29,16 +42,24 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
-      - name: Ensure npm >= 11.5.1 (trusted publishing support)
-        run: npm install -g npm@latest && npm --version
-
-      - name: Token audit gate
-        run: node scripts/audit.mjs
+      - name: Pin npm (>= 11.5.1 for trusted publishing; exact, not @latest)
+        run: npm install -g npm@11.21.1 && npm --version
 
       - name: Verify tag matches package.json version
         run: |
           PKG_V="v$(node -p "require('./package.json').version")"
           [ "$PKG_V" = "${GITHUB_REF_NAME}" ] || { echo "tag ${GITHUB_REF_NAME} != package.json ${PKG_V}"; exit 1; }
 
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          awk -v v="$V" 'index($0, "## " v " ") == 1 {f=1; next} /^## / && f {exit} f' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          [ -s "$RUNNER_TEMP/notes.md" ] || { echo "no '## $V ' section in CHANGELOG.md"; exit 1; }
+
       - name: Publish (provenance)
         run: npm publish --provenance --access public
+
+      - name: GitHub Release (notes = the CHANGELOG section)
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md"
+        env:
+          GH_TOKEN: ${{ github.token }}
