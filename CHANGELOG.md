@@ -20,6 +20,13 @@ these entries when syncing.
 - **tokens-core.css: `html { scrollbar-gutter: stable; }`.** On classic-scrollbar platforms a centered column no longer shifts by about 15px between short and long pages. Overlay scrollbars (macOS, phones) are unaffected.
 - New gates in `site/tests/page-axis.spec.ts`: the essay column is centered like a plain page at 1280, 1440 and 1920px; sidenotes and the rail clear the prose; a four-word masthead title is at most two lines and larger than the lead title at 768, 1280 and 1920px.
 
+### Fixed — long strings reflow (#122; consumer-visible)
+
+- **`html { overflow-wrap: break-word; }` in `tokens-core.css`.** No layer set `overflow-wrap`, so one unbreakable string (a URL, a hash, a package path, long inline `code`) widened the whole page at phone width, failing WCAG 1.4.10. Measured on the demo at 320px with fixtures: 788px of page overflow in prose, 1291px across the broadsheet titles. It changes nothing for text that fits, and it inherits into consumer chrome too.
+- **`overflow-wrap: anywhere` on flex labels** (TOC rail links and summary, `.remarque-button`, `.remarque-checkbox`, `.remarque-radio`). Their text is an anonymous flex item whose min-content is its longest word, which `break-word` can't shrink: a long TOC entry pushed the rail 528px wide.
+- `<pre>` is unchanged on purpose: it keeps `white-space: pre` and scrolls inside its own box. REMARQUE.md "Wrapping & Optical Defaults" documents the difference.
+- New `site/tests/reflow.spec.ts`: every demo page at 320 CSS px; long-string fixtures in prose, broadsheet titles, forms messages, buttons and labels, and the TOC rail; and the WCAG 1.4.12 text-spacing override set, with no clipped controls, TOC entries or sidenotes. The WCAG 2.2 criterion map now points at it.
+
 ### Accessibility — WCAG 2.2 AA (#126)
 
 - **Spec moves from WCAG 2.1 AA to 2.2 AA.** REMARQUE.md's accessibility section and enforcement checklist now cite 2.2, with a new "WCAG 2.2 AA Criterion Map" (criterion, mechanism, enforcement) and a "Regulatory Context" paragraph (EN 301 549 V4.1.1, the EAA, Section 508). 4.1.1 Parsing is noted as removed in 2.2. No CSS output change.

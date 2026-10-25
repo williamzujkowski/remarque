@@ -329,6 +329,7 @@
   font-variant-caps: all-small-caps;
   letter-spacing: var(--tracking-caps);
   color: var(--color-muted);
+  overflow-wrap: anywhere; /* flex label, as on the links below (#122) */
   transition: color var(--motion-fast) var(--motion-easing);
 }
 
@@ -372,6 +373,10 @@
   font-size: var(--text-meta);
   color: var(--color-fg-muted);
   text-decoration: none;
+  /* The label is an anonymous flex item, whose min-content is its
+     longest word: html's break-word can't shrink that, `anywhere` can
+     (issue #122). */
+  overflow-wrap: anywhere;
   transition: color var(--motion-fast) var(--motion-easing);
 }
 
