@@ -4,9 +4,20 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
-## 0.29.0 — 2026-10-24
+## Unreleased
 
-The "chrome" minor of the 2026-10 roadmap (#133, ratified 7–0 in `vote-1792819887868-esau595`): a new `remarque-tokens/chrome` module and four registry items. Additive: nothing existing changes for consumers who don't import it.
+### Added — prose and forms details (#129) and state cues (#128)
+
+- **Forms: a non-color state cue in every mode (#128, WCAG 1.4.1).** The ✕/⚠/✓ glyphs before state messages, which until now appeared only under forced colors, render everywhere, with empty alt text. Under simulated deuteranopia the default error and success colors are only ΔE2000 2.7 (light) and 1.7 (dark) apart. **Consumer-visible:** state messages gain a leading glyph.
+- **Forms: hover only where hover exists.** Input and button hover washes moved inside `@media (hover: hover)`, so a tap no longer leaves a control looking hovered. Buttons gain an `:active` pressed state (border to `--color-fg`).
+- **Forms: `readonly` inputs** get a quiet `--color-bg-subtle` fill. **`.remarque-input--autosize`** opts a textarea into `field-sizing: content`, from the 6rem minimum to a 24rem cap. The text-only pending-submit pattern is documented.
+- **Prose:**
+  - `pre[data-title]` renders a mono filename line (the flagship hand-rolls a filled tab for this);
+  - `[data-highlighted-line]` inside a `pre` gets the `--color-accent-subtle` wash;
+  - `figure` loses the browser's 40px side indent;
+  - the opt-in `.remarque-prose--external-marks` adds a screen-only ↗ after `rel="external"` links, without clobbering `print.css`'s printed URLs.
+- **Default palette values are unchanged (#128, ratified 7–0 in `vote-1792892374374-55pw50q`).** REMARQUE.md "Dataviz Tokens" now documents opt-in recipes instead: a verified viz lightness ladder (worst-pair ΔE2000 under color-vision simulation rises from 3.5 to 11.7 in light and from 2.7 to 13.6 in dark, every slot ≥ 3.4:1 on bg and surface) and a dark `--color-muted` lift (5.77:1, APCA Lc −40.3). It also records the revisit triggers: a consumer request, or the coherence warnings being promoted to failures. The default change would then go through an upstream release first, never a golden-gate exception.
+- **`remarque-audit` prints an advisory APCA Lc beside every contrast ratio** (new `apcaLc` field in each `contrast` record; SAPC 0.0.98G constants, checked against the reference values). It's report-only: WCAG 2.x stays the gate, because the WCAG 3 working draft still leaves its contrast algorithm undetermined. It shows what the ratio hides: default dark `--color-muted` passes at 4.92:1 but measures Lc −34.5 against light's 70.0.
 
 ### Added — distribution (#130)
 

@@ -16,16 +16,16 @@
     "brotli": 600
   },
   "forms.css": {
-    "gzip": 8500,
-    "brotli": 7100
+    "gzip": 9300,
+    "brotli": 7700
   },
   "print.css": {
     "gzip": 2800,
     "brotli": 2400
   },
   "prose.css": {
-    "gzip": 5500,
-    "brotli": 4600
+    "gzip": 6200,
+    "brotli": 5200
   },
   "theme.css": {
     "gzip": 2000,
@@ -44,7 +44,7 @@
     "brotli": 500
   },
   "tokens.css (effective)": {
-    "gzip": 17400,
-    "brotli": 14600
+    "gzip": 18100,
+    "brotli": 15200
   }
 }

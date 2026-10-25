@@ -473,3 +473,22 @@ if (lineageBad) {
   process.exit(1);
 }
 console.log('lineage doc-drift check passed ✓');
+
+// Advisory APCA (issue #128): every resolved contrast record carries a
+// numeric apcaLc with the right polarity, and it never decides `ok`.
+{
+  const report = JSON.parse(execFileSync('node', ['scripts/audit.mjs', '--json'], { encoding: 'utf8' }));
+  const resolved = report.contrast.filter((c) => c.actual !== null);
+  const fgBg = (theme) => resolved.find((c) => c.theme === theme && c.fg === 'color-fg' && c.bg === 'color-bg');
+  const checks = [
+    ['every resolved contrast record has a numeric apcaLc', resolved.length > 0 && resolved.every((c) => typeof c.apcaLc === 'number')],
+    ['light fg/bg APCA is positive (dark on light), dark fg/bg negative', fgBg('light')?.apcaLc > 60 && fgBg('dark')?.apcaLc < -60],
+    ['apcaLc is advisory: the default palette passes with dark muted at |Lc| < 45', report.passed && Math.abs(resolved.find((c) => c.theme === 'dark' && c.fg === 'color-muted' && c.bg === 'color-bg')?.apcaLc) < 45],
+  ];
+  let apcaBad = 0;
+  for (const [label, ok] of checks) {
+    console.log(`${ok ? '✓' : '✗'} apca: ${label}`);
+    if (!ok) apcaBad++;
+  }
+  if (apcaBad) process.exit(1);
+}

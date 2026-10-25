@@ -149,7 +149,7 @@
       ],
       "meta": {
         "version": "0.29.0",
-        "integrity": "sha256-Vxmu0D2080+Y8n0TcWzF2DGOlDbBNsdJ268j5Odg5BQ=",
+        "integrity": "sha256-5Ej+gAhlA9KPROSSb+x5SeYC8BPI/b0GgRYCxd7KiLM=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#forms",
         "cssVars": [
           "--border-style",
