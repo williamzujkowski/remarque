@@ -113,11 +113,18 @@ expect('tokens.json has a "$schema" pointer', typeof tokens.$schema === 'string'
 const dtcg = tokens.$extensions?.remarque?.dtcg;
 expect(
   'tokens.json $extensions.remarque.dtcg documents the divergence note',
-  typeof dtcg?.conformance === 'string' && Array.isArray(dtcg?.divergences) && dtcg.divergences.length >= 2 && typeof dtcg?.note === 'string'
+  typeof dtcg?.conformance === 'string' && Array.isArray(dtcg?.divergences) && dtcg.divergences.length >= 3 && typeof dtcg?.note === 'string'
 );
 expect(
-  'DTCG divergence note names both known divergences (color encoding, multi-mode nesting)',
-  dtcg?.divergences?.some((d) => /color/i.test(d.aspect)) && dtcg?.divergences?.some((d) => /mode|theme/i.test(d.aspect))
+  'DTCG divergence note names all three known divergences (color encoding, multi-mode nesting, dimension/duration encoding)',
+  dtcg?.divergences?.length >= 3 &&
+    dtcg.divergences.some((d) => /color/i.test(d.aspect)) &&
+    dtcg.divergences.some((d) => /mode|theme/i.test(d.aspect)) &&
+    dtcg.divergences.some((d) => /dimension|duration/i.test(d.aspect))
+);
+expect(
+  'no DTCG gatedOn string still says "ratifying" (the #99 trigger fired 2025-10-28; #132)',
+  Array.isArray(dtcg?.divergences) && dtcg.divergences.every((d) => typeof d.gatedOn === 'string' && !/ratifying/i.test(d.gatedOn))
 );
 
 // 7. tokens.schema.json — real JSON-Schema validation of tokens.json

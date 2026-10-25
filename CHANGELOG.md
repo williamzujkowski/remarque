@@ -6,6 +6,13 @@ these entries when syncing.
 
 ## Unreleased
 
+### Documentation — DTCG (#132)
+
+- **The #99 DTCG trigger fired on 2025-10-28.** The Format, Color and Resolver modules were published as Final Community Group Reports. REMARQUE.md's "DTCG Conformance" now records this, retires the rule against fixing `tokens.json` toward unratified drafts, and does not word the gate as waiting for a W3C Recommendation (a CG cannot produce one).
+- **All three divergences are documented**, in REMARQUE.md, the generated `tokens.json` `$extensions.remarque.dtcg` note, the `tokens.schema.json` description and the README: oklch() color strings, per-token light/dark nesting, and the new third one, CSS-string dimension/duration values (`clamp()` has no DTCG form).
+- **A demand gate replaces the ratification gate.** A `tokens.dtcg.json` export is built only when a consumer asks for a DTCG 2025.10-shaped file, or Style Dictionary or Terrazzo documents full 2025.10 support including resolver output. Nothing is built now.
+- Metadata only: no token value, name, CSS output or `tokens.d.ts` change. `test-types.mjs` §6 now requires at least three divergences, a dimension/duration aspect, and no `gatedOn` still saying "ratifying". Ships with 0.28.0.
+
 ### Fixed — page axis and the masthead (#119, #121; consumer-visible)
 
 - **broadsheet.css: the masthead title is sized from its nameplate, not the viewport (#121, a 0.27.0 regression).** The title grew at `9vw` inside a box capped at `--content-reading`. When that token went to 38rem in 0.27.0, the box stopped growing at about 640px of viewport while the title kept growing to 7.5rem, so a four-word title wrapped to four lines at 1280px. `.remarque-masthead` is now an inline-size container with a `--content-standard` (72rem) box, and the title rate is `9cqi`, with `9vw` kept as the fallback; the bounds are unchanged. At 1280px and up the title is about 98px, four- to seven-word titles hold to two lines, and the title stays above the `--text-display` lead title. A 38rem box would have put the masthead below the lead, which is why the nameplate widened instead (ratified 7–0, `vote-1792889632787-bm0nogp`). The lead and entry list stay at the reading measure. **If you set `--remarque-masthead-size` yourself, nothing changes for you.**
