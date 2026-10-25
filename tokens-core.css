@@ -38,7 +38,7 @@
   --tracking-title: -0.015em;
   --tracking-body: 0em;
   --tracking-meta: 0.02em;      /* mono metadata gets slight tracking */
-  --tracking-caps: 0.06em;      /* letter-spacing for .text-label (true small caps, issue #51) */
+  --tracking-caps: 0.06em;      /* letter-spacing for capitals in labels (.text-label; issue #124) */
 
   /* Font weights */
   --weight-regular: 400;
@@ -245,16 +245,20 @@ html {
   font-variant-numeric: tabular-nums lining-nums;
 }
 
-/* True small caps for labels (issue #51) — font-variant-caps renders at
-   x-height with corrected weight/spacing; text-transform: uppercase
-   renders letters at cap-height with no optical correction and reads
-   louder than intended. Prefer .text-label over uppercase text
-   anywhere a label needs a caps-like treatment. */
+/* Labels in real capitals, tracked (issue #124, ratified 7-0 in
+   vote-1792819660668-a5kb6q3). Until 0.28 this was all-small-caps, after
+   #51. But no default face has small caps: JetBrains Mono has neither
+   smcp nor c2sc, so the browser synthesized them by shrinking capitals,
+   and a 14px label drew its caps at about 9.9px, under the 13px floor.
+   Butterick's rule for faces without small caps is capitals with added
+   tracking, which is this. If your label face has real smcp + c2sc
+   (remarque-audit checks), all-small-caps with text-transform: none is
+   still the finer choice; see REMARQUE.md "Small Caps". */
 .text-label {
   font-family: var(--font-mono);
   font-size: var(--text-meta);
   line-height: var(--leading-meta);
-  font-variant-caps: all-small-caps;
+  text-transform: uppercase;
   letter-spacing: var(--tracking-caps);
   color: var(--color-muted);
 }

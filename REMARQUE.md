@@ -203,14 +203,20 @@ The book-craft layer: numerals, small caps, drop caps, pull quotes, and optical 
 
 Two numeral registers, chosen by context:
 
-- **`.remarque-prose`** uses `font-variant-numeric: oldstyle-nums proportional-nums` — text figures that sit quietly inside a sentence, the way numerals behave in well-set book prose.
+- **`.remarque-prose`** uses `font-variant-numeric: oldstyle-nums proportional-nums` — text figures that sit quietly inside a sentence, the way numerals behave in well-set book prose — **when the body face has them** (an `onum` feature). The default body face, Inter, has no `onum`, and neither does the default display face, Newsreader, so on the default stack prose and the broadsheet entry numerals set **lining** figures; the request is a no-op there, not a fake. A body face that has `onum` (the flagship's Source Serif 4) gets text figures from the same declaration with no change. Both rules carry a `remarque-feature: conditional` marker, so `remarque-audit` reports them as conditional rather than failing them (0.28, #124).
 - **`.text-meta`** (and anything sharing its role — dates, counts, table cells, timestamps) uses `font-variant-numeric: tabular-nums lining-nums` — full-height, fixed-width digits that align in columns and don't jitter as they change.
 
 Never mix the two: a numeral inside running prose should never be tabular, and a numeral in a metadata row or table should never be oldstyle. Apply `.num` to any `<td>`/`<th>` holding numeric data to opt that cell into the tabular-lining register (see prose.css's table rules).
 
 ### Small Caps
 
-`font-variant-caps: all-small-caps` — not `text-transform: uppercase` — for any label that wants a caps-like treatment. Faux uppercase renders letters at cap-height with no optical correction and reads louder than intended; true small caps render at x-height with corrected weight and spacing. `.text-label` (mono, `--text-meta`, all-small-caps, `--tracking-caps`, `--color-muted`) is the sanctioned utility. `text-transform: uppercase` is disallowed anywhere a label could use `.text-label` instead.
+Labels that want a caps-like treatment use **real capitals with added tracking** on faces without small caps, and **true small caps only on a face that has them** (0.28, #124, ratified 7–0 in `vote-1792819660668-a5kb6q3`; this replaces the #51 rule).
+
+- **The default stack has no small caps.** None of the shipped fonts (Inter, Newsreader, JetBrains Mono) has `smcp` or `c2sc`, and neither do their full upstream releases. When CSS asks for `font-variant-caps: all-small-caps` on such a face, the browser *synthesizes* small caps by shrinking capitals: no corrected weight or spacing, and a 14px label draws its caps at about 9.9px, under the 13px floor. Until 0.28 that was every Remarque label.
+- **So the default is capitals:** `text-transform: uppercase` plus `letter-spacing: var(--tracking-caps)` (0.06em), Butterick's rule for faces without small caps. `.text-label` (mono, `--text-meta`, uppercase, `--tracking-caps`, `--color-muted`) is the sanctioned utility, and the module labels repeat it: kickers and datelines, the TOC summary, the footnotes heading, form labels. Keep the 14px (`--text-meta`) size; `--text-micro` stays reserved for timestamps.
+- **Real small caps are still the finer choice where they exist.** If your label face has both `smcp` and `c2sc`, set `font-variant-caps: all-small-caps; text-transform: none;` on `.text-label` in your own CSS, and give `remarque-audit` a manifest for that face (`--font-features`) so the gate can see the features.
+- **Enforced.** `remarque-audit` fails any rule that asks a face for a feature it lacks (small caps, oldstyle figures, `font-feature-settings` tags), checked against `fonts/features.json`. That's the OpenType feature list of every shipped face, generated with fontTools by `scripts/font-features.py`. A rule that is deliberately face-dependent says so with a `remarque-feature: conditional` comment and is reported, not failed. Consumers add their own faces with `--font-features <manifest.json>` (same shape). Defaults count: a face whose default figures are lining satisfies `lining-nums` without `lnum`, and a tabular-by-default face satisfies `tabular-nums` without `tnum`.
+- Uppercase for *running text* (a shouted sentence, a heading set in caps) is still out: the rule is about labels.
 
 ### Drop Caps (opt-in)
 
@@ -236,6 +242,16 @@ Never mix the two: a numeral inside running prose should never be tabular, and a
 - Headings: `text-wrap: balance`, `font-optical-sizing: auto`, `font-synthesis: none` — headings never wrap ragged, optical sizing lets variable fonts pick the right grade, and browsers never fake bold/italic for faces that don't have them.
 - Prose: `text-wrap: pretty` (avoids single-word orphan lines) and `hanging-punctuation: first last` (quotes and punctuation hang outside the measure rather than indenting the line).
 - All four properties degrade safely — unsupported browsers silently ignore them and fall back to normal wrapping. Invisible when absent, unmistakable when present.
+- What renders where (webstatus.dev, checked 2026-10-24). These are enhancements, so a reader on an unsupported browser gets ordinary, correct text, not a broken page:
+
+  | Property | Chrome / Edge | Firefox | Safari | Remarque's fallback |
+  |---|---|---|---|---|
+  | `text-wrap: balance` | 114 | 121 | 17.5 | normal wrapping (Baseline 2024) |
+  | `text-wrap: pretty` | 117 | — | 26 | normal wrapping; orphans possible |
+  | `hanging-punctuation` | — | — | yes | quotes sit inside the measure |
+  | `initial-letter` (drop caps) | 110 | — | prefixed (`-webkit-initial-letter`) | the `float` drop cap in prose.css |
+  | `font-variant-caps` small caps | needs `smcp`/`c2sc` in the font | same | same | synthesized; why labels are capitals (see "Small Caps") |
+  | `oldstyle-nums` | needs `onum` in the font | same | same | lining figures (see "Numerals") |
 - Long strings: `html { overflow-wrap: break-word; }` (`tokens-core.css`, 0.28, #122). A URL, hash, package path or long inline `code` that can't fit its line breaks instead of widening the page (WCAG 1.4.10 Reflow). It changes nothing for text that fits and inherits into every layer and consumer chrome. `break-word` doesn't shrink an element's min-content width, so the flex labels that must narrow past a long word (TOC rail links and summary, buttons, checkbox and radio labels) use `overflow-wrap: anywhere`; do the same in your own flex or grid chrome. Code blocks are the exception on purpose: `<pre>` keeps `white-space: pre` and scrolls horizontally inside its own box (`overflow-x: auto`), because re-wrapping code changes what it says. Wide tables likewise scroll inside `.scroll-wrap` (prose) or `.remarque-table-wrap` (forms); a bare wide table still widens the page.
 
 ---
@@ -1012,7 +1028,7 @@ value-by-value mapping and the fluid-type decision below).
 Four primitives, composed independently — a page can use any subset:
 
 1. **Masthead** (`.remarque-masthead`) — centered nameplate: mono
-   small-caps kicker, an oversized mixed roman + italic `--font-display`
+   tracked-capitals kicker, an oversized mixed roman + italic `--font-display`
    title, mono dateline with hairline-rule separators.
 2. **Lead article** (`.remarque-lead`) — a featured story: mono kicker
    (`Section · N min read · Date`), a large `--font-display` title with
@@ -1097,10 +1113,10 @@ Requirements the CSS depends on:
 - Every kicker/dateline row (`.remarque-masthead-kicker`,
   `.remarque-masthead-dateline`, `.remarque-lead-kicker`,
   `.remarque-entry-kicker`, `.remarque-post-kicker`) uses
-  `font-variant-caps: all-small-caps` — never `text-transform: uppercase`
-  (the flagship predates the Small Caps rule and used uppercase
-  throughout this pattern; corrected on the way upstream, same as the
-  Essay Module's TOC summary).
+  the label voice: tracked capitals (`text-transform: uppercase` +
+  `--tracking-caps`), because the default mono face has no small caps
+  (see "Small Caps"; #124). Until 0.28 these were synthesized
+  `all-small-caps`.
 
 ### Fluid-type decision: the masthead title
 
@@ -1222,7 +1238,7 @@ existing literal.
 | Class | Applies to | Notes |
 |---|---|---|
 | `.remarque-field` | wrapping `<div>` | Label + control + message vertical stack. Layout only — no border/background of its own. |
-| `.remarque-field-label` | `<label>` | Meta voice (mono, small caps, `--color-muted`) — same declarations as `.text-label`, repeated per the non-mixin precedent essay.css/broadsheet.css already set. |
+| `.remarque-field-label` | `<label>` | Meta voice (mono, tracked capitals, `--color-muted`) — same declarations as `.text-label`, repeated per the non-mixin precedent essay.css/broadsheet.css already set. |
 | `.remarque-field-required` | `<span aria-hidden="true">` inside the label | Accent-colored asterisk. `aria-hidden` — the input's own `required` attribute is the real signal a screen reader announces. |
 | `.remarque-field-message` | `<p>` after the control | Help text by default; recolored by the parent's `data-state`. Wire `aria-describedby` on the input to this element's `id` in every case, valid or not. |
 | `autocomplete` (attribute) | `.remarque-input` collecting known personal data | WCAG 3.3.7 / 3.3.8: inputs that collect known personal data (name, email, tel, address, `current-password`, `one-time-code`, ...) carry a valid [`autocomplete` token](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill), and never block paste (no `onpaste` handlers that cancel it). |

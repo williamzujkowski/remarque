@@ -258,7 +258,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-meta);
   letter-spacing: var(--tracking-caps);
-  font-variant-caps: all-small-caps;
+  text-transform: uppercase; /* label voice, as .text-label (#124) */
   color: var(--color-muted);
   margin: 0 0 var(--space-3);
 }
@@ -325,14 +325,12 @@
   padding-block: var(--space-2);
   border-bottom: var(--border-width) var(--border-style) var(--color-border);
   /* Mono meta voice — same declarations as .text-label (tokens-core.css),
-     repeated rather than shared because .text-label isn't a mixin: true
-     small caps, never text-transform: uppercase (REMARQUE.md "Small
-     Caps"). The flagship predates that rule and used `text-transform:
-     uppercase`; this is the one place the re-expression corrects the
-     source rather than just relocating it. */
+     repeated rather than shared because .text-label isn't a mixin:
+     tracked capitals, since the default mono face has no small caps
+     (REMARQUE.md "Small Caps", #124). */
   font-family: var(--font-mono);
   font-size: var(--text-meta);
-  font-variant-caps: all-small-caps;
+  text-transform: uppercase;
   letter-spacing: var(--tracking-caps);
   color: var(--color-muted);
   overflow-wrap: anywhere; /* flex label, as on the links below (#122) */

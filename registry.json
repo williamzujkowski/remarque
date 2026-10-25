@@ -10,16 +10,16 @@
       "title": "Essay Module",
       "description": "Sidenotes + sticky TOC rail for long-form Essay pages: margin notes relocated into real DOM order, right after the paragraph that cites them, numbered by CSS counter and labeled `aria-label=\"Note N\"` in the same order the counter advances — the mechanism that prevents the sidenote aria-label/DOM-order transcription bug found in the flagship migration (#89, williamzujkowski.github.io#380).",
       "version": "0.27.0",
-      "integrity": "sha256-0JzHgmiuF/2RgpDBkayUo9zW/KuZin/xTA0mpwdnTyM=",
+      "integrity": "sha256-HwTP/hiT/oid/YHBlzSECSvG5wSg9ICYVfns7luc6SA=",
       "file": "registry/essay.json"
     },
     {
       "name": "broadsheet",
       "type": "remarque:contract",
       "title": "Broadsheet Pattern",
-      "description": "The editorial Landing/archive pattern: masthead, lead article, numbered entry list, and post-header kicker. Entry numerals are generated from `data-entry-number` via `attr()`, never `counter()`, and every kicker/dateline row is true `font-variant-caps: all-small-caps`, never `text-transform: uppercase`.",
+      "description": "The editorial Landing/archive pattern: masthead, lead article, numbered entry list, and post-header kicker. Entry numerals are generated from `data-entry-number` via `attr()`, never `counter()`, and every kicker/dateline row is the label voice: tracked capitals, because the default mono face has no small caps (`font-variant-caps: all-small-caps` only on a face with `smcp` + `c2sc`; remarque-audit checks).",
       "version": "0.27.0",
-      "integrity": "sha256-clKJh7f5dd1u781AmizQ+lnonUFXKYU5+/5Ajd0+/gw=",
+      "integrity": "sha256-0gdOLXhIStXi2nrbSvWuyaOvCfjAdTdJAeZkprafekU=",
       "file": "registry/broadsheet.json"
     },
     {
@@ -28,7 +28,7 @@
       "title": "Forms Primitives",
       "description": "Native field/input/checkbox/radio/button primitives with state-color wiring. Every `.remarque-input` pairs `for`/`id` with its `.remarque-field-label`, and every `.remarque-field-message` is wired via `aria-describedby` on the control — the paint-layer `data-state` attribute is never the only signal; `aria-invalid`/`aria-describedby` on the input carry the real accessibility contract.",
       "version": "0.27.0",
-      "integrity": "sha256-4T+GN2dyCL2kZ9iJbwcnxGFrNi7QsZFql11fvYg64cE=",
+      "integrity": "sha256-Vxmu0D2080+Y8n0TcWzF2DGOlDbBNsdJ268j5Odg5BQ=",
       "file": "registry/forms.json"
     },
     {

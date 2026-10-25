@@ -39,9 +39,13 @@
   line-height: var(--leading-body);
   color: var(--color-fg);
   max-width: var(--content-reading);
-  /* Oldstyle proportional numerals — text figures that sit quietly
-     inside a sentence, the way numerals behave in well-set book prose.
-     Never mixed with .text-meta's tabular lining register (issue #51). */
+  /* Oldstyle proportional numerals WHEN THE BODY FACE HAS THEM: text
+     figures that sit quietly inside a sentence. Never mixed with
+     .text-meta's tabular lining register (issue #51).
+     remarque-feature: conditional (onum). The default body face, Inter,
+     has no onum, so default prose sets lining figures; a body face with
+     onum (the flagship's Source Serif 4) gets text figures from this same
+     line. remarque-audit reports it as conditional, not a failure (#124). */
   font-variant-numeric: oldstyle-nums proportional-nums;
   /* Optical defaults: avoid single-word orphan lines, let quotes and
      punctuation hang outside the measure. Both degrade safely. */
