@@ -278,6 +278,28 @@ test.describe('palette deck (remarque-tokens/deck, issue #56)', () => {
     expect(await bodyBg()).not.toBe(dark);
   });
 
+  for (const width of [375, 1280]) {
+    test(`popover: in the header, panel fully on screen at ${width}px, Escape and outside click close it`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await gotoWithTheme(page, 'tokens', 'light');
+      const picker = page.locator('#palette-picker');
+      // Discoverable: it sits in the header row, beside the light/dark toggle.
+      const top = await picker.evaluate((d) => d.getBoundingClientRect().top);
+      expect(top).toBeLessThan(120);
+      await picker.locator('summary').click();
+      const box = await picker.locator('fieldset').evaluate((f) => f.getBoundingClientRect().toJSON());
+      expect(box.left).toBeGreaterThanOrEqual(0);
+      expect(box.right).toBeLessThanOrEqual(width);
+      expect(box.bottom).toBeLessThanOrEqual(800);
+      await page.keyboard.press('Escape');
+      expect(await picker.evaluate((d) => (d as HTMLDetailsElement).open)).toBe(false);
+      await expect(picker.locator('summary')).toBeFocused();
+      await picker.locator('summary').click();
+      await page.mouse.click(5, 790);
+      expect(await picker.evaluate((d) => (d as HTMLDetailsElement).open)).toBe(false);
+    });
+  }
+
   test("swatches show each palette's own colors, not the active palette's", async ({ page }) => {
     await gotoWithTheme(page, 'tokens', 'light');
     const picker = await openPicker(page);

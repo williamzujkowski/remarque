@@ -119,8 +119,12 @@ green**, so a regression traces to one change, not two.
 1. Serve `remarque-tokens/deck.css` (copy it, or `deck.json` too, into the
    site's public assets at build time, or import it after the site's own
    palette). It's about 8 KB gzipped, prebuilt and audited.
-2. Render the `deck-picker` registry item from `deck.json`, and wire it
-   with `createDeck(manifest.palettes)` + `bindPicker()` from
+2. Render the `deck-picker` registry item from `deck.json` as the
+   **popover variant in the header, beside the light/dark toggle**
+   (`remarque-deck-picker--popover`, an icon `<summary>` with an
+   `aria-label`). A footer-only picker goes unnoticed on long pages.
+   Wire it with `createDeck(manifest.palettes)` +
+   `bindPicker(deck, picker, { dismissible: true })` from
    `remarque-tokens/deck`. Add the FOUC-safe restore from REMARQUE.md
    "Palette Deck" to `<head>`.
 3. Give the "site default" option the site's own swatches: declare

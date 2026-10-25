@@ -4,8 +4,8 @@
     "brotli": 6900
   },
   "chrome.css": {
-    "gzip": 4300,
-    "brotli": 3600
+    "gzip": 5000,
+    "brotli": 4200
   },
   "deck/deck.css": {
     "gzip": 8700,

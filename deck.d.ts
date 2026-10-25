@@ -30,6 +30,8 @@ export function createDeck(palettes: PaletteEntry[], opts?: DeckOptions): Deck;
 export interface BindPickerOptions {
   /** Runs after each change and once on bind, with the active palette (null = the site's own). */
   onChange?: (name: string | null) => void;
+  /** For a `<details>` picker (the popover variant): close on Escape and on an outside click. */
+  dismissible?: boolean;
 }
 
 /** Wire a picker of native radio inputs (registry item "deck-picker") to a deck. */
