@@ -26,7 +26,7 @@ function expect(label, cond, detail = '') {
   if (!ok) bad++;
 }
 
-const ITEM_NAMES = ['essay', 'broadsheet', 'forms', 'palette-deck'];
+const ITEM_NAMES = ['essay', 'broadsheet', 'forms', 'skip-link', 'breadcrumb', 'pager', 'tags', 'palette-deck'];
 
 // 1. Freshness — regeneration from the CSS + REMARQUE.md markers must be a no-op.
 try {
@@ -111,8 +111,8 @@ expect('mutated fixture (file type "application/javascript") is REJECTED by regi
 
 // 4. cssVars sanity — re-derive independently from the real CSS files and
 // compare, so "cssVars is grepped from the CSS" is proven, not asserted.
-for (const name of ['essay', 'broadsheet', 'forms']) {
-  const cssPath = `${name}.css`;
+for (const name of ['essay', 'broadsheet', 'forms', 'skip-link', 'breadcrumb', 'pager', 'tags']) {
+  const cssPath = ['skip-link', 'breadcrumb', 'pager', 'tags'].includes(name) ? 'chrome.css' : `${name}.css`;
   const expected = cssVarsOf(readFileSync(cssPath, 'utf8'));
   expect(`${name}: cssVars matches a fresh var(...) grep of ${cssPath}`, JSON.stringify(items[name].cssVars) === JSON.stringify(expected));
   expect(`${name}: cssVars is non-empty`, items[name].cssVars.length > 0);
@@ -188,6 +188,40 @@ expect('palette-deck: ships no CSS file (deck.js has no CSS of its own)', !items
   expect('forms usage.html: has at least one aria-describedby', describedBy.length > 0);
   const dangling = describedBy.filter((id) => !allIds.has(id));
   expect('forms usage.html: every aria-describedby target id exists in the sample', dangling.length === 0, JSON.stringify(dangling));
+}
+
+// 6e. Chrome module (#127) — skip link target, breadcrumb current page,
+// pager rel + no dead endpoints, tags rel + no DOM separators.
+{
+  const usage = (n) => items[n].files.find((f) => f.path === 'usage.html').content;
+
+  const skip = usage('skip-link');
+  const skipHref = (skip.match(/<a class="remarque-skip-link" href="#([^"]+)"/) || [])[1];
+  expect('skip-link usage.html: .remarque-skip-link is the first element in <body>', /<body>\s*<a class="remarque-skip-link"/.test(skip));
+  expect('skip-link usage.html: its target is <main id=…> with tabindex="-1"', !!skipHref && new RegExp(`<main id="${skipHref}" tabindex="-1">`).test(skip), skipHref);
+
+  const bc = usage('breadcrumb');
+  expect('breadcrumb usage.html: nav[aria-label="Breadcrumb"] > ol', /<nav class="remarque-breadcrumb" aria-label="Breadcrumb">\s*<ol>/.test(bc));
+  const lis = [...bc.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => m[1]);
+  expect('breadcrumb usage.html: the last item is aria-current="page" and not a link', lis.length > 1 && /aria-current="page"/.test(lis.at(-1)) && !/<a\b/.test(lis.at(-1)), JSON.stringify(lis.at(-1)));
+  expect('breadcrumb usage.html: no separator typed into the DOM', lis.every((li) => !/^\s*[/>›»|]|[/>›»|]\s*$/.test(li.replace(/<[^>]+>/g, ''))));
+
+  const pg = usage('pager');
+  expect('pager usage.html: prev/next links carry rel="prev"/rel="next"',
+    /<a class="remarque-pager-prev"[^>]*rel="prev"/.test(pg) && /<a class="remarque-pager-next"[^>]*rel="next"/.test(pg));
+  expect('pager usage.html: every pager/pagination nav has an aria-label', [...pg.matchAll(/<nav class="remarque-(pager|pagination)"[^>]*>/g)].every((m) => /aria-label="[^"]+"/.test(m[0])));
+  expect('pager usage.html: the current page/part is aria-current="page" text, not a link', !/<a\b[^>]*aria-current/.test(pg) && /<span aria-current="page">/.test(pg));
+  expect('pager usage.html: no disabled-looking links (aria-disabled, href-less <a>, pointer-events)', !/aria-disabled|<a(?![^>]*href)[^>]*>|pointer-events/.test(pg));
+
+  const tags = usage('tags');
+  expect('tags usage.html: <ul class="remarque-tags"> with an accessible name', /<ul class="remarque-tags" aria-label="[^"]+">/.test(tags));
+  const tagLinks = [...tags.matchAll(/<a\b[^>]*>/g)].map((m) => m[0]);
+  expect('tags usage.html: every tag link carries rel="tag"', tagLinks.length > 0 && tagLinks.every((t) => /rel="tag"/.test(t)), JSON.stringify(tagLinks));
+
+  const chromeCss = readFileSync('chrome.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const tagsRules = [...chromeCss.matchAll(/\.remarque-tags[^{]*\{([^}]*)\}/g)].map((m) => m[1]).join('');
+  expect('chrome.css: tags carry no border, background or radius (mono text, not pills)', !/border|background|radius/.test(tagsRules));
+  expect('chrome.css: the skip link is never moved off-screen by offset', !/left:\s*-\d/.test(chromeCss));
 }
 
 // 6d. Palette Deck — data-palette/data-theme compose on the same element; no FOUC script embedded.

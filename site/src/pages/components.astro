@@ -10,6 +10,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import Input from '../components/Input.astro';
 import Table from '../components/Table.astro';
+const base = import.meta.env.BASE_URL;
 
 const tableColumns = [
   { key: 'token', label: 'Token' },
@@ -134,6 +135,52 @@ const tableRows = [
   </section>
 
   <!-- Standalone Table -->
+  <section class="mt-12 content-reading">
+    <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Chrome</h2>
+    <p class="text-[length:var(--text-meta)] font-mono text-[var(--color-muted)] mb-6">remarque-tokens/chrome: breadcrumb, pager, pagination, tags. The skip link is this page's first focusable element.</p>
+    <nav class="remarque-breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href={base}>Home</a></li>
+        <li><a href={`${base}components`}>Components</a></li>
+        <li><span aria-current="page">Chrome</span></li>
+      </ol>
+    </nav>
+    <ul class="remarque-tags mt-6" aria-label="Tags">
+      <li><a href={`${base}writing`} rel="tag">typography</a></li>
+      <li><a href={`${base}notes`} rel="tag">design-systems</a></li>
+      <li><a href={`${base}specimen`} rel="tag">accessibility</a></li>
+    </ul>
+    <nav class="remarque-pager" aria-label="Example series">
+      <div class="remarque-pager-series">
+        <details>
+          <summary>Part 2 of 3 · Quiet Interfaces</summary>
+          <ol>
+            <li><a href={`${base}writing/against-decoration`}>Against Decoration</a></li>
+            <li><span aria-current="page">Chrome</span></li>
+            <li><a href={`${base}writing/typography-as-interface`}>Typography as Interface</a></li>
+          </ol>
+        </details>
+      </div>
+      <a class="remarque-pager-prev" href={`${base}writing/against-decoration`} rel="prev">
+        <span class="remarque-pager-label">Previous</span>
+        <span class="remarque-pager-title">Against Decoration</span>
+      </a>
+      <a class="remarque-pager-next" href={`${base}writing/typography-as-interface`} rel="next">
+        <span class="remarque-pager-label">Next</span>
+        <span class="remarque-pager-title">Typography as Interface</span>
+      </a>
+    </nav>
+    <nav class="remarque-pagination mt-8" aria-label="Example pagination">
+      <ol>
+        <li><span>Previous</span></li>
+        <li><span aria-current="page">1</span></li>
+        <li><a href={`${base}components`}>2</a></li>
+        <li><a href={`${base}components`}>3</a></li>
+        <li><a href={`${base}components`} rel="next">Next</a></li>
+      </ol>
+    </nav>
+  </section>
+
   <section class="mt-12 mb-12 content-reading">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Table</h2>
     <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6">

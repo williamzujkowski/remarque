@@ -4,6 +4,20 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## Unreleased
+
+### Added — Chrome Module (#127; additive)
+
+- **New subpath `remarque-tokens/chrome` (`chrome.css`):** the site-chrome and wayfinding pieces the spec required and never shipped CSS for, so every consumer hand-rolled them. The skip link had four implementations across the flagship, tsundoku, the starter and this demo, and one tsundoku pagination kept its "disabled" endpoints as focusable links. Not aggregated into `tokens.css`.
+  - **Skip link** (`.remarque-skip-link`, plus `.remarque-sr-only`): first focusable element, targets `<main id="main-content" tabindex="-1">`, hidden by clip-path until focused (never an off-screen offset, which breaks in RTL), then a filled fg-on-bg block on `--z-skip-link`, 44px tall, bordered under forced colors.
+  - **Breadcrumb** (`nav.remarque-breadcrumb > ol`): mono `--text-meta`, the current page `<span aria-current="page">`, separators generated with empty alt text so screen readers don't read them.
+  - **Pager** (`.remarque-pager`): prev/next with `rel`, a label line over the target's title, arrows that flip in RTL, an optional series row with a `<details>` part list. Plus numbered `.remarque-pagination`. An endpoint with nowhere to go is omitted, or plain text in pagination.
+  - **Tags** (`.remarque-tags`): plain mono links, `rel="tag"`, no border, fill or radius. An outlined chip is a documented deviation.
+  - The module sets no outer margins on the lists consumers position, because it's unlayered and would beat Tailwind utilities (Pitfall #7).
+- **Four new registry items** (`skip-link`, `breadcrumb`, `pager`, `tags`), each with a REMARQUE.md "Chrome Module" markup contract that `scripts/test-registry.mjs` asserts: the skip-link target, a current page that isn't a link, no DOM separators, `rel` on pager and tag links, no disabled-looking links, and no border, fill or radius on tags.
+- `print.css` hides the skip link, pager and pagination. AGENT_RULES gains a chrome checklist line. `remarque-audit`'s font-feature check and the budget/closure test cover the new module.
+- Demo: the layout's Tailwind skip-link chain, which set `focus:outline-none`, is replaced by `.remarque-skip-link`; essays end with the pager; the dossier has a breadcrumb; `/components` gains a Chrome section. New `site/tests/chrome.spec.ts` covers the keyboard skip flow, separators and arrows out of the accessibility tree, pager sides with an omitted endpoint, tag styling, and the 44px pagination targets.
+
 ## 0.28.0 — 2026-10-24
 
 The "truth" minor of the 2026-10 roadmap (#133): it makes the spec's claims true on the default stack. It was researched with Open Design and nexus-agents, ratified 7–0 (`vote-1792819887868-esau595`), and landed as one PR per issue, each with its own regression test proven red on 0.27.0. **Consumer-visible changes:**

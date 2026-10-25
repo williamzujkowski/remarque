@@ -88,6 +88,9 @@
   a[href="#main-content"],
   a[href^="#main"],
   .skip-link,
+  .remarque-skip-link,
+  .remarque-pager,
+  .remarque-pagination,
   .copy-btn {
     display: none !important;
   }

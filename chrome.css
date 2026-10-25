@@ -1,0 +1,364 @@
+/*
+ * Remarque — Chrome Module (skip link, breadcrumb, pager, tags)
+ * ───────────────────────────────────────────────────────────────
+ * The site-chrome and wayfinding pieces the spec requires but never
+ * shipped, so every consumer hand-rolled its own (issue #127, roadmap
+ * 0.29.0). Four implementations of the skip link alone existed across the
+ * flagship, tsundoku, the starter and this demo; one tsundoku pagination
+ * kept its disabled endpoints focusable. GOV.UK Frontend and USWDS ship
+ * all of these as components.
+ *
+ * Own subpath (remarque-tokens/chrome, remarque-tokens/chrome.css), not
+ * part of the tokens.css aggregator. Import after the tokens:
+ *   @import 'remarque-tokens/chrome.css';
+ * (string form — AGENT_RULES.md Pitfall #6.)
+ *
+ * Voice: everything here is metadata, so it speaks in the mono meta
+ * register (--font-mono, --text-meta, --tracking-meta), never the accent
+ * as decoration, never a border or fill around a tag. Every link gets the
+ * 44px floor on coarse pointers (WCAG 2.5.8 is met at 24px; Remarque's
+ * floor is 44). Markup contracts live in REMARQUE.md "Chrome Module" and
+ * are asserted by scripts/test-registry.mjs.
+ */
+
+/* ─── Screen-reader-only text ────────────────────────────────────────────
+ * Visually hidden, still in the accessibility tree. clip-path, not the
+ * deprecated clip. */
+.remarque-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ─── 1. Skip link ───────────────────────────────────────────────────────
+ * First focusable element on the page. Hidden like .remarque-sr-only until
+ * it takes focus, then a filled fg-on-bg block at the top inline-start
+ * corner, above everything (--z-skip-link). It's never moved off-screen
+ * with left: -9999px, which breaks in RTL and under zoom. The target is
+ * <main id="main-content" tabindex="-1">: the tabindex lets the browser
+ * move focus there, and the rule below keeps that programmatic focus from
+ * outlining the whole page. */
+.remarque-skip-link {
+  position: absolute;
+  inset-block-start: var(--space-4);
+  inset-inline-start: var(--space-4);
+  z-index: var(--z-skip-link);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-bg);
+  background-color: var(--color-fg);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+}
+
+.remarque-skip-link:not(:focus) {
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+main[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* ─── 2. Breadcrumb ──────────────────────────────────────────────────────
+ * The Reference/Docs "breadcrumb kicker" (REMARQUE.md Page Archetypes):
+ * nav[aria-label="Breadcrumb"] > ol. The separator is generated, with an
+ * empty alt text so screen readers don't read "slash" between items (the
+ * first declaration is the fallback for engines without alt text in
+ * content). The current page is the last item, aria-current="page", and
+ * not a link. */
+.remarque-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-muted);
+}
+
+.remarque-breadcrumb li + li::before {
+  content: "/";
+  content: "/" / "";
+  margin-inline: var(--space-2);
+  color: var(--color-muted);
+}
+
+.remarque-breadcrumb a {
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-breadcrumb a:hover {
+  color: var(--color-fg);
+  text-decoration: underline;
+}
+
+.remarque-breadcrumb [aria-current="page"] {
+  color: var(--color-fg);
+}
+
+/* ─── 3. Pager: prev/next, series, numbered pagination ──────────────────
+ * Prev/next between adjacent pages (Essay footer, Reference/Docs footer,
+ * Plate figure navigation): links carry rel="prev"/rel="next" and sit at
+ * the inline-start and inline-end of one row. An endpoint with nothing
+ * beyond it is OMITTED (or, in numbered pagination, rendered as plain
+ * text): never a link made to look disabled, which stays focusable and
+ * announces as a link. Each link is a small label over the target's
+ * title, so the title is the thing you read. */
+.remarque-pager {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  margin-block-start: var(--space-8);
+  padding-block-start: var(--space-6);
+  border-block-start: var(--border-width) var(--border-style) var(--color-border);
+}
+
+.remarque-pager-prev,
+.remarque-pager-next {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: 44px;
+  justify-content: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.remarque-pager-prev {
+  grid-column: 1;
+  text-align: start;
+}
+
+.remarque-pager-next {
+  grid-column: 2;
+  text-align: end;
+}
+
+/* The label line: "Previous" / "Next", in the label voice. */
+.remarque-pager-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--color-muted);
+}
+
+.remarque-pager-title {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-meta);
+  color: var(--color-accent);
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-pager-prev:hover .remarque-pager-title,
+.remarque-pager-next:hover .remarque-pager-title {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+/* Arrows point along the inline direction, so they flip in RTL. They're
+   generated and carry empty alt text: rel and the label already say it. */
+.remarque-pager-prev .remarque-pager-label::before {
+  content: "\2190\00a0";
+  content: "\2190\00a0" / "";
+}
+
+.remarque-pager-next .remarque-pager-label::after {
+  content: "\00a0\2192";
+  content: "\00a0\2192" / "";
+}
+
+.remarque-pager:dir(rtl) .remarque-pager-prev .remarque-pager-label::before {
+  content: "\2192\00a0";
+  content: "\2192\00a0" / "";
+}
+
+.remarque-pager:dir(rtl) .remarque-pager-next .remarque-pager-label::after {
+  content: "\00a0\2190";
+  content: "\00a0\2190" / "";
+}
+
+/* Optional series row: "Part 2 of 4 · Series name" plus a <details> list
+   of every part, the current one aria-current="page" and not a link. It
+   spans both columns, above the prev/next pair. No progress bar: the text
+   says it. */
+.remarque-pager-series {
+  grid-column: 1 / -1;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-muted);
+}
+
+.remarque-pager-series summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--color-fg-muted);
+}
+
+/* inline-flex drops the native ::marker, so draw the same marker the
+   prose and TOC disclosures use; it points along the inline direction. */
+.remarque-pager-series summary::-webkit-details-marker {
+  display: none;
+}
+
+.remarque-pager-series summary::before {
+  content: "\25B8";
+  content: "\25B8" / "";
+  color: var(--color-muted);
+  transition: transform var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-pager-series details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.remarque-pager-series summary:dir(rtl)::before {
+  transform: scaleX(-1);
+}
+
+.remarque-pager-series ol {
+  margin: var(--space-2) 0 0;
+  padding-inline-start: var(--space-5);
+}
+
+.remarque-pager-series li {
+  margin-block: var(--space-1);
+}
+
+.remarque-pager-series a {
+  color: var(--color-fg-muted);
+}
+
+.remarque-pager-series [aria-current="page"] {
+  color: var(--color-fg);
+}
+
+/* Numbered pagination for archives: nav[aria-label="Pagination"] > ol.
+   The current page is aria-current="page" text; prev/next at the ends are
+   links when there's somewhere to go and plain text when there isn't. */
+.remarque-pagination ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-muted);
+}
+
+.remarque-pagination a,
+.remarque-pagination li > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding-inline: var(--space-2);
+}
+
+.remarque-pagination a {
+  color: var(--color-fg-muted);
+  text-decoration: none;
+}
+
+.remarque-pagination a:hover {
+  color: var(--color-fg);
+  text-decoration: underline;
+}
+
+.remarque-pagination [aria-current="page"] {
+  color: var(--color-fg);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+
+/* ─── 4. Tags ────────────────────────────────────────────────────────────
+ * "Tags or categories (mono text, not pill badges)": plain mono links in a
+ * wrapping row. No border, no fill, no radius. An outlined chip is a
+ * documented deviation, not personalization (REMARQUE.md "Chrome
+ * Module"). <ul> with an accessible name; links carry rel="tag". */
+.remarque-tags {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
+  /* No margin: where the row sits is the page's call, and this file is
+     unlayered, so a margin here would beat a Tailwind utility on the same
+     element (AGENT_RULES Pitfall #7). Same for .remarque-pagination. */
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  letter-spacing: var(--tracking-meta);
+}
+
+.remarque-tags a {
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: color var(--motion-fast) var(--motion-easing);
+}
+
+.remarque-tags a:hover {
+  color: var(--color-fg);
+  text-decoration: underline;
+}
+
+/* ─── Coarse pointers: the 44px floor on every inline chrome link ─────── */
+@media (pointer: coarse) {
+  .remarque-breadcrumb a,
+  .remarque-breadcrumb [aria-current="page"],
+  .remarque-tags a,
+  .remarque-pager-series a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
+/* ─── Forced colors ──────────────────────────────────────────────────────
+ * The skip link's fill is forced to Canvas, so give it a real border. */
+@media (forced-colors: active) {
+  .remarque-skip-link {
+    border: 1px solid CanvasText;
+  }
+}

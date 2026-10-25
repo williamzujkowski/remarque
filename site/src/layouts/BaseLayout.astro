@@ -89,13 +89,8 @@ const nav = [['writing', 'Writing'], ['projects', 'Projects'], ['notes', 'Notes'
   <body
     class="min-h-screen bg-[var(--color-bg)] text-[var(--color-fg)] font-body text-[1.0625rem] leading-[1.75] antialiased"
   >
-    <!-- Skip to content -->
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[var(--z-skip-link)] focus:px-4 focus:py-2 focus:bg-[var(--color-fg)] focus:text-[var(--color-bg)] focus:rounded-[var(--radius-sm)] focus:text-[length:var(--text-meta)] focus:no-underline focus:outline-none"
-    >
-      Skip to content
-    </a>
+    <!-- Skip to content (remarque-tokens/chrome, #127) -->
+    <a class="remarque-skip-link" href="#main-content">Skip to content</a>
 
     <div class="content-standard px-5 sm:px-8">
       <header class="pt-6 sm:pt-8 pb-4 sm:pb-6">
@@ -141,7 +136,7 @@ const nav = [['writing', 'Writing'], ['projects', 'Projects'], ['notes', 'Notes'
         </nav>
       </header>
 
-      <main id="main-content">
+      <main id="main-content" tabindex="-1">
         <slot />
       </main>
 

@@ -327,7 +327,7 @@ for (const file of walk(SRC)) {
   const fontStacks = {};
   // declsOf keys drop the leading --
   for (const t of ['font-body', 'font-display', 'font-mono']) fontStacks[`--${t}`] = lightDecls[t] || pkgDefaults[t];
-  const MODULES = ['tokens-core.css', 'prose.css', 'essay.css', 'broadsheet.css', 'forms.css'];
+  const MODULES = ['tokens-core.css', 'prose.css', 'essay.css', 'broadsheet.css', 'forms.css', 'chrome.css'];
   const targets = MODULES.map((m) => [join(PKG_ROOT, m), `remarque-tokens/${m}`]);
   for (const file of walk(SRC)) if (file.endsWith('.css')) targets.push([file, relative('.', file)]);
   const seen = new Set();
