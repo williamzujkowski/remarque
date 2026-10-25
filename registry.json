@@ -10,7 +10,7 @@
       "title": "Essay Module",
       "description": "Sidenotes + sticky TOC rail for long-form Essay pages: margin notes relocated into real DOM order, right after the paragraph that cites them, numbered by CSS counter and labeled `aria-label=\"Note N\"` in the same order the counter advances — the mechanism that prevents the sidenote aria-label/DOM-order transcription bug found in the flagship migration (#89, williamzujkowski.github.io#380).",
       "version": "0.27.0",
-      "integrity": "sha256-WdVL53RIsTPyqmdBZx+6IS0kJwF3PUxgdqTPmqeb4sY=",
+      "integrity": "sha256-0JzHgmiuF/2RgpDBkayUo9zW/KuZin/xTA0mpwdnTyM=",
       "file": "registry/essay.json"
     },
     {
@@ -19,7 +19,7 @@
       "title": "Broadsheet Pattern",
       "description": "The editorial Landing/archive pattern: masthead, lead article, numbered entry list, and post-header kicker. Entry numerals are generated from `data-entry-number` via `attr()`, never `counter()`, and every kicker/dateline row is true `font-variant-caps: all-small-caps`, never `text-transform: uppercase`.",
       "version": "0.27.0",
-      "integrity": "sha256-Rnr+BDfftgAQT0N3Fby2P6Dc1bioznGC2jrwOhg8FWU=",
+      "integrity": "sha256-clKJh7f5dd1u781AmizQ+lnonUFXKYU5+/5Ajd0+/gw=",
       "file": "registry/broadsheet.json"
     },
     {
@@ -28,7 +28,7 @@
       "title": "Forms Primitives",
       "description": "Native field/input/checkbox/radio/button primitives with state-color wiring. Every `.remarque-input` pairs `for`/`id` with its `.remarque-field-label`, and every `.remarque-field-message` is wired via `aria-describedby` on the control — the paint-layer `data-state` attribute is never the only signal; `aria-invalid`/`aria-describedby` on the input carry the real accessibility contract.",
       "version": "0.27.0",
-      "integrity": "sha256-E6byU7XddbwJNxydwVeTmdEHF94FclsXUpMWAyuOcXY=",
+      "integrity": "sha256-4T+GN2dyCL2kZ9iJbwcnxGFrNi7QsZFql11fvYg64cE=",
       "file": "registry/forms.json"
     },
     {

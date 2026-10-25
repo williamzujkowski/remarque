@@ -1,11 +1,11 @@
 {
   "broadsheet.css": {
-    "gzip": 7300,
-    "brotli": 6100
+    "gzip": 8100,
+    "brotli": 6800
   },
   "essay.css": {
-    "gzip": 8200,
-    "brotli": 6900
+    "gzip": 8700,
+    "brotli": 7300
   },
   "fonts.css": {
     "gzip": 700,
@@ -20,16 +20,16 @@
     "brotli": 2400
   },
   "prose.css": {
-    "gzip": 5000,
-    "brotli": 4200
+    "gzip": 5300,
+    "brotli": 4500
   },
   "theme.css": {
     "gzip": 2000,
     "brotli": 1600
   },
   "tokens-core.css": {
-    "gzip": 4400,
-    "brotli": 3600
+    "gzip": 4900,
+    "brotli": 4000
   },
   "tokens-palette.css": {
     "gzip": 7800,
@@ -40,7 +40,7 @@
     "brotli": 500
   },
   "tokens.css (effective)": {
-    "gzip": 16000,
-    "brotli": 13500
+    "gzip": 16900,
+    "brotli": 14200
   }
 }

@@ -151,6 +151,31 @@ html {
   color: var(--color-selection-fg);
 }
 
+/* ─── Script-aware guards (issue #123) ─────────────────────
+ * The tracking and leading tokens are tuned for Latin display type.
+ * Negative or positive tracking breaks the joining of cursive scripts
+ * (Arabic, Persian, Urdu), and CJK headings need more than 1.05-1.2
+ * leading. Remarque's fonts carry no glyphs for these scripts, so this
+ * only stops the tokens from harming whatever face the fallback stack
+ * picks. Redeclared on every element in that language, so a lang=""
+ * island inside a Latin page is covered too. Body leading (1.75) already
+ * suits CJK. Italics are handled where each module sets them. */
+:lang(ar), :lang(fa), :lang(ur) {
+  --tracking-display: 0;
+  --tracking-title: 0;
+  --tracking-meta: 0;
+  --tracking-caps: 0;
+}
+
+:lang(zh), :lang(ja), :lang(ko) {
+  --tracking-display: 0;
+  --tracking-title: 0;
+  --tracking-caps: 0;
+  --leading-display: 1.35;
+  --leading-title: 1.4;
+  --leading-section: 1.4;
+}
+
 /* ─── Global Typography Classes ─────────────────────────── */
 
 .text-display {

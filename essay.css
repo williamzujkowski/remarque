@@ -182,13 +182,14 @@
   margin-top: var(--space-2);
 }
 
-/* ─── Sidenotes — wide-viewport mode: float into the left margin ────────
+/* ─── Sidenotes — wide-viewport mode: float into the inline-start margin ─
  * Classic Tufte CSS technique: `.remarque-sidenote` isn't a grid child
  * itself (it's nested inside `.remarque-prose`, which IS grid-column 2 —
  * see `.remarque-essay` below) so grid placement doesn't apply to it
- * directly. Instead it floats left with a negative inline-start margin
+ * directly. Instead it floats to inline-start (left in LTR, right in RTL)
+ * with a negative inline-start margin
  * exactly wide enough to clear its own box plus one column-gap unit,
- * landing in the grid's column-1 gutter. `clear: left` stacks consecutive
+ * landing in the grid's column-1 gutter. `clear: inline-start` stacks consecutive
  * notes without any JS-computed offset.
  *
  * Width (`--space-11`, 10rem) and pull-out distance (that width plus
@@ -203,8 +204,13 @@
  */
 @media (min-width: 80rem) {
   .remarque-sidenote {
-    float: left;
+    /* Logical, so the note lands in the inline-start gutter in RTL too;
+       a physical float:left with the logical negative margin below put
+       it on top of the paragraph under dir="rtl" (issue #123). */
+    float: left; /* fallback: no logical float values */
     clear: left;
+    float: inline-start;
+    clear: inline-start;
     width: var(--space-11);
     margin-inline-start: calc(-1 * (var(--space-11) + var(--space-6)));
     margin-block: var(--space-1) var(--space-4);
@@ -346,6 +352,12 @@
 
 .remarque-toc-rail details[open] summary::before {
   transform: rotate(90deg);
+}
+
+/* The closed marker points along the inline direction (issue #123); the
+   open rule above outranks this one and points it down in both. */
+.remarque-toc-rail summary:dir(rtl)::before {
+  transform: scaleX(-1);
 }
 
 .remarque-toc-rail summary:hover {
