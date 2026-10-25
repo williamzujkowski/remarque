@@ -1,0 +1,46 @@
+{
+  "broadsheet.css": {
+    "gzip": 7300,
+    "brotli": 6100
+  },
+  "essay.css": {
+    "gzip": 8200,
+    "brotli": 6900
+  },
+  "fonts.css": {
+    "gzip": 700,
+    "brotli": 600
+  },
+  "forms.css": {
+    "gzip": 8400,
+    "brotli": 7000
+  },
+  "print.css": {
+    "gzip": 2800,
+    "brotli": 2400
+  },
+  "prose.css": {
+    "gzip": 5000,
+    "brotli": 4200
+  },
+  "theme.css": {
+    "gzip": 2000,
+    "brotli": 1600
+  },
+  "tokens-core.css": {
+    "gzip": 4400,
+    "brotli": 3600
+  },
+  "tokens-palette.css": {
+    "gzip": 7800,
+    "brotli": 6500
+  },
+  "tokens.css": {
+    "gzip": 600,
+    "brotli": 500
+  },
+  "tokens.css (effective)": {
+    "gzip": 16000,
+    "brotli": 13500
+  }
+}

@@ -13,6 +13,7 @@ these entries when syncing.
 - **`npm test`** chains the same gates for local runs. `scripts/test-pack.mjs` now strips the parent's `npm_*` environment from its child `npm`/`npx` calls; under `npm test` they inherited npm's local prefix and installed into this repo instead of the scratch consumer.
 - **`.github/dependabot.yml`**: weekly version updates for the root and `site/` npm trees and for the SHA-pinned actions, with a 7-day cooldown. `@williamzujkowski/oklch-terminal-themes` stays a hand bump because `palette-golden.mjs` gates it.
 - `main` is now branch-protected and requires the CI and visual-regression checks.
+- **`scripts/test-budget.mjs`** (picked up by `npm test` and run in CI): gzip and brotli size budgets for every shipped CSS file plus the effective bare `tokens.css` import, against a committed, unshipped `budgets.json` (current size + 10%; `--update` rewrites it), and a module-closure check that every `var(--x)` in `prose`/`essay`/`broadsheet`/`forms`/`print` resolves to a core, palette or module-local custom property.
 
 ## 0.27.0 — 2026-10-23
 
