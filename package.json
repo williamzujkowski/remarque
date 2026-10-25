@@ -118,6 +118,7 @@
     "deck.js",
     "scripts/lib/css-tokens.mjs",
     "scripts/lib/palette-coherence.mjs",
+    "scripts/lib/font-features.mjs",
     "registry.json",
     "registry/",
     "registry-item.schema.json",
