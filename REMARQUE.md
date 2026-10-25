@@ -1113,13 +1113,35 @@ tokens already in `tokens-core.css`, not new literals:
 ```
 
 Both bounds resolve to the exact flagship values already validated
-downstream (contrast/gamut/font-floor audits + axe). The `9vw` rate is
-unchanged from the flagship — it continues the same escalating per-tier
-vw progression `tokens-core.css`'s own scale already uses (2.25vw
-section → 3.5vw title → 5.5vw display), one step further for a register
-one step past display. This property is declared inside `broadsheet.css`
-only, never added to `tokens-core.css` — it is local arithmetic on
-existing core tokens, not a new one.
+downstream (contrast/gamut/font-floor audits + axe). The rate 9 continues
+the same escalating per-tier progression `tokens-core.css`'s own scale
+already uses (2.25vw section → 3.5vw title → 5.5vw display), one step
+further for a register one step past display. This property is declared
+inside `broadsheet.css` only, never added to `tokens-core.css` — it is
+local arithmetic on existing core tokens, not a new one.
+
+**Sized from the nameplate, not the viewport (0.28, #121; ratified 7–0,
+`vote-1792889632787-bm0nogp`).** Type should be sized from the measure it
+sits in (Tim Brown, *Flexible Typography*), so the rate is `9cqi` of the
+nameplate's own box. `.remarque-masthead` is an inline-size container
+whose box is `--content-standard` (72rem), the page-width register a
+newspaper nameplate spans; the lead article and entry list below it stay
+at `--content-reading`. Inside `@supports (width: 1cqi)` the property is
+redeclared with `9cqi`; the `9vw` declaration above stays as the
+fallback. Because the property is unregistered, `cqi` resolves where the
+title uses it, against the nameplate box.
+
+Why not keep the reading-measure box: until 0.28 the title grew at `9vw`
+inside a box capped at `--content-reading`. When that token went to 38rem
+in 0.27 the box stopped at about 640px of viewport while the title kept
+growing to 7.5rem, so "Notes Toward a Quieter Typography" wrapped to four
+lines at 1280px. Sizing from a 38rem box instead tops out near 67px,
+*below* the `--text-display` lead title beneath it (70–80px), which
+inverts the hierarchy this pattern exists for. Measured at 1280px and
+up, the 72rem nameplate sets the title at about 98px, holds four- to
+seven-word titles to two lines, and keeps it above the lead.
+`site/tests/page-axis.spec.ts` gates both (at most 2 lines for a
+four-word title at 768, 1280 and 1920px; masthead larger than lead).
 
 Everywhere else in the pattern, an existing token already covers the
 register: `.remarque-lead-title` uses `--text-display` as-is (its

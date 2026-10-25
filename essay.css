@@ -197,8 +197,9 @@
  * sidebar-width value — this is the token-vocabulary re-expression of the
  * flagship's hand-measured `11.5rem`/`13rem` pair. (Was `--space-10`, 8rem,
  * until 0.27: about 15 mono characters per line, so a two-sentence note
- * ran 19 lines tall — 2026-10 design review. 10rem still clears the
- * 80rem breakpoint with a 46rem reading column.)
+ * ran 19 lines tall — 2026-10 design review. 10rem still fits the
+ * outer track at the 80rem breakpoint even with a 46rem consumer column;
+ * see the grid shell below.)
  */
 @media (min-width: 80rem) {
   .remarque-sidenote {
@@ -404,15 +405,21 @@
  * reading` / `.remarque-prose` — this rule only exists inside the
  * `@media` block.
  *
- * Track widths: the center track is `minmax(0, var(--content-reading))` —
- * IDENTICAL to the plain `max-width: content-reading; margin-inline:
- * auto` centering used everywhere else (same visual column, just a grid
- * track instead of block flow), so nothing here changes the reading
- * measure the "prose measure" computed-style check already covers. The
- * right track (`minmax(--space-11, --space-12)`, 10-12rem) is this
- * module's re-expression of the flagship's bespoke `minmax(12rem, 14rem)`
- * rail — same shape (a comfortable range, not a fixed width), core
- * spacing tokens instead of asserted rem literals.
+ * Track widths: the center track is `minmax(0, var(--content-reading))`,
+ * and the two outer tracks are EQUAL (`minmax(--space-11, 1fr)` each), so
+ * the reading column sits on the same page axis as the plain `max-width:
+ * content-reading; margin-inline: auto` centering used everywhere else.
+ * (Until 0.28 the left track was `1fr` and the right a fixed 10-12rem,
+ * which centered the column only when the slack happened to equal the
+ * rail: 48px off-axis at 1440px on the demo, 24px on the flagship —
+ * issue #119.) Both outer tracks keep a `--space-11` (10rem) floor: the
+ * left one holds the floated sidenotes, the right one the rail. At the
+ * 80rem breakpoint with a 46rem consumer column each outer track is
+ * (1280 - 736 - 2 x 32) / 2 = 240px, clear of the 160px floor. The rail
+ * itself is capped at `--space-12` (12rem) plus its focus-ring padding —
+ * this module's re-expression of the flagship's bespoke `minmax(12rem,
+ * 14rem)` rail, core spacing tokens instead of asserted rem literals —
+ * so a wide right track doesn't stretch it.
  *
  * Children are placed by exclusion (`:not(.remarque-toc-rail)` -> column
  * 2) rather than an explicit tag list, deliberately: nothing about this
@@ -425,9 +432,9 @@
   .remarque-essay {
     display: grid;
     grid-template-columns:
-      minmax(0, 1fr)
+      minmax(var(--space-11), 1fr)
       minmax(0, var(--content-reading))
-      minmax(var(--space-11), var(--space-12));
+      minmax(var(--space-11), 1fr);
     column-gap: var(--space-6);
   }
 
@@ -465,5 +472,6 @@
     padding: var(--space-2);
     margin-inline-start: calc(-1 * var(--space-2));
     width: calc(100% + var(--space-2));
+    max-width: calc(var(--space-12) + var(--space-2));
   }
 }

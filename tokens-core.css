@@ -132,6 +132,10 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* Reserve the classic-scrollbar gutter on every page, so a centered
+     column doesn't shift ~15px between a short page and a long one
+     (issue #121; overlay-scrollbar platforms are unaffected). */
+  scrollbar-gutter: stable;
 }
 
 ::selection {
