@@ -117,6 +117,7 @@
     "forms.css",
     "deck.js",
     "scripts/lib/css-tokens.mjs",
+    "scripts/lib/palette-coherence.mjs",
     "registry.json",
     "registry/",
     "registry-item.schema.json",

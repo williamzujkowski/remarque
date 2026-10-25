@@ -248,6 +248,116 @@ for (const [name, css, shouldPass] of cases) {
 
 if (bad) process.exit(1);
 
+/* ── Palette-coherence warnings (issue #125) ────────────────────────
+   Fixtures: CLEAN (every coherence rule satisfied → zero warnings),
+   plus single-fault variants that must each surface the documented
+   warning id while `passed` stays true (warnings never fail the audit
+   in this release). */
+{
+  let cohBad = 0;
+  const expectC = (label, cond) => {
+    console.log(`${cond ? '✓' : '✗'} ${label}`);
+    if (!cond) cohBad++;
+  };
+  const sub = (css, from, to) => {
+    if (!css.includes(from)) throw new Error(`coherence fixture: "${from}" not found`);
+    return css.replace(from, to);
+  };
+  // CLEAN: distinct surface ramp, CVD-separated viz (found by random
+  // search; min pairwise dE2000 >= 9 under all four vision modes),
+  // accent far from error/viz-1, error/success separable under deutan.
+  let cleanLight = LIGHT;
+  const lightSwaps = [
+    ['--color-bg: oklch(0.975 0.005 80)', '--color-bg: oklch(0.985 0.005 80)'],
+    ['--color-bg-subtle: oklch(0.955 0.005 80)', '--color-bg-subtle: oklch(0.895 0.005 80)'],
+    ['--color-surface: oklch(0.965 0.005 80)', '--color-surface: oklch(0.94 0.005 80)'],
+    ['--color-code-bg: oklch(0.945 0.005 80)', '--color-code-bg: oklch(0.85 0.005 80)'],
+    ['--color-error: oklch(0.54 0.14 25)', '--color-error: oklch(0.50 0.16 5)'],
+    ['--color-muted: oklch(0.54 0.01 80)', '--color-muted: oklch(0.45 0.01 80)'],
+    ['--color-viz-1: oklch(0.538 0.121 250.5)', '--color-viz-1: oklch(0.435 0.085 148.3)'],
+    ['--color-viz-2: oklch(0.541 0.111 85.5)', '--color-viz-2: oklch(0.634 0.105 94.5)'],
+    ['--color-viz-3: oklch(0.524 0.12 24.6)', '--color-viz-3: oklch(0.401 0.155 18.9)'],
+    ['--color-viz-4: oklch(0.499 0.12 144.8)', '--color-viz-4: oklch(0.561 0.116 259.7)'],
+    ['--color-viz-5: oklch(0.524 0.121 309.6)', '--color-viz-5: oklch(0.476 0.096 319.3)'],
+    ['--color-viz-6: oklch(0.528 0.09 195.8)', '--color-viz-6: oklch(0.628 0.089 209.9)'],
+  ];
+  for (const [a, b] of lightSwaps) cleanLight = sub(cleanLight, a, b);
+  // A darker code-bg needs darker syntax slots to keep 4.5:1 (light) —
+  // and a lighter code-bg needs lighter ones (dark). Shift L by 0.09.
+  const shiftSyntax = (css, dL) =>
+    css.replace(/(--color-syntax-(?:keyword|string|constant|comment|function|type|punctuation): oklch\()([\d.]+) ([\d.]+)/g,
+      (_, pre, l, c) => `${pre}${(parseFloat(l) + dL).toFixed(2)} ${Math.min(parseFloat(c), 0.05)}`);
+  cleanLight = shiftSyntax(cleanLight, -0.13);
+  let cleanDark = DARK_DECLS;
+  const darkSwaps = [
+    ['--color-surface: oklch(0.19 0.01 80)', '--color-surface: oklch(0.215 0.01 80)'],
+    ['--color-code-bg: oklch(0.20 0.005 80)', '--color-code-bg: oklch(0.31 0.005 80)'],
+    ['--color-error: oklch(0.64 0.12 25)', '--color-error: oklch(0.67 0.15 25)'],
+    ['--color-muted: oklch(0.60 0.01 80)', '--color-muted: oklch(0.65 0.01 80)'],
+    ['--color-success: oklch(0.61 0.11 145)', '--color-success: oklch(0.80 0.14 145)'],
+    ['--color-viz-1: oklch(0.708 0.129 249.5)', '--color-viz-1: oklch(0.839 0.149 159.1)'],
+    ['--color-viz-2: oklch(0.712 0.13 85.3)', '--color-viz-2: oklch(0.735 0.088 78.9)'],
+    ['--color-viz-3: oklch(0.724 0.129 310.2)', '--color-viz-3: oklch(0.753 0.145 307.5)'],
+    ['--color-viz-4: oklch(0.725 0.129 25.4)', '--color-viz-4: oklch(0.61 0.154 30.8)'],
+    ['--color-viz-5: oklch(0.696 0.129 144.9)', '--color-viz-5: oklch(0.564 0.105 247.6)'],
+    ['--color-viz-6: oklch(0.697 0.119 194.8)', '--color-viz-6: oklch(0.664 0.092 196.6)'],
+  ];
+  for (const [a, b] of darkSwaps) cleanDark = sub(cleanDark, a, b);
+  cleanDark = shiftSyntax(cleanDark, 0.12);
+  // bg-subtle in dark must differ from surface (the default palette's
+  // dark surface == bg-subtle is exactly the fault the audit warns about).
+  cleanDark = `  --color-bg-subtle: oklch(0.265 0.01 80);\n${cleanDark}`;
+  cleanLight = sub(cleanLight, '--color-accent: oklch(0.50 0.14 250)', '--color-accent: oklch(0.40 0.09 250)');
+  const cleanCss = `${cleanLight}\n[data-theme="dark"] {${cleanDark}}`;
+
+  const runCoh = (name, css) => {
+    const f = join(dir, name);
+    writeFileSync(f, css);
+    try {
+      return JSON.parse(execFileSync('node', ['scripts/audit.mjs', '--palette', f, '--src', join(dir, 'src'), '--json'], { encoding: 'utf8' }));
+    } catch (e) {
+      return JSON.parse(e.stdout); // exit 1 still carries the JSON report; assertions check .passed
+    }
+  };
+  const clean = runCoh('coherence-clean.css', cleanCss);
+  expectC('coherence: clean palette passes', clean.passed === true);
+  expectC(
+    `coherence: clean palette emits zero warnings${clean.warnings.length ? ' (got ' + clean.warnings.map((w) => w.theme + ':' + w.id).join(', ') + ')' : ''}`,
+    Array.isArray(clean.warnings) && clean.warnings.length === 0
+  );
+
+  // accent == error (the gruvbox bug): must warn, must NOT fail the audit.
+  const collideCss = sub(cleanCss, '--color-error: oklch(0.50 0.16 5)', '--color-error: oklch(0.40 0.09 250)');
+  const collide = runCoh('coherence-accent-error.css', collideCss);
+  expectC('coherence: accent == error still passes the audit (warning, not failure)', collide.passed === true);
+  const ae = collide.warnings.filter((w) => w.id === 'accent-vs-error');
+  expectC('coherence: accent == error emits accent-vs-error (light, dE ~0)', ae.some((w) => w.theme === 'light' && w.actual < 1));
+  expectC(
+    'coherence: warning has documented shape {id,theme,tokens,actual,threshold,message}',
+    ae.length > 0 && ae.every((w) => typeof w.id === 'string' && ['light', 'dark'].includes(w.theme) &&
+      Array.isArray(w.tokens) && typeof w.actual === 'number' && typeof w.threshold === 'number' && typeof w.message === 'string')
+  );
+  const humanOut = execFileSync('node', ['scripts/audit.mjs', '--palette', join(dir, 'coherence-accent-error.css'), '--src', join(dir, 'src')], { encoding: 'utf8' });
+  expectC('coherence: human output prints the warning and still says "audit passed"', humanOut.includes('[accent-vs-error]') && humanOut.includes('audit passed'));
+
+  // single-fault variants → the matching id
+  const faults = [
+    ['text-tier-monotonic', sub(cleanCss, '--color-fg-muted: oklch(0.43 0.015 80)', '--color-fg-muted: oklch(0.12 0.015 80)')],
+    ['surface-step', sub(cleanCss, '--color-surface: oklch(0.94 0.005 80)', '--color-surface: oklch(0.985 0.005 80)')],
+    ['viz-cvd-deutan', sub(cleanCss, '--color-viz-4: oklch(0.561 0.116 259.7)', '--color-viz-4: oklch(0.63 0.089 212)')],
+    ['accent-vs-viz-1', sub(cleanCss, '--color-viz-1: oklch(0.435 0.085 148.3)', '--color-viz-1: oklch(0.42 0.09 250)')],
+    ['error-vs-success-deutan', sub(cleanCss, '--color-success: oklch(0.51 0.12 145)', '--color-success: oklch(0.50 0.16 5)')],
+  ];
+  for (const [id, css] of faults) {
+    const r = runCoh(`coherence-${id}.css`, css);
+    expectC(`coherence: single fault -> ${id} warns, audit still passes`, r.passed === true && r.warnings.some((w) => w.id === id));
+  }
+  if (cohBad) {
+    console.error(`palette-coherence fixture checks FAILED — ${cohBad} problem(s)`);
+    process.exit(1);
+  }
+}
+
 /* ── --json fixture coverage (issue #98) ─────────────────────────────
    Run once against a passing fixture and once against a known must-fail
    fixture; parse the JSON, assert the documented shape (AGENT_RULES.md
