@@ -214,6 +214,9 @@ textarea.remarque-input {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  /* The label text is an anonymous flex item: only `anywhere` lets it
+     narrow past an unbreakable word (issue #122). Same on buttons. */
+  overflow-wrap: anywhere;
   min-height: 44px; /* touch-target floor on the whole label, same shape as .nav-link */
   font-family: var(--font-body);
   font-size: var(--text-body);
@@ -264,6 +267,7 @@ textarea.remarque-input {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  overflow-wrap: anywhere;
   min-height: 44px;
   padding: var(--space-2) var(--space-4);
   font-family: var(--font-body);

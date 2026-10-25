@@ -136,6 +136,14 @@ html {
      column doesn't shift ~15px between a short page and a long one
      (issue #121; overlay-scrollbar platforms are unaffected). */
   scrollbar-gutter: stable;
+  /* A word that can't fit its line breaks instead of widening the page
+     (WCAG 1.4.10; issue #122): URLs, hashes, package paths and long
+     inline code in technical prose. break-word changes nothing for text
+     that fits, and it inherits into every layer and consumer chrome. It
+     doesn't shrink min-content, so flex/grid children that must narrow
+     past a long word use `anywhere` (see the modules). <pre> keeps
+     white-space: pre and scrolls (prose.css) — code is never re-wrapped. */
+  overflow-wrap: break-word;
 }
 
 ::selection {

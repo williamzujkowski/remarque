@@ -10,7 +10,7 @@
       "title": "Essay Module",
       "description": "Sidenotes + sticky TOC rail for long-form Essay pages: margin notes relocated into real DOM order, right after the paragraph that cites them, numbered by CSS counter and labeled `aria-label=\"Note N\"` in the same order the counter advances — the mechanism that prevents the sidenote aria-label/DOM-order transcription bug found in the flagship migration (#89, williamzujkowski.github.io#380).",
       "version": "0.27.0",
-      "integrity": "sha256-dLBmwLHcbVUshq9FrTxUzCgEK797B6h62GLwb/YhuaI=",
+      "integrity": "sha256-WdVL53RIsTPyqmdBZx+6IS0kJwF3PUxgdqTPmqeb4sY=",
       "file": "registry/essay.json"
     },
     {
@@ -28,7 +28,7 @@
       "title": "Forms Primitives",
       "description": "Native field/input/checkbox/radio/button primitives with state-color wiring. Every `.remarque-input` pairs `for`/`id` with its `.remarque-field-label`, and every `.remarque-field-message` is wired via `aria-describedby` on the control — the paint-layer `data-state` attribute is never the only signal; `aria-invalid`/`aria-describedby` on the input carry the real accessibility contract.",
       "version": "0.27.0",
-      "integrity": "sha256-qkQIj51BEvv7Uu/WD2jr9oPjFnNsJUHZqT0bZ7T/7SU=",
+      "integrity": "sha256-E6byU7XddbwJNxydwVeTmdEHF94FclsXUpMWAyuOcXY=",
       "file": "registry/forms.json"
     },
     {
