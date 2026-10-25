@@ -4,7 +4,9 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
-## Unreleased
+## 0.29.0 — 2026-10-24
+
+The "chrome" minor of the 2026-10 roadmap (#133, ratified 7–0 in `vote-1792819887868-esau595`): a new `remarque-tokens/chrome` module and four registry items. Additive: nothing existing changes for consumers who don't import it.
 
 ### Added — Chrome Module (#127; additive)
 

@@ -132,7 +132,8 @@ Gzip (level 9) / brotli (max) bytes per shipped stylesheet, enforced by `scripts
 | `essay.css` | 7,914 | 6,680 |
 | `broadsheet.css` | 7,463 | 6,241 |
 | `forms.css` | 7,709 | 6,378 |
-| `print.css` | 2,529 | 2,093 |
+| `chrome.css` | 3,296 | 2,772 |
+| `print.css` | 2,542 | 2,095 |
 | `theme.css` | 1,744 | 1,452 |
 | `fonts.css` | 612 | 484 |
 
