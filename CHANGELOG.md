@@ -6,6 +6,13 @@ these entries when syncing.
 
 ## Unreleased
 
+### Fixed — page axis and the masthead (#119, #121; consumer-visible)
+
+- **broadsheet.css: the masthead title is sized from its nameplate, not the viewport (#121, a 0.27.0 regression).** The title grew at `9vw` inside a box capped at `--content-reading`. When that token went to 38rem in 0.27.0, the box stopped growing at about 640px of viewport while the title kept growing to 7.5rem, so a four-word title wrapped to four lines at 1280px. `.remarque-masthead` is now an inline-size container with a `--content-standard` (72rem) box, and the title rate is `9cqi`, with `9vw` kept as the fallback; the bounds are unchanged. At 1280px and up the title is about 98px, four- to seven-word titles hold to two lines, and the title stays above the `--text-display` lead title. A 38rem box would have put the masthead below the lead, which is why the nameplate widened instead (ratified 7–0, `vote-1792889632787-bm0nogp`). The lead and entry list stay at the reading measure. **If you set `--remarque-masthead-size` yourself, nothing changes for you.**
+- **essay.css: the reading column sits on the page axis (#119).** At 80rem and up the grid was `1fr | reading | 10–12rem`, so the column was centered only when the left slack happened to equal the rail: 48px off-axis at 1440px on the demo. Both outer tracks are now `minmax(--space-11, 1fr)` and the rail is capped at `--space-12` plus its focus-ring padding. Sidenotes and the rail are unchanged.
+- **tokens-core.css: `html { scrollbar-gutter: stable; }`.** On classic-scrollbar platforms a centered column no longer shifts by about 15px between short and long pages. Overlay scrollbars (macOS, phones) are unaffected.
+- New gates in `site/tests/page-axis.spec.ts`: the essay column is centered like a plain page at 1280, 1440 and 1920px; sidenotes and the rail clear the prose; a four-word masthead title is at most two lines and larger than the lead title at 768, 1280 and 1920px.
+
 ### Accessibility — WCAG 2.2 AA (#126)
 
 - **Spec moves from WCAG 2.1 AA to 2.2 AA.** REMARQUE.md's accessibility section and enforcement checklist now cite 2.2, with a new "WCAG 2.2 AA Criterion Map" (criterion, mechanism, enforcement) and a "Regulatory Context" paragraph (EN 301 549 V4.1.1, the EAA, Section 508). 4.1.1 Parsing is noted as removed in 2.2. No CSS output change.

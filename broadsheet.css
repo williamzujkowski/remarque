@@ -172,12 +172,25 @@
  *   max = --space-10 (8rem) - --space-2 (0.5rem) = 7.5rem
  * both resolve to the exact flagship values that were already
  * validated (contrast/gamut/font-floor audits + axe) downstream. The
- * 9vw fluid rate is kept as-is: it continues the same escalating-per-
- * tier vw progression tokens-core.css's own scale already uses
- * (2.25vw section -> 3.5vw title -> 5.5vw display), one step further
- * for a register one step past display. This custom property lives
- * here, not in tokens-core.css — it is NOT a new core token, it is
- * local arithmetic on existing ones, scoped to this opt-in pattern.
+ * rate 9 continues the same escalating-per-tier progression
+ * tokens-core.css's own scale already uses (2.25vw section -> 3.5vw
+ * title -> 5.5vw display), one step further for a register one step
+ * past display. This custom property lives here, not in tokens-core.css
+ * — it is NOT a new core token, it is local arithmetic on existing ones,
+ * scoped to this opt-in pattern.
+ *
+ * CONTAINER, NOT VIEWPORT (0.28, issue #121, ratified 7-0 in
+ * vote-1792889632787-bm0nogp): the rate is 9cqi of the nameplate's own
+ * box, with 9vw kept as the fallback declaration for engines without
+ * container units. Until 0.28 the title grew at 9vw inside a box capped
+ * at --content-reading; when that token went to 38rem in 0.27 the box
+ * stopped at ~640px of viewport while the title kept growing to its
+ * 7.5rem ceiling, so a four-word title wrapped to four lines at 1280px.
+ * The nameplate box is --content-standard (72rem), the page-width
+ * register a newspaper nameplate spans; the lead and entry list below
+ * stay at the reading measure. Sizing from a 38rem box instead would
+ * have made the masthead smaller than the --text-display lead title
+ * beneath it, inverting the one hierarchy this pattern exists for.
  */
 .remarque-masthead {
   --remarque-masthead-size: clamp(
@@ -185,9 +198,23 @@
     9vw,
     calc(var(--space-10) - var(--space-2))
   );
-  max-width: var(--content-reading);
+  container-type: inline-size;
+  max-width: var(--content-standard);
   margin: var(--space-8) auto var(--space-6);
   text-align: center;
+}
+
+/* An unregistered custom property is substituted as tokens and resolved
+   where it's used, so the 9cqi below resolves on the title, against this
+   box (the title's nearest container), not on the box itself. */
+@supports (width: 1cqi) {
+  .remarque-masthead {
+    --remarque-masthead-size: clamp(
+      calc(var(--space-7) + var(--space-2)),
+      9cqi,
+      calc(var(--space-10) - var(--space-2))
+    );
+  }
 }
 
 .remarque-masthead-title {
