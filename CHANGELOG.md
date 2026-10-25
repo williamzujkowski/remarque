@@ -6,6 +6,13 @@ these entries when syncing.
 
 ## Unreleased
 
+### Changed — the heading ladder and the lede (#131; consumer-visible)
+
+- **`.remarque-prose h4` is set in the display face** (Newsreader roman, 17px, weight 500) instead of Inter 17/600. Next to Inter 19/600 for h3, it differed by 2px and read as the same level. It now alternates face with its neighbours (h3 sans, h4 serif roman, h5 serif italic, h6 mono). That survives print, `prefers-contrast` and forced colors, where a color-only difference would collapse. Sizes are unchanged. Ratified 5–2 in `vote-1792892296073-vxi53q7` (option A over a color-only change). Per the panel: under the `:lang()` script guards, where h5 sets upright and would match h4, h5 steps down to `--color-fg-muted`.
+- **New REMARQUE.md "Type Scale" section.** The text rungs are floors, not a modular ratio; the display rungs are fluid and open from about 1.15–1.47 steps on phones to about 1.5 on desktops (measured at 375, 1280 and 1920px). It adds the heading-ladder table and the rule that rung values only change by vote.
+- **The lede is in `--color-fg`.** The spec's samples and the demo set the 19px standfirst in `fg-muted`, which read quieter than the body below it. `.text-body-lg` itself sets no color, so no token changes.
+- Demo: byline tags render as a `.remarque-tags` list instead of a run-together phrase. New `site/tests/type-scale.spec.ts`.
+
 ### Added — prose and forms details (#129) and state cues (#128)
 
 - **Forms: a non-color state cue in every mode (#128, WCAG 1.4.1).** The ✕/⚠/✓ glyphs before state messages, which until now appeared only under forced colors, render everywhere, with empty alt text. Under simulated deuteranopia the default error and success colors are only ΔE2000 2.7 (light) and 1.7 (dark) apart. **Consumer-visible:** state messages gain a leading glyph.
