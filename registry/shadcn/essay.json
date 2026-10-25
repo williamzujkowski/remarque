@@ -23,7 +23,7 @@
   ],
   "docs": "Docs: https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#essay-module\n\nImport the stylesheet after remarque-tokens. The .usage.html file is a known-good markup sample to copy from, not a runtime file.",
   "meta": {
-    "version": "0.30.0",
+    "version": "0.31.0",
     "integrity": "sha256-HwTP/hiT/oid/YHBlzSECSvG5wSg9ICYVfns7luc6SA=",
     "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#essay-module",
     "cssVars": [

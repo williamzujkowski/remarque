@@ -134,10 +134,11 @@ Gzip (level 9) / brotli (max) bytes per shipped stylesheet, enforced by `scripts
 | `essay.css` | 7,914 | 6,680 |
 | `broadsheet.css` | 7,463 | 6,241 |
 | `forms.css` | 8,412 | 6,987 |
-| `chrome.css` | 3,296 | 2,772 |
+| `chrome.css` | 3,853 | 3,257 |
 | `print.css` | 2,542 | 2,095 |
 | `theme.css` | 1,744 | 1,452 |
 | `fonts.css` | 612 | 484 |
+| `deck/deck.css` | 7,835 | 6,153 |
 
 Minimal import: `tokens-core.css` + `tokens-palette.css` alone (about 12 KB gzip) work without `prose.css`; the same test checks that every `var(--x)` in the optional modules resolves to a core or palette token.
 

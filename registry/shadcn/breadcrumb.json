@@ -23,7 +23,7 @@
   ],
   "docs": "Docs: https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module\n\nImport the stylesheet after remarque-tokens. The .usage.html file is a known-good markup sample to copy from, not a runtime file.",
   "meta": {
-    "version": "0.30.0",
+    "version": "0.31.0",
     "integrity": "sha256-5arpTNPmZZj37CZG01MNawoRmwHAok7kZtfVgSX5uR4=",
     "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module",
     "cssVars": [

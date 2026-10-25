@@ -4,7 +4,7 @@
   "type": "remarque:contract",
   "title": "Pager and Pagination (chrome.css)",
   "description": "Prev/next between adjacent pages with `rel=\"prev\"`/`rel=\"next\"`, an optional series row (\"Part N of M\" plus a <details> list with the current part `aria-current=\"page\"`), and numbered `.remarque-pagination`. An endpoint with nowhere to go is omitted or plain text, never a disabled-looking link that stays focusable.",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "integrity": "sha256-sPTGBItiTW+8edikmBmBltd8/1erLcjVr9PlOCAPc9A=",
   "dependencies": [
     "remarque-tokens"

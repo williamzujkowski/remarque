@@ -4,7 +4,9 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
-## Unreleased
+## 0.31.0 — 2026-10-24
+
+The Palette Deck release. Readers can switch a Remarque site to one of 15 curated terminal themes from `@williamzujkowski/oklch-terminal-themes`, while each site's own palette stays its default. Additive, except for one fix: scoped deck palettes now outrank the site's own palette in light mode, as they always should have.
 
 ### Added — the Palette Deck, built from the terminal themes (0.31; ratified 6–1, `vote-1792898589702-ofkch6y`)
 
