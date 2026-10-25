@@ -231,6 +231,47 @@ expect('palette-deck: ships no CSS file (deck.js has no CSS of its own)', !items
   expect('palette-deck usage.html: does not embed the FOUC-restore <script> sample (deliberate exclusion)', !/<script/i.test(html));
 }
 
+// 7. shadcn-shaped copy (#130): registry/shadcn/*.json validate against the
+// VENDORED official shadcn schemas (scripts/vendor/, no network in CI), carry
+// the same content as the remarque:contract items, and a bad `type` is rejected.
+{
+  const Ajv7 = (await import('ajv')).default;
+  const itemS = JSON.parse(readFileSync('scripts/vendor/shadcn-registry-item.schema.json', 'utf8'));
+  const idxS = JSON.parse(readFileSync('scripts/vendor/shadcn-registry.schema.json', 'utf8'));
+  const a7 = new Ajv7({ strict: false, allErrors: true, validateSchema: false });
+  a7.addSchema(itemS, 'https://ui.shadcn.com/schema/registry-item.json');
+  const vItem = a7.getSchema('https://ui.shadcn.com/schema/registry-item.json');
+  const vIdx = a7.compile(idxS);
+
+  const sIndex = JSON.parse(readFileSync('registry/shadcn/registry.json', 'utf8'));
+  expect('shadcn registry.json validates against the vendored shadcn registry.json schema', vIdx(sIndex), JSON.stringify(vIdx.errors));
+  expect('shadcn registry.json lists every item', ITEM_NAMES.every((n) => sIndex.items.some((i) => i.name === n)) && sIndex.items.length === ITEM_NAMES.length);
+
+  const sItems = {};
+  for (const name of ITEM_NAMES) {
+    const sp = `registry/shadcn/${name}.json`;
+    expect(`${sp} exists`, existsSync(sp));
+    const si = JSON.parse(readFileSync(sp, 'utf8'));
+    sItems[name] = si;
+    expect(`${sp} validates against the vendored shadcn registry-item schema`, vItem(si), JSON.stringify(vItem.errors));
+    expect(`${sp}: type is registry:item and every file is registry:file with a src/ target`, si.type === 'registry:item' && si.files.every((f) => f.type === 'registry:file' && f.target.startsWith('src/')));
+    expect(`${sp}: dependencies are npm packages (remarque-tokens)`, JSON.stringify(si.dependencies) === '["remarque-tokens"]');
+    const orig = items[name];
+    expect(`${sp}: meta mirrors version/integrity/cssVars of registry/${name}.json`, si.meta.version === orig.version && si.meta.integrity === orig.integrity && JSON.stringify(si.meta.cssVars) === JSON.stringify(orig.cssVars));
+    const norm = si.files.map((f) => ({ path: f.target.endsWith('.html') ? 'usage.html' : f.path, content: f.content }));
+    expect(`${sp}: file contents are byte-identical to the contract item (integrity recomputes)`, sha256OfFiles(orig.files.map((f, i) => ({ path: f.path, content: norm[i].content }))) === orig.integrity);
+    expect(`${sp}: no <script in any file`, si.files.every((f) => !/<script/i.test(f.content)));
+  }
+  expect('shadcn palette-deck: markup-only (no .css file)', sItems['palette-deck'].files.length === 1 && sItems['palette-deck'].files[0].target.endsWith('.html'));
+
+  const badType = structuredClone(sItems.essay);
+  badType.type = 'remarque:contract';
+  expect('mutated fixture (shadcn item type "remarque:contract") is REJECTED by the shadcn schema', vItem(badType) === false);
+  const noTarget = structuredClone(sItems.essay);
+  delete noTarget.files[0].target;
+  expect('mutated fixture (registry:file without target) is REJECTED by the shadcn schema', vItem(noTarget) === false);
+}
+
 if (bad) {
   console.error(`test-registry FAILED — ${bad} check(s) did not pass`);
   process.exit(1);

@@ -8,6 +8,7 @@ Served at `/remarque/llms.txt` — this is a GitHub Pages project site, so `/rem
 
 - [REMARQUE.md](https://raw.githubusercontent.com/williamzujkowski/remarque/main/REMARQUE.md): the full specification — philosophy, token tiers, page archetypes, accessibility contract, governance.
 - [AGENT_RULES.md](https://raw.githubusercontent.com/williamzujkowski/remarque/main/AGENT_RULES.md): the implementation contract for coding agents — build order, non-negotiable rules, disallowed patterns, quality checklist.
+- [llms-full.txt](https://williamzujkowski.github.io/remarque/llms-full.txt): AGENT_RULES.md plus a compact token table (name, tier, light, dark), generated at site build time — the contract in one fetch.
 - [CHANGELOG.md](https://raw.githubusercontent.com/williamzujkowski/remarque/main/CHANGELOG.md): every token/value change with its rationale and, since 0.5.0, its consensus-vote record.
 
 ## Machine-readable surface

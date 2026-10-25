@@ -8,6 +8,15 @@ these entries when syncing.
 
 The "chrome" minor of the 2026-10 roadmap (#133, ratified 7–0 in `vote-1792819887868-esau595`): a new `remarque-tokens/chrome` module and four registry items. Additive: nothing existing changes for consumers who don't import it.
 
+### Added — distribution (#130)
+
+- shadcn-installable registry, additive: `registry/shadcn/<name>.json` plus an index `registry/shadcn/registry.json`, generated from the same item definitions and freshness-checked by `build-registry.mjs --check`. `type: "registry:item"`, `registry:file` entries with `src/styles/remarque/*` and `src/components/remarque/*` targets, `remarque-tokens` under `dependencies`, Remarque-only fields under `meta`. Validated in `test-registry.mjs` against the vendored official shadcn schemas (`scripts/vendor/`). Existing `registry/*.json` and the `remarque:contract` type are unchanged. Published beside them on the demo site.
+- `llms-full.txt` on the demo site (AGENT_RULES.md plus a token table with light and dark values), generated at site build time and linked from `llms.txt`.
+
+## 0.29.0 — 2026-10-24
+
+The "chrome" minor of the 2026-10 roadmap (#133, ratified 7–0 in `vote-1792819887868-esau595`): a new `remarque-tokens/chrome` module and four registry items. Additive: nothing existing changes for consumers who don't import it.
+
 ### Added — Chrome Module (#127; additive)
 
 - **New subpath `remarque-tokens/chrome` (`chrome.css`):** the site-chrome and wayfinding pieces the spec required and never shipped CSS for, so every consumer hand-rolled them. The skip link had four implementations across the flagship, tsundoku, the starter and this demo, and one tsundoku pagination kept its "disabled" endpoints as focusable links. Not aggregated into `tokens.css`.
