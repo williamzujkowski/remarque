@@ -4,7 +4,7 @@
   "type": "remarque:contract",
   "title": "Skip Link (chrome.css)",
   "description": "The first focusable element in <body>: `.remarque-skip-link` targets `<main id=\"main-content\" tabindex=\"-1\">`, visually hidden by clip-path (never an off-screen offset) until focused, then a filled fg-on-bg block on `--z-skip-link`. Ships with `.remarque-sr-only`. Shares chrome.css with the breadcrumb, pager and tags items.",
-  "version": "0.31.1",
+  "version": "0.31.2",
   "integrity": "sha256-38RmGUKk28JsO88LYrB2UqEbB9qG1pS+Ac7zHKF4oWI=",
   "dependencies": [
     "remarque-tokens"
