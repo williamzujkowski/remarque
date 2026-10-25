@@ -33,6 +33,12 @@ import { mkdtempSync, mkdirSync, readdirSync, writeFileSync, readFileSync, rmSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+// Under `npm test` the parent npm exports npm_config_* / npm_package_* (local
+// prefix included), and child npm/npx calls inherit them: the consumer
+// install below would resolve against this repo instead of consumerDir.
+// Children get the environment a user's shell would have.
+const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !/^npm_/i.test(k)));
+
 let bad = 0;
 function expect(label, cond, detail = '') {
   const ok = !!cond;
@@ -54,7 +60,7 @@ let tarballPath;
 try {
   // `npm pack` from the repo root, output directed into packDir — packs
   // exactly what package.json's "files" ships, not the working tree.
-  const out = execFileSync('npm', ['pack', '--pack-destination', packDir], { encoding: 'utf8', stdio: 'pipe' });
+  const out = execFileSync('npm', ['pack', '--pack-destination', packDir], { encoding: 'utf8', stdio: 'pipe', env });
   const tarballName = out.trim().split('\n').pop().trim();
   tarballPath = join(packDir, tarballName);
   expect(`npm pack produced a tarball (${tarballName})`, existsSync(tarballPath));
@@ -86,7 +92,7 @@ if (tarballPath && existsSync(tarballPath)) {
     execFileSync(
       'npm',
       ['install', tarballPath, `@williamzujkowski/oklch-terminal-themes@${PINNED_DATASET_VERSION}`, '--no-audit', '--no-fund'],
-      { cwd: consumerDir, stdio: 'pipe' }
+      { cwd: consumerDir, stdio: 'pipe', env }
     );
     expect(
       `npm install <tarball> @williamzujkowski/oklch-terminal-themes@${PINNED_DATASET_VERSION} succeeds with NO --legacy-peer-deps (peerDependencies range is satisfied)`,
@@ -108,7 +114,7 @@ if (tarballPath && existsSync(tarballPath)) {
 
   const outCss = join(consumerDir, 'out.css');
   try {
-    execFileSync('npx', ['remarque-theme', 'remarque-light', '-o', outCss], { cwd: consumerDir, stdio: 'pipe' });
+    execFileSync('npx', ['remarque-theme', 'remarque-light', '-o', outCss], { cwd: consumerDir, stdio: 'pipe', env });
     expect('npx remarque-theme remarque-light -o out.css succeeds from the installed tarball', existsSync(outCss));
   } catch (e) {
     expect('npx remarque-theme remarque-light -o out.css succeeds from the installed tarball', false, e.stderr?.toString() || e.message);
@@ -116,7 +122,7 @@ if (tarballPath && existsSync(tarballPath)) {
 
   if (existsSync(outCss)) {
     try {
-      const auditOut = execFileSync('npx', ['remarque-audit', '--palette', outCss, '--src', '.', '--json'], { cwd: consumerDir, encoding: 'utf8', stdio: 'pipe' });
+      const auditOut = execFileSync('npx', ['remarque-audit', '--palette', outCss, '--src', '.', '--json'], { cwd: consumerDir, encoding: 'utf8', stdio: 'pipe', env });
       let report;
       try {
         report = JSON.parse(auditOut);

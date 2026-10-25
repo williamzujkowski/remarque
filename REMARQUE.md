@@ -1516,7 +1516,7 @@ does for tokens.
 
 **Validation (the enforce-don't-instruct house pattern).**
 `scripts/test-registry.mjs` is the CI gate, wired alongside the other
-freshness/fixture checks in `deploy.yml`. It re-derives, mechanically,
+freshness/fixture checks in `ci.yml`. It re-derives, mechanically,
 the exact contract lines this issue is funded on — not by trusting the
 prose, by parsing the generated `usage.html` itself:
 

@@ -4,6 +4,16 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## Unreleased
+
+### CI and release (not part of the package; #120, roadmap Step 0)
+
+- **Every root gate now runs on pull requests.** The gates moved verbatim from `deploy.yml` into a reusable `.github/workflows/ci.yml` (Node 22 and 24). `deploy.yml` and `release.yml` both `need` it. Before this, pull requests ran only visual regression, and a `v*` tag ran only `audit.mjs`, so a tag on a commit with a stale `tokens.json` or a failing fixture suite would have published.
+- **`release.yml`** pins npm to an exact version instead of `npm@latest` and creates a GitHub Release whose notes are this file's matching section. A tag with no `## X.Y.Z ` section fails before publishing.
+- **`npm test`** chains the same gates for local runs. `scripts/test-pack.mjs` now strips the parent's `npm_*` environment from its child `npm`/`npx` calls; under `npm test` they inherited npm's local prefix and installed into this repo instead of the scratch consumer.
+- **`.github/dependabot.yml`**: weekly version updates for the root and `site/` npm trees and for the SHA-pinned actions, with a 7-day cooldown. `@williamzujkowski/oklch-terminal-themes` stays a hand bump because `palette-golden.mjs` gates it.
+- `main` is now branch-protected and requires the CI and visual-regression checks.
+
 ## 0.27.0 — 2026-10-23
 
 Design review of the system and its demo site, run with Open Design's `design-review` methodology (gstack's 10-category / ~80-item rubric, calibrated against REMARQUE.md and AGENT_RULES.md): five independent reviewers, about 50 findings, AI-slop grade A throughout. The defects were in implementation, not identity. Two identity-level calls were put to a nexus consensus vote, and both passed 7–0. Closes #115 and #116.
