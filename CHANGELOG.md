@@ -4,6 +4,20 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.32.0 — 2026-10-25
+
+### Changed — the palette picker is findable (consumer-visible)
+
+- **Popover variant, `.remarque-deck-picker--popover`:** a 44px icon button for the header, beside the light/dark toggle.
+  - Its panel drops down from the inline-end edge, 26rem wide (two option columns), with a height cap.
+  - Under 40rem it becomes a bottom sheet, so a button away from the edge can't push it off-screen.
+  - **Why:** the first adopters put the picker in the footer, and a reader of tsundoku's live site couldn't find it. It rendered as one line of mono text at the very bottom of a long page.
+  - The spec, AGENT_RULES and the adopt skill now say to put the picker in the header.
+- **The plain variant's summary gets a ▸ disclosure marker** that turns down when open and flips in RTL. Before this, nothing said "this opens".
+- **Option rows are start-aligned.** In a centered footer, a wrapped label like "Gruvbox Material" centered under its swatch.
+- **`bindPicker(…, { dismissible: true })`** closes a `<details>` picker on Escape (returning focus to the summary) and on an outside click. `deck.d.ts` is updated to match.
+- **Demo:** the picker moves from the footer to the header popover. New tests check it sits in the header, the panel stays on screen at 375 and 1280px, and Escape and outside click dismiss it.
+
 ## 0.31.2 — 2026-10-24
 
 ### Fixed — TypeScript types for `remarque-tokens/deck`
