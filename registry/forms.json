@@ -5,7 +5,7 @@
   "title": "Forms Primitives",
   "description": "Native field/input/checkbox/radio/button primitives with state-color wiring. Every `.remarque-input` pairs `for`/`id` with its `.remarque-field-label`, and every `.remarque-field-message` is wired via `aria-describedby` on the control — the paint-layer `data-state` attribute is never the only signal; `aria-invalid`/`aria-describedby` on the input carry the real accessibility contract.",
   "version": "0.27.0",
-  "integrity": "sha256-WfYjcf04Dxxx7X21U5b6DrY90Qw95p0zkCQszoh77tE=",
+  "integrity": "sha256-qkQIj51BEvv7Uu/WD2jr9oPjFnNsJUHZqT0bZ7T/7SU=",
   "dependencies": [
     "remarque-tokens"
   ],
@@ -54,7 +54,7 @@
     },
     {
       "path": "usage.html",
-      "content": "<div class=\"remarque-field\">\n  <label class=\"remarque-field-label\" for=\"email\">Email</label>\n  <input class=\"remarque-input\" type=\"email\" id=\"email\" name=\"email\"\n    aria-describedby=\"email-help\" />\n  <p class=\"remarque-field-message\" id=\"email-help\">\n    We'll never share your email.\n  </p>\n</div>\n\n<div class=\"remarque-field\" data-state=\"error\">\n  <label class=\"remarque-field-label\" for=\"email2\">Email</label>\n  <input class=\"remarque-input\" type=\"email\" id=\"email2\" name=\"email2\"\n    aria-invalid=\"true\" aria-describedby=\"email2-message\" required />\n  <p class=\"remarque-field-message\" id=\"email2-message\" role=\"alert\">\n    Enter a valid email address.\n  </p>\n</div>\n\n<label class=\"remarque-checkbox\">\n  <input type=\"checkbox\" name=\"subscribe\" />\n  <span>Subscribe to updates</span>\n</label>\n\n<label class=\"remarque-radio\">\n  <input type=\"radio\" name=\"plan\" value=\"a\" />\n  <span>Plan A</span>\n</label>\n\n<button class=\"remarque-button\" type=\"button\">Cancel</button>\n<button class=\"remarque-button remarque-button--primary\" type=\"submit\">Submit</button>\n",
+      "content": "<div class=\"remarque-field\">\n  <label class=\"remarque-field-label\" for=\"email\">Email</label>\n  <input class=\"remarque-input\" type=\"email\" id=\"email\" name=\"email\"\n    autocomplete=\"email\" aria-describedby=\"email-help\" />\n  <p class=\"remarque-field-message\" id=\"email-help\">\n    We'll never share your email.\n  </p>\n</div>\n\n<div class=\"remarque-field\" data-state=\"error\">\n  <label class=\"remarque-field-label\" for=\"email2\">Email</label>\n  <input class=\"remarque-input\" type=\"email\" id=\"email2\" name=\"email2\"\n    autocomplete=\"email\" aria-invalid=\"true\" aria-describedby=\"email2-message\" required />\n  <p class=\"remarque-field-message\" id=\"email2-message\" role=\"alert\">\n    Enter a valid email address.\n  </p>\n</div>\n\n<label class=\"remarque-checkbox\">\n  <input type=\"checkbox\" name=\"subscribe\" />\n  <span>Subscribe to updates</span>\n</label>\n\n<label class=\"remarque-radio\">\n  <input type=\"radio\" name=\"plan\" value=\"a\" />\n  <span>Plan A</span>\n</label>\n\n<button class=\"remarque-button\" type=\"button\">Cancel</button>\n<button class=\"remarque-button remarque-button--primary\" type=\"submit\">Submit</button>\n",
       "type": "remarque:markup"
     }
   ]
