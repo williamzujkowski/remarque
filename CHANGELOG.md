@@ -4,6 +4,12 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.31.1 — 2026-10-24
+
+### Fixed — font-feature check against fonts the site doesn't use
+
+- **`remarque-audit` no longer checks a consumer's CSS against the package's default fonts.** When the `--palette` file declares no `--font-*` tokens, the font-feature check (0.28, #124) fell back to the package's stacks (Inter, Newsreader, JetBrains Mono). A site that sets its fonts elsewhere, such as the flagship's Fraunces, Source Serif 4 and IBM Plex Mono through Astro's Fonts API, got false failures like `"liga" needs liga, which Inter doesn't have`. The package defaults now apply only when the palette *is* the package's own `tokens-palette.css`. Otherwise an undeclared family is reported `unverifiable`, and never failed. Declare `--font-*` in your palette file, or pass `--font-features <manifest>`, to have your faces checked. Audit logic only: no token or CSS output change.
+
 ## 0.31.0 — 2026-10-24
 
 The Palette Deck release. Readers can switch a Remarque site to one of 15 curated terminal themes from `@williamzujkowski/oklch-terminal-themes`, while each site's own palette stays its default. Additive, except for one fix: scoped deck palettes now outrank the site's own palette in light mode, as they always should have.

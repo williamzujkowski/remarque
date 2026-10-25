@@ -85,5 +85,18 @@ writeFileSync(consumer, JSON.stringify({ families: { 'JetBrains Mono': { figures
 const green = audit('--font-features', consumer);
 expect('a consumer manifest that gives the face smcp+c2sc clears it', green.code === 0 && green.json.passed === true, JSON.stringify(green.json.failures));
 
+// A consumer palette that sets no --font-* (fonts come from elsewhere,
+// e.g. Astro's Fonts API) must not be checked against the package's faces.
+const pkgPalette = readFileSync('tokens-palette.css', 'utf8');
+const noFonts = join(dir, 'no-fonts.css');
+writeFileSync(noFonts, pkgPalette.replace(/^\s*--font-(display|body|mono):[^;]*;\n/gm, ''));
+const unknown = audit('--palette', noFonts);
+expect('a consumer palette without --font-* reports requests unverifiable, not failed (0.31.1)',
+  unknown.code === 0 && unknown.json.fontFeatures.some((r) => r.status === 'unverifiable' && r.tag === 'smcp'), JSON.stringify(unknown.json.failures));
+const withMono = join(dir, 'with-mono.css');
+writeFileSync(withMono, pkgPalette.replace(/--font-mono:[^;]*;/, '--font-mono: "JetBrains Mono", monospace;'));
+expect('a consumer palette that declares JetBrains Mono still fails the synthesized small caps',
+  audit('--palette', withMono).code === 1);
+
 if (bad) { console.error(`\ntest-font-features FAILED — ${bad} check(s)`); process.exit(1); }
 console.log('\ntest-font-features passed ✓');

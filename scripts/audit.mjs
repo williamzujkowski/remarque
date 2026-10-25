@@ -32,7 +32,7 @@
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { join, relative, dirname } from 'node:path';
+import { join, relative, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { coherenceWarnings } from './lib/palette-coherence.mjs';
 import { checkFontFeatures, mergeManifests } from './lib/font-features.mjs';
@@ -354,7 +354,15 @@ for (const file of walk(SRC)) {
   const pkgDefaults = declsOf(extractBlocks(readFileSync(join(PKG_ROOT, 'tokens-palette.css'), 'utf8')), isLightRoot);
   const fontStacks = {};
   // declsOf keys drop the leading --
-  for (const t of ['font-body', 'font-display', 'font-mono']) fontStacks[`--${t}`] = lightDecls[t] || pkgDefaults[t];
+  // A font token the palette doesn't declare falls back to the package's
+  // default stack ONLY when the palette is the package's own file. A
+  // consumer palette that omits --font-* usually sets its fonts elsewhere
+  // (Astro's Fonts API, a framework theme), so the family is unknown and
+  // the rules are reported unverifiable rather than checked against faces
+  // the site doesn't use (0.31.1: the flagship's Fraunces/Source Serif 4
+  // rules were failed against Inter and Newsreader).
+  const isPackagePalette = resolve(PALETTE) === resolve(join(PKG_ROOT, 'tokens-palette.css'));
+  for (const t of ['font-body', 'font-display', 'font-mono']) fontStacks[`--${t}`] = lightDecls[t] || (isPackagePalette ? pkgDefaults[t] : undefined);
   const MODULES = ['tokens-core.css', 'prose.css', 'essay.css', 'broadsheet.css', 'forms.css', 'chrome.css'];
   const targets = MODULES.map((m) => [join(PKG_ROOT, m), `remarque-tokens/${m}`]);
   for (const file of walk(SRC)) if (file.endsWith('.css')) targets.push([file, relative('.', file)]);

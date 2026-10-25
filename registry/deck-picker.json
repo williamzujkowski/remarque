@@ -4,7 +4,7 @@
   "type": "remarque:contract",
   "title": "Palette Picker (chrome.css + remarque-tokens/deck)",
   "description": "A reader’s choice of color theme: a <details> holding a <fieldset> of native radio inputs (keyboard-operable with no ARIA-radio script), one per palette in deck.json plus value=\"\" for the site’s own. Swatches are aria-hidden and colored by deck.css ([data-palette-swatch=\"<name>\"]). Wire with deck.js bindPicker(); the module ships no script in this item.",
-  "version": "0.31.0",
+  "version": "0.31.1",
   "integrity": "sha256-o+JEdfqmM6nHRV9BNeKaUC2RlJMglYb/mm7JR25SY8E=",
   "dependencies": [
     "remarque-tokens"
