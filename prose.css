@@ -207,19 +207,24 @@
 
 /* ─── Headings, continued (h4–h6) ───────────────────────── */
 /*
- * h2/h3 are defined above. h4–h6 complete the vocabulary with a
- * deliberate descent through the three font slots — h4 stays in the
- * body voice (still prose), h5 borrows the display face's italic for a
- * quieter sub-heading, h6 drops into the mono "technical label" voice
- * used everywhere else for the deepest level of metadata. No
- * text-transform: uppercase — see .text-label (tokens-core.css) for
- * the true small-caps alternative.
+ * h2/h3 are defined above. h4–h6 complete the vocabulary by alternating
+ * the font slots, so each level differs from its neighbour in face or
+ * style, not only in size: h3 is the body face at 19px semibold, h4 the
+ * display face's roman at 17px medium, h5 the display face's italic,
+ * h6 the mono "technical label" voice used everywhere else for the
+ * deepest level of metadata.
+ *
+ * h4 moved from the body face in 0.30 (#131, ratified in
+ * vote-1792892296073-vxi53q7): as Inter 17/600 under Inter 19/600 it
+ * differed from h3 by 2px and read as the same level. A face change
+ * survives print, prefers-contrast and forced colors, where a color
+ * difference would collapse. Sizes are unchanged.
  */
 
 .remarque-prose h4 {
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   font-size: var(--text-body);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   line-height: var(--leading-title);
   margin-top: var(--space-5);
   margin-bottom: var(--space-2);
@@ -550,6 +555,13 @@
 ),
 :is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)).remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
   font-style: normal;
+}
+
+/* Upright h5 would now match h4 (both the display face's roman, and in
+   these scripts both fall back to the same face), so h5 steps down in
+   color instead (#131). */
+:is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)):is(.remarque-prose h5) {
+  color: var(--color-fg-muted);
 }
 
 :is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)):is(.remarque-prose em) {

@@ -187,6 +187,30 @@ This is why the measure is palette-tier: it is a property of the font choice, no
 
 ---
 
+## Type Scale
+
+Seven rungs, in two kinds (0.30, #131). The **text rungs** are fixed: 13, 14, 17 and 19px (`--text-micro`, `--text-meta`, `--text-body`, `--text-body-lg`). Their steps (1.08, 1.21, 1.12) aren't a modular ratio; each rung is a floor. 13 and 14 are the USWDS minimums for fine print and small text, 17 is Remarque's body minimum, and 19 is the lede. The **display rungs** are fluid: `--text-section`, `--text-title` and `--text-display` scale with the viewport between fixed bounds. So the scale changes *shape* with the viewport, not only size, and that's deliberate. On a phone the headings sit close to the text (steps 1.16, 1.36, 1.47) so a title doesn't eat the screen; on a desktop they open out to about a 1.5 ratio:
+
+| Viewport | section | title | display | steps from the 19px lede up |
+|---|---|---|---|---|
+| 375px | 22px | 30px | 44px | 1.16 · 1.36 · 1.47 |
+| 1280px | 28.8px | 44.8px | 70.4px | 1.52 · 1.56 · 1.57 |
+| 1920px | 32px | 48px | 80px | 1.68 · 1.50 · 1.67 |
+
+There's no rung between 19 and the section heading (1.52 at 1280px); headings are meant to be a clear jump from text, not a gradient. Any change to a rung's *value* is a core-tier change and goes to a vote first.
+
+**Heading ladder in prose.** Adjacent levels differ in face or style, not only in size, so each still reads as its own level in print and under forced colors:
+
+| Level | Face | Size / weight |
+|---|---|---|
+| `h2` | display (Newsreader) roman | `--text-section` / medium |
+| `h3` | body (Inter) | 19px / semibold |
+| `h4` | display roman (0.30; was Inter 17/600, which read as h3) | 17px / medium |
+| `h5` | display italic | 17px / medium |
+| `h6` | mono | 14px |
+
+**The lede is in `--color-fg`.** `.text-body-lg` sets no color. Give a standfirst full foreground; its size and leading already set it apart, and in `--color-fg-muted` it read *quieter* than the body below it, which inverts the hierarchy. (The demo and this spec's samples used `fg-muted` until 0.30.)
+
 ## Editorial Microtypography
 
 The book-craft layer: numerals, small caps, drop caps, pull quotes, and optical wrapping. These are the details that separate typeset prose from a web page that merely uses nice fonts.

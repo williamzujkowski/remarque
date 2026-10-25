@@ -21,11 +21,11 @@ function formatDate(iso: string): string {
   {readingTime && <span>{readingTime}</span>}
   {status && <span>{status}</span>}
   {tags && tags.length > 0 && (
-    <span class="flex gap-2">
+    <ul class="remarque-tags" aria-label="Tags">
       {tags.map((tag) => (
-        <span>{tag}</span>
+        <li>{tag}</li>
       ))}
-    </span>
+    </ul>
   )}
   {stack && stack.length > 0 && (
     <span class="flex gap-2">
