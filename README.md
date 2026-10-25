@@ -108,6 +108,7 @@ Output" shape changes) to pick up the current playbook.
 | `tokens-core.css` | Core tier — type scale, spacing, widths, radius, motion, prose styling. Never overridden |
 | `tokens-palette.css` | Palette tier — font slots, colors, accent, reading measure. The sanctioned personalization surface |
 | `prose.css` | `.remarque-prose` long-form styling — own subpath so sites with their own prose system can skip it |
+| `deck.js` + `deck/` | Palette Deck: reader-selectable terminal themes from `@williamzujkowski/oklch-terminal-themes`. `deck/deck.css` + `deck.json` are the prebuilt curated deck (15 light/dark pairs, about 8 KB gzipped), `remarque-deck` builds your own, and `deck.js` switches, persists and wires the picker. See REMARQUE.md "Palette Deck" |
 | `chrome.css` | Site chrome and wayfinding (`remarque-tokens/chrome`, 0.29): skip link + `.remarque-sr-only`, breadcrumb, pager/pagination, tags — see REMARQUE.md "Chrome Module" |
 | `scripts/audit.mjs` | `npm run audit` — enforces the spec's contrast/gamut/font-floor/no-hardcoded-color checklist (`--json` for structured output) |
 | `scripts/drift-check.mjs` | `npx remarque-drift` — token drift check for consumers (`--json` for structured output) |

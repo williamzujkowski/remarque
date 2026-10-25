@@ -1,0 +1,335 @@
+{
+  "generatedBy": "remarque-deck (remarque-tokens 0.30.0)",
+  "palettes": [
+    {
+      "name": "atom-one",
+      "label": "Atom One",
+      "light": "atom-one-light",
+      "dark": "atom-one-dark",
+      "css": "atom-one.css",
+      "warnings": 15,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.982 0 0)",
+          "surface": "oklch(0.972 0 0)",
+          "fg": "oklch(0.294 0.013 272.9)",
+          "accent": "oklch(0.539 0.14 266.1)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0.013 258.4)",
+          "surface": "oklch(0.25 0.013 258.4)",
+          "fg": "oklch(0.762 0.02 263)",
+          "accent": "oklch(0.694 0.12 266.1)"
+        }
+      }
+    },
+    {
+      "name": "ayu",
+      "label": "Ayu",
+      "light": "ayu-light",
+      "dark": "ayu",
+      "css": "ayu.css",
+      "warnings": 9,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.982 0.002 247.8)",
+          "surface": "oklch(0.972 0.002 247.8)",
+          "fg": "oklch(0.418 0.01 248)",
+          "accent": "oklch(0.555 0.12 69.8)"
+        },
+        "dark": {
+          "bg": "oklch(0.164 0.014 264.1)",
+          "surface": "oklch(0.194 0.014 264.1)",
+          "fg": "oklch(0.798 0.01 93.6)",
+          "accent": "oklch(0.797 0.12 69.8)"
+        }
+      }
+    },
+    {
+      "name": "catppuccin",
+      "label": "Catppuccin",
+      "light": "catppuccin-latte",
+      "dark": "catppuccin-mocha",
+      "css": "catppuccin.css",
+      "warnings": 6,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.958 0.006 264.5)",
+          "surface": "oklch(0.948 0.006 264.5)",
+          "fg": "oklch(0.403 0.03 279.3)",
+          "accent": "oklch(0.543 0.104 33.1)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0.03 283.9)",
+          "surface": "oklch(0.25 0.03 283.9)",
+          "fg": "oklch(0.879 0.02 272.3)",
+          "accent": "oklch(0.756 0.12 33.1)"
+        }
+      }
+    },
+    {
+      "name": "github",
+      "label": "GitHub",
+      "light": "github",
+      "dark": "github-dark",
+      "css": "github.css",
+      "warnings": 9,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.967 0 0)",
+          "surface": "oklch(0.957 0 0)",
+          "fg": "oklch(0.364 0 0)",
+          "accent": "oklch(0.556 0.14 356.5)"
+        },
+        "dark": {
+          "bg": "oklch(0.182 0.009 264.3)",
+          "surface": "oklch(0.212 0.009 264.3)",
+          "fg": "oklch(0.723 0.018 250.9)",
+          "accent": "oklch(0.772 0.12 356.5)"
+        }
+      }
+    },
+    {
+      "name": "gruvbox",
+      "label": "Gruvbox",
+      "light": "gruvbox-light",
+      "dark": "gruvbox-dark",
+      "css": "gruvbox.css",
+      "warnings": 8,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.956 0.02 96.2)",
+          "surface": "oklch(0.946 0.02 96.2)",
+          "fg": "oklch(0.344 0.007 48.5)",
+          "accent": "oklch(0.545 0.111 352.2)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0 0)",
+          "surface": "oklch(0.25 0 0)",
+          "fg": "oklch(0.894 0.02 89.2)",
+          "accent": "oklch(0.628 0.111 352.2)"
+        }
+      }
+    },
+    {
+      "name": "gruvbox-material",
+      "label": "Gruvbox Material",
+      "light": "gruvbox-material-light",
+      "dark": "gruvbox-material-dark",
+      "css": "gruvbox-material.css",
+      "warnings": 13,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.956 0.02 96.2)",
+          "surface": "oklch(0.946 0.02 96.2)",
+          "fg": "oklch(0.403 0.03 51.9)",
+          "accent": "oklch(0.537 0.117 68.5)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0 0)",
+          "surface": "oklch(0.25 0 0)",
+          "fg": "oklch(0.811 0.02 81.2)",
+          "accent": "oklch(0.756 0.113 68.5)"
+        }
+      }
+    },
+    {
+      "name": "iceberg",
+      "label": "Iceberg",
+      "light": "iceberg-light",
+      "dark": "iceberg-dark",
+      "css": "iceberg.css",
+      "warnings": 10,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.934 0.004 271.4)",
+          "surface": "oklch(0.924 0.004 271.4)",
+          "fg": "oklch(0.342 0.03 275.9)",
+          "accent": "oklch(0.526 0.126 53.4)"
+        },
+        "dark": {
+          "bg": "oklch(0.211 0.018 275)",
+          "surface": "oklch(0.241 0.018 275)",
+          "fg": "oklch(0.834 0.013 276.1)",
+          "accent": "oklch(0.768 0.094 53.4)"
+        }
+      }
+    },
+    {
+      "name": "material",
+      "label": "Material",
+      "light": "material",
+      "dark": "material-dark",
+      "css": "material.css",
+      "warnings": 9,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.937 0 0)",
+          "surface": "oklch(0.927 0 0)",
+          "fg": "oklch(0.256 0.002 106.5)",
+          "accent": "oklch(0.509 0.089 214.3)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0.002 106.5)",
+          "surface": "oklch(0.25 0.002 106.5)",
+          "fg": "oklch(0.922 0 0)",
+          "accent": "oklch(0.695 0.119 214.3)"
+        }
+      }
+    },
+    {
+      "name": "monokai-pro",
+      "label": "Monokai Pro",
+      "light": "monokai-pro-light",
+      "dark": "monokai-pro",
+      "css": "monokai-pro.css",
+      "warnings": 9,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.971 0.007 39.5)",
+          "surface": "oklch(0.961 0.007 39.5)",
+          "fg": "oklch(0.268 0.013 320.6)",
+          "accent": "oklch(0.555 0.14 39.1)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0.008 317.7)",
+          "surface": "oklch(0.25 0.008 317.7)",
+          "fg": "oklch(0.991 0.003 106.4)",
+          "accent": "oklch(0.774 0.12 39.1)"
+        }
+      }
+    },
+    {
+      "name": "nord",
+      "label": "Nord",
+      "light": "nord-light",
+      "dark": "nord",
+      "css": "nord.css",
+      "warnings": 10,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.933 0.01 261.8)",
+          "surface": "oklch(0.923 0.01 261.8)",
+          "fg": "oklch(0.385 0.029 266.5)",
+          "accent": "oklch(0.509 0.063 217.6)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0.023 264.2)",
+          "surface": "oklch(0.25 0.023 264.2)",
+          "fg": "oklch(0.899 0.016 262.7)",
+          "accent": "oklch(0.606 0.108 217.6)"
+        }
+      }
+    },
+    {
+      "name": "one-half",
+      "label": "One Half",
+      "light": "one-half-light",
+      "dark": "one-half-dark",
+      "css": "one-half.css",
+      "warnings": 11,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.985 0 0)",
+          "surface": "oklch(0.975 0 0)",
+          "fg": "oklch(0.35 0.014 274.5)",
+          "accent": "oklch(0.553 0.072 271.4)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0.016 264.3)",
+          "surface": "oklch(0.25 0.016 264.3)",
+          "fg": "oklch(0.903 0.007 260.7)",
+          "accent": "oklch(0.694 0.12 271.4)"
+        }
+      }
+    },
+    {
+      "name": "rose-pine",
+      "label": "Rosé Pine",
+      "light": "rose-pine-dawn",
+      "dark": "rose-pine",
+      "css": "rose-pine.css",
+      "warnings": 7,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.97 0.011 71.9)",
+          "surface": "oklch(0.96 0.011 71.9)",
+          "fg": "oklch(0.412 0.03 289.6)",
+          "accent": "oklch(0.547 0.074 305.7)"
+        },
+        "dark": {
+          "bg": "oklch(0.213 0.025 291.1)",
+          "surface": "oklch(0.243 0.025 291.1)",
+          "fg": "oklch(0.909 0.02 290)",
+          "accent": "oklch(0.776 0.095 305.7)"
+        }
+      }
+    },
+    {
+      "name": "solarized",
+      "label": "Solarized",
+      "light": "iterm2-solarized-light",
+      "dark": "iterm2-solarized-dark",
+      "css": "solarized.css",
+      "warnings": 10,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.974 0.02 90.1)",
+          "surface": "oklch(0.964 0.02 90.1)",
+          "fg": "oklch(0.411 0.029 221.9)",
+          "accent": "oklch(0.561 0.14 355.9)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0.03 219.8)",
+          "surface": "oklch(0.25 0.03 219.8)",
+          "fg": "oklch(0.751 0.02 205.3)",
+          "accent": "oklch(0.631 0.12 355.9)"
+        }
+      }
+    },
+    {
+      "name": "tokyonight",
+      "label": "Tokyo Night",
+      "light": "tokyonight-day",
+      "dark": "tokyonight",
+      "css": "tokyonight.css",
+      "warnings": 11,
+      "swatches": {
+        "light": {
+          "bg": "oklch(0.93 0.007 277.2)",
+          "surface": "oklch(0.92 0.007 277.2)",
+          "fg": "oklch(0.381 0.03 264.1)",
+          "accent": "oklch(0.515 0.14 257.5)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0.021 280.5)",
+          "surface": "oklch(0.25 0.021 280.5)",
+          "fg": "oklch(0.846 0.02 274.8)",
+          "accent": "oklch(0.719 0.12 257.5)"
+        }
+      }
+    },
+    {
+      "name": "tomorrow",
+      "label": "Tomorrow",
+      "light": "tomorrow",
+      "dark": "tomorrow-night",
+      "css": "tomorrow.css",
+      "warnings": 10,
+      "swatches": {
+        "light": {
+          "bg": "oklch(1 0 0)",
+          "surface": "oklch(0.99 0 0)",
+          "fg": "oklch(0.42 0.002 106.5)",
+          "accent": "oklch(0.562 0.115 88.3)"
+        },
+        "dark": {
+          "bg": "oklch(0.22 0.005 248)",
+          "surface": "oklch(0.25 0.005 248)",
+          "fg": "oklch(0.83 0.004 157.2)",
+          "accent": "oklch(0.846 0.112 88.3)"
+        }
+      }
+    }
+  ]
+}

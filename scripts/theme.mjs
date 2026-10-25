@@ -67,6 +67,13 @@ const USAGE = `usage: remarque-theme <light-slug> [--dark <dark-slug>] [-o out.c
                     .diverging ramps (0.5.0+ only; issue #94). These are
                     advisory, per-use ramps, NOT identity tokens — they are
                     not audited or golden-gated like --color-viz-1..6
+  --format <f>     "blocks" (default): a light block plus a [data-theme="dark"]
+                    block. "light-dark": ONE block whose colors are
+                    light-dark(<light>, <dark>), so the palette follows
+                    whatever color-scheme the page sets: [data-theme],
+                    a .dark class, or prefers-color-scheme alone. It
+                    leaves --weight-display to the page's own rule. Used
+                    by remarque-deck (issue #157 / 0.31)
   --scope <name>   emit under [data-palette="<name>"] instead of :root — for
                     the palette-deck module (remarque-tokens/deck), where
                     several generated palettes coexist in one stylesheet and
@@ -85,7 +92,7 @@ function die(msg) {
 /* ── CLI args ─────────────────────────────────────────────────────── */
 
 const argv = process.argv.slice(2);
-let darkSlug, outFile, scopeName, dataviz = false;
+let darkSlug, outFile, scopeName, dataviz = false, format = 'blocks';
 const positional = [];
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
@@ -93,11 +100,13 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '-o' || a === '--output') outFile = argv[++i];
   else if (a === '--scope') scopeName = argv[++i];
   else if (a === '--dataviz') dataviz = true;
+  else if (a === '--format') format = argv[++i];
   else if (a === '-h' || a === '--help') { console.log(USAGE); process.exit(0); }
   else positional.push(a);
 }
 const lightSlug = positional[0];
 if (!lightSlug) die(USAGE);
+if (format !== 'blocks' && format !== 'light-dark') die(`--format must be "blocks" or "light-dark" (got "${format}")`);
 
 /* --scope is interpolated into a CSS attribute selector
  * ([data-palette="<name>"]) — validated against the SAME slug grammar as
@@ -907,11 +916,32 @@ selfVerify('dark', dark.raw);
 
 /* ── Emit ─────────────────────────────────────────────────────────── */
 
+/* --format light-dark: one block, every color as light-dark(light, dark).
+   Both sides derive the same token set; a mismatch is a derivation bug. A
+   var() reference stays a plain reference when both sides agree on it
+   (light-dark() would resolve the same var twice). */
+function lightDarkBlock() {
+  // --weight-display isn't a color; the page's own light/dark rule sets it.
+  const lk = Object.keys(light.tokens).filter((k) => k !== 'weight-display'), dk = Object.keys(dark.tokens).filter((k) => k !== 'weight-display');
+  const onlyL = lk.filter((k) => !(k in dark.tokens)), onlyD = dk.filter((k) => !(k in light.tokens));
+  if (onlyL.length || onlyD.length) die(`internal error: light and dark derived different token sets (light only: ${onlyL.join(', ') || '-'}; dark only: ${onlyD.join(', ') || '-'})`);
+  const lines = lk.map((k) => {
+    const lv = light.tokens[k], dv = dark.tokens[k];
+    return `  --${k}: ${lv === dv ? lv : `light-dark(${lv}, ${dv})`};`;
+  });
+  return `${lightSelector} {\n${lines.join('\n')}\n}`;
+}
+
 const decls = (tokens, indent = '  ') => Object.entries(tokens).map(([k, v]) => `${indent}--${k}: ${v};`).join('\n');
 
-const regenCmd = `npx remarque-theme ${lightSlug} --dark ${darkSlug}${scopeName ? ` --scope ${scopeName}` : ''}`;
-const lightSelector = scopeName ? `[data-palette="${scopeName}"]` : ':root';
-const darkSelector = scopeName ? `[data-palette="${scopeName}"][data-theme="dark"]` : '[data-theme="dark"]';
+const regenCmd = `npx remarque-theme ${lightSlug} --dark ${darkSlug}${scopeName ? ` --scope ${scopeName}` : ''}${format === 'light-dark' ? ' --format light-dark' : ''}`;
+/* Scoped selectors carry :root:root (0,3,0) so a chosen deck palette beats
+   the site's own palette whatever the stylesheet order: plain :root and
+   [data-theme="dark"] are (0,1,0), and the class conventions sites use for
+   their own palettes (:root.dark, :root:not(.light)) are (0,2,0). At
+   (0,1,0) the deck lost to any :root palette loaded after it (0.31). */
+const lightSelector = scopeName ? `:root:root[data-palette="${scopeName}"]` : ':root';
+const darkSelector = scopeName ? `:root:root[data-palette="${scopeName}"][data-theme="dark"]` : '[data-theme="dark"]';
 const scopeNote = scopeName
   ? `\n *\n * Scoped for remarque-tokens/deck (--scope "${scopeName}") — this is one\n * palette among several coexisting in a stylesheet, switched at runtime\n * via [data-palette] rather than owning :root outright. Self-verification\n * below runs on the same derived [L,C,H] values regardless of scope; see\n * REMARQUE.md "Palette Deck" for the audit story on scoped output.`
   : '';
@@ -965,14 +995,14 @@ const css = `/*
  * contrast + gamut checks as remarque-audit before being emitted.${scopeNote}
  */
 
-${lightSelector} {
+${format === 'light-dark' ? lightDarkBlock() : `${lightSelector} {
 ${decls(light.tokens)}
   --weight-display: 400;
 }
 
 ${darkSelector} {
 ${decls(dark.tokens)}
-}
+}`}
 ${vizBlock}`;
 
 if (outFile) {

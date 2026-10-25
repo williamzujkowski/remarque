@@ -116,6 +116,14 @@ const ITEM_DEFS = [
     cssPaths: ['chrome.css'],
   },
   {
+    name: 'deck-picker',
+    title: 'Palette Picker (chrome.css + remarque-tokens/deck)',
+    description:
+      'A reader\u2019s choice of color theme: a <details> holding a <fieldset> of native radio inputs (keyboard-operable with no ARIA-radio script), one per palette in deck.json plus value="" for the site\u2019s own. Swatches are aria-hidden and colored by deck.css ([data-palette-swatch="<name>"]). Wire with deck.js bindPicker(); the module ships no script in this item.',
+    docs: `${SPEC_BASE}#picker-markup-contract`,
+    cssPaths: ['chrome.css'],
+  },
+  {
     name: 'palette-deck',
     title: 'Palette Deck (markup contract only — no executable content)',
     description:

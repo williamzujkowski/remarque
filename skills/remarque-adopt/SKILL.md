@@ -109,6 +109,34 @@ drift again, so it reclassifies from `fail` to `warn`.
 
 - Gate: `passed: true` (zero `fail` records). `warn`/`info` never block.
 
+## 4b. Optional, 0.31+: adopt the Palette Deck — as its own PR
+
+Readers can switch the whole site to a terminal theme from
+`@williamzujkowski/oklch-terminal-themes`, with the site's own palette
+staying the default. Do this in a **separate PR after the version bump is
+green**, so a regression traces to one change, not two.
+
+1. Serve `remarque-tokens/deck.css` (copy it, or `deck.json` too, into the
+   site's public assets at build time, or import it after the site's own
+   palette). It's about 8 KB gzipped, prebuilt and audited.
+2. Render the `deck-picker` registry item from `deck.json`, and wire it
+   with `createDeck(manifest.palettes)` + `bindPicker()` from
+   `remarque-tokens/deck`. Add the FOUC-safe restore from REMARQUE.md
+   "Palette Deck" to `<head>`.
+3. Give the "site default" option the site's own swatches: declare
+   `[data-palette-swatch="default"]` (`--swatch-bg`, `--swatch-fg`,
+   `--swatch-accent`) in the palette file.
+4. The deck follows `color-scheme`, so confirm the site's dark convention
+   sets `color-scheme: dark` (for example on `:root.dark`); without it,
+   deck palettes render their light side in dark mode.
+5. A site that had a hand-rolled deck maps its old stored theme names to
+   deck names (or clears them) so returning readers don't lose their
+   choice silently.
+
+- Gate: the site's own audit and drift still pass, and a browser check
+  (Playwright, or a screenshot) shows a deck palette applied in BOTH
+  light and dark mode.
+
 ## 5. PR body contract
 
 Report, in this order — every consumer PR in the source list follows this

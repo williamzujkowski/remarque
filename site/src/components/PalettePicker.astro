@@ -1,0 +1,44 @@
+---
+/**
+ * Palette picker (remarque-tokens/deck + chrome.css, 0.31): the reader's
+ * choice of color theme. Options come from the deck manifest that
+ * remarque-deck writes at prebuild; swatches come from deck.css.
+ */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const manifest = JSON.parse(readFileSync(join(process.cwd(), 'public', 'palettes', 'deck.json'), 'utf8'));
+const palettes: { name: string; label: string }[] = manifest.palettes;
+---
+
+<details class="remarque-deck-picker" id="palette-picker">
+  <summary>Theme: <span data-deck-current>Remarque</span></summary>
+  <fieldset>
+    <legend class="remarque-sr-only">Color theme</legend>
+    <label class="remarque-deck-option">
+      <input type="radio" name="remarque-palette" value="" checked />
+      <span class="remarque-deck-swatches" data-palette-swatch="default" aria-hidden="true"><span></span><span></span><span></span></span>
+      Remarque
+    </label>
+    {palettes.map((p) => (
+      <label class="remarque-deck-option">
+        <input type="radio" name="remarque-palette" value={p.name} />
+        <span class="remarque-deck-swatches" data-palette-swatch={p.name} aria-hidden="true"><span></span><span></span><span></span></span>
+        {p.label}
+      </label>
+    ))}
+  </fieldset>
+</details>
+
+<script define:vars={{ names: palettes.map((p) => p.name), labels: Object.fromEntries(palettes.map((p) => [p.name, p.label])) }}>
+  window.__remarqueDeck = { names, labels };
+</script>
+<script>
+  import { createDeck, bindPicker } from 'remarque-tokens/deck';
+  const { names, labels } = (window as any).__remarqueDeck;
+  const picker = document.getElementById('palette-picker')!;
+  const current = picker.querySelector('[data-deck-current]')!;
+  const deck = createDeck(names);
+  deck.restore();
+  bindPicker(deck, picker, { onChange: (name) => { current.textContent = name ? labels[name] : 'Remarque'; } });
+</script>

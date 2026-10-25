@@ -37,7 +37,9 @@ const budgetOf = (n) => Math.ceil((n * HEADROOM) / 100) * 100;
 
 // ---- 1. sizes -------------------------------------------------------------
 const pkg = JSON.parse(read('package.json'));
-const shipped = pkg.files.filter((f) => f.endsWith('.css'));
+// deck/deck.css ships inside the deck/ directory entry; budget it too
+// (every page of a site with a picker loads it).
+const shipped = [...pkg.files.filter((f) => f.endsWith('.css')), 'deck/deck.css'];
 
 const sizes = {};
 for (const f of shipped) {
@@ -84,7 +86,10 @@ const MODULES = ['prose.css', 'essay.css', 'broadsheet.css', 'forms.css', 'chrom
 /* Intentional consumer hooks: referenced but not declared by the package.
    One entry per name, each with the reason. Empty on purpose. */
 const ALLOW = new Set([
-  // '--example', // optional consumer hook with a fallback
+  // The palette picker's swatches (chrome.css "Palette picker") read
+  // these from deck/deck.css, which remarque-deck generates per palette
+  // ([data-palette-swatch="<name>"]); a page without the deck has no picker.
+  '--swatch-bg', '--swatch-fg', '--swatch-accent',
 ]);
 
 const declared = (css) => new Set([...stripComments(css).matchAll(/(--[A-Za-z0-9_-]+)\s*:/g)].map((m) => m[1]));

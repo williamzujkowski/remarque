@@ -4,8 +4,12 @@
     "brotli": 6900
   },
   "chrome.css": {
-    "gzip": 3700,
-    "brotli": 3100
+    "gzip": 4300,
+    "brotli": 3600
+  },
+  "deck/deck.css": {
+    "gzip": 8700,
+    "brotli": 6800
   },
   "essay.css": {
     "gzip": 8800,
@@ -24,8 +28,8 @@
     "brotli": 2400
   },
   "prose.css": {
-    "gzip": 6200,
-    "brotli": 5200
+    "gzip": 6400,
+    "brotli": 5400
   },
   "theme.css": {
     "gzip": 2000,
@@ -44,7 +48,7 @@
     "brotli": 500
   },
   "tokens.css (effective)": {
-    "gzip": 18100,
-    "brotli": 15200
+    "gzip": 18300,
+    "brotli": 15400
   }
 }
