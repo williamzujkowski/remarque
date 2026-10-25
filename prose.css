@@ -148,6 +148,28 @@
   overflow-x: auto;
 }
 
+.remarque-prose pre[data-title]::before {
+  /* Code-block title (#129): a mono filename line at the top of the
+     block, in the no-chrome voice: a hairline under it, no filled tab.
+     Set data-title="src/config.ts" on the <pre> (Shiki and
+     rehype-pretty-code both can). The negative margins reach the block's
+     edges through its padding. */
+  content: attr(data-title);
+  display: block;
+  margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) var(--space-4);
+  padding: var(--space-2) var(--space-5);
+  border-block-end: var(--border-width) var(--border-style) var(--color-border);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-muted);
+}
+
+/* Line highlighting is the highlighter's markup; this is only the color
+   hook: mark a line with data-highlighted-line (rehype-pretty-code's
+   attribute) and it gets the quiet accent wash prose `mark` uses. */
+.remarque-prose pre [data-highlighted-line] {
+  background-color: var(--color-accent-subtle);
+}
+
 .remarque-prose pre code {
   background: none;
   padding: 0;
@@ -166,6 +188,12 @@
   height: auto;
   border: var(--border-width) var(--border-style) var(--color-border);
   border-radius: var(--radius-sm);
+}
+
+.remarque-prose figure {
+  /* The UA indents figures by 40px on both sides; a figure belongs to the
+     column. Its block rhythm comes from the `> * + *` rule above. */
+  margin-inline: 0;
 }
 
 .remarque-prose figcaption {
@@ -492,6 +520,22 @@
  * The fleuron (U+2766) is outside the latin font subsets by design;
  * it intentionally falls through to the serif fallback stack.
  */
+
+/* ─── External-link marks (opt-in, #129) ──────────────────────────────
+ * .remarque-prose--external-marks adds a small ↗ after links marked
+ * rel="external". Screen only: print.css prints every link's URL after
+ * it with ::after, and a marker on the same pseudo-element would replace
+ * that (the bug the flagship hit hand-rolling this). The arrow is
+ * decoration with empty alt text; rel carries the meaning. */
+@media screen {
+  .remarque-prose--external-marks a[rel~="external"]::after {
+    content: "\00a0\2197";
+    content: "\00a0\2197" / "";
+    display: inline-block;
+    color: var(--color-muted);
+    text-decoration: none;
+  }
+}
 
 /* ─── Script-aware italics (issue #123) ───────────────────────────────
  * Arabic, Persian, Urdu, Hebrew and CJK have no italic tradition, and

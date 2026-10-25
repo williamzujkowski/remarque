@@ -171,8 +171,30 @@ textarea.remarque-input {
    hand-drawn replacement icon, exactly the "fake replacement" this module
    avoids) or accepting a single browser's rendering as the reference,
    neither of which is worth it for one triangle. */
-.remarque-input:hover {
-  border-color: var(--color-fg-muted);
+/* Hover washes only where hover exists: on touch, a tap leaves :hover
+   stuck on the last control until the next tap elsewhere (#129). */
+@media (hover: hover) {
+  .remarque-input:hover {
+    border-color: var(--color-fg-muted);
+  }
+}
+
+/* Read-only: visibly not editable, still fully legible and focusable
+   (the value can be selected and copied). A quiet fill, no new token.
+   [readonly], not :read-only, which also matches checkboxes, selects
+   and buttons. */
+.remarque-input[readonly] {
+  background-color: var(--color-bg-subtle);
+  cursor: default;
+}
+
+/* Opt-in auto-growing textarea: field-sizing (Baseline 2026-06: Chrome
+   123, Firefox 152, Safari 26.2) replaces the JS resize snippet. Keeps
+   the textarea minimum below and caps the growth; older engines keep a
+   fixed, scrollable textarea. */
+.remarque-input--autosize {
+  field-sizing: content;
+  max-height: 24rem;
 }
 
 /* Placeholder: --color-muted, the same 4.5:1-on-bg/-surface token used
@@ -285,8 +307,17 @@ textarea.remarque-input {
     background-color var(--motion-fast) var(--motion-easing);
 }
 
-.remarque-button:hover:not(:disabled) {
-  border-color: var(--color-fg-muted);
+@media (hover: hover) {
+  .remarque-button:hover:not(:disabled) {
+    border-color: var(--color-fg-muted);
+    color: var(--color-fg);
+  }
+}
+
+/* Pressed: the border goes to full fg for the duration of the press, on
+   every input type (touch has no hover to precede it). */
+.remarque-button:active:not(:disabled) {
+  border-color: var(--color-fg);
   color: var(--color-fg);
 }
 
@@ -295,7 +326,15 @@ textarea.remarque-input {
   border-color: var(--color-accent);
 }
 
-.remarque-button--primary:hover:not(:disabled) {
+@media (hover: hover) {
+  .remarque-button--primary:hover:not(:disabled) {
+    color: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+    background-color: var(--color-accent-subtle);
+  }
+}
+
+.remarque-button--primary:active:not(:disabled) {
   color: var(--color-accent-hover);
   border-color: var(--color-accent-hover);
   background-color: var(--color-accent-subtle);
@@ -410,6 +449,30 @@ textarea.remarque-input {
   }
 }
 
+/* ─── Non-color state cue, every mode (issue #128; WCAG 1.4.1) ──────────
+ * A glyph before each state message, so error, warning and success are
+ * told apart by shape, not only by color. Until 0.30 the glyphs existed
+ * only under forced colors (below); under deuteranopia simulation the
+ * default error and success colors are only ΔE2000 2.7 (light) and 1.7
+ * (dark) apart, so ordinary rendering needed them too. Empty alt text:
+ * the message text and aria-invalid carry the meaning for screen
+ * readers, and the glyph would only add noise. The message must still
+ * say what's wrong in words (REMARQUE.md "Forms"). */
+.remarque-field[data-state="error"] .remarque-field-message::before {
+  content: "\2715\0020"; /* ✕ */
+  content: "\2715\0020" / "";
+}
+
+.remarque-field[data-state="warning"] .remarque-field-message::before {
+  content: "\26A0\0020"; /* ⚠ */
+  content: "\26A0\0020" / "";
+}
+
+.remarque-field[data-state="success"] .remarque-field-message::before {
+  content: "\2713\0020"; /* ✓ */
+  content: "\2713\0020" / "";
+}
+
 /* ─── Forced-colors reinforcement (issue #93) ────────────────────────────
  * The validation-state wiring above is the textbook color-only-affordance
  * case the issue names explicitly: error/success/warning are distinguished
@@ -423,9 +486,8 @@ textarea.remarque-input {
  * Fix is geometry, not color, since color is exactly what forced-colors
  * discards: each state gets a distinct `border-style`/`border-width`
  * combination on the control itself (a shape that reads under ANY forced
- * system border color), plus a small glyph prefixed to the message line
- * — scoped to this media query only, so the quiet default (message text
- * alone) is unchanged everywhere else. The glyph is supplementary, not
+ * system border color), on top of the glyph prefixed to the message line
+ * in every mode (above; forced-colors-only until 0.30). The glyph is supplementary, not
  * the primary signal (a screen reader user already gets `aria-invalid` +
  * the message text; a sighted forced-colors user gets the border shape);
  * it is not marked `aria-hidden` because CSS generated content cannot
@@ -450,17 +512,6 @@ textarea.remarque-input {
     border-width: 2px;
   }
 
-  .remarque-field[data-state="error"] .remarque-field-message::before {
-    content: "\2715\0020"; /* ✕ */
-  }
-
-  .remarque-field[data-state="warning"] .remarque-field-message::before {
-    content: "\26A0\0020"; /* ⚠ */
-  }
-
-  .remarque-field[data-state="success"] .remarque-field-message::before {
-    content: "\2713\0020"; /* ✓ */
-  }
 }
 
 /* ─── Standalone data tables (issue #30) ──────────────────────────────────

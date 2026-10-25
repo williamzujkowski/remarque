@@ -114,6 +114,33 @@ const luminance = (rgb) => {
   const [r, g, b] = rgb.map(clip);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
+/* APCA Lc (SAPC 0.0.98G-4g constants), REPORT-ONLY (issue #128). WCAG
+   2.x stays the gate: the WCAG 3 working draft (2026-09-10) still says
+   its contrast algorithm "is yet to be determined" (REMARQUE.md "APCA:
+   Considered, Not Adopted"). It's printed beside each ratio because the
+   2.x ratio is polarity-blind: dark-theme muted text passes 2.x while
+   APCA rates it about half the perceptual contrast of its light twin.
+   Positive Lc = dark text on light, negative = light text on dark. */
+function apcaLc(text, bg) {
+  const enc = (c) => Math.min(1, Math.max(0, c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055));
+  const Y = (lab) => {
+    const [r, g, b] = oklchToLinearSrgb(...lab).map(enc);
+    const y = 0.2126729 * r ** 2.4 + 0.7151522 * g ** 2.4 + 0.072175 * b ** 2.4;
+    return y < 0.022 ? y + (0.022 - y) ** 1.414 : y;
+  };
+  const yt = Y(text), yb = Y(bg);
+  if (Math.abs(yb - yt) < 0.0005) return 0;
+  let out;
+  if (yb > yt) {
+    const sapc = (yb ** 0.56 - yt ** 0.57) * 1.14;
+    out = sapc < 0.1 ? 0 : sapc - 0.027;
+  } else {
+    const sapc = (yb ** 0.65 - yt ** 0.62) * 1.14;
+    out = sapc > -0.1 ? 0 : sapc + 0.027;
+  }
+  return Math.round(out * 1000) / 10;
+}
+
 function ratio(c1, c2) {
   const l1 = luminance(oklchToLinearSrgb(...c1));
   const l2 = luminance(oklchToLinearSrgb(...c2));
@@ -220,9 +247,10 @@ for (const [themeName, decls] of [['light', lightDecls], ['dark', darkDecls]]) {
     const r = ratio(fg.color, bg.color);
     const actual = Math.round(r * 100) / 100;
     const ok = r >= min;
-    report.contrast.push({ theme: themeName, fg: fgName, bg: bgName, label, required: min, actual, ok });
+    const lc = apcaLc(fg.color, bg.color);
+    report.contrast.push({ theme: themeName, fg: fgName, bg: bgName, label, required: min, actual, ok, apcaLc: lc });
     if (!ok) fail(`${fgName}/${bgName} = ${r.toFixed(2)}:1 < ${min}:1 (${label})`);
-    else log(`  ✓ ${fgName}/${bgName} = ${r.toFixed(2)}:1 (${label})`);
+    else log(`  ✓ ${fgName}/${bgName} = ${r.toFixed(2)}:1 (${label}) · APCA Lc ${lc.toFixed(1)} (advisory)`);
   }
 }
 

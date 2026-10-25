@@ -218,6 +218,14 @@ Labels that want a caps-like treatment use **real capitals with added tracking**
 - **Enforced.** `remarque-audit` fails any rule that asks a face for a feature it lacks (small caps, oldstyle figures, `font-feature-settings` tags), checked against `fonts/features.json`. That's the OpenType feature list of every shipped face, generated with fontTools by `scripts/font-features.py`. A rule that is deliberately face-dependent says so with a `remarque-feature: conditional` comment and is reported, not failed. Consumers add their own faces with `--font-features <manifest.json>` (same shape). Defaults count: a face whose default figures are lining satisfies `lining-nums` without `lnum`, and a tabular-by-default face satisfies `tabular-nums` without `tnum`.
 - Uppercase for *running text* (a shouted sentence, a heading set in caps) is still out: the rule is about labels.
 
+### Code Blocks, Figures and Links
+
+- **Code-block titles.** `data-title="src/config.ts"` on a `<pre>` inside `.remarque-prose` renders a mono filename line across the top of the block, with a hairline under it and no filled tab (0.30, #129). Shiki and rehype-pretty-code can both emit the attribute.
+- **Line highlighting** belongs to your highlighter's markup. Remarque supplies only the color: an element marked `data-highlighted-line` (rehype-pretty-code's attribute) gets the `--color-accent-subtle` wash that `mark` uses.
+- **Figures** sit in the column: `.remarque-prose figure` cancels the browser's 40px side indent, and its vertical rhythm comes from the prose flow like any other block.
+- **External-link marks (opt-in).** `.remarque-prose--external-marks` adds a small ↗ after links marked `rel="external"`, on screen only. `print.css` prints each link's URL with `::after`, and a screen marker on the same pseudo-element would replace it. The arrow has empty alt text; `rel` carries the meaning.
+- Code blocks never wrap; they scroll in their own box (see "Wrapping & Optical Defaults").
+
 ### Drop Caps (opt-in)
 
 `.remarque-prose--dropcap`, applied alongside `.remarque-prose`, floats a large italic display-face initial letter on the first paragraph only — the way a printed essay opens its first page. Rules:
@@ -351,6 +359,27 @@ Sequential and diverging ramps are **not** shipped as tokens — a fixed `--colo
    ```
    Each entry carries `oklch` (structured `{l, c, h}`) and `oklchCss` (a ready-to-use `oklch(...)` string) — no parsing required.
 2. **`remarque-theme --dataviz`** — emits `--viz-sequential-1..N` and `--viz-diverging-1..N` custom properties (`N` = the source theme's own ramp length) alongside the normal derived palette. Gamut-clamped but **not** contrast-solved (a sequential ramp's low end is designed to sit near `--color-bg`; solving it to a contrast floor would defeat the ramp) — advisory output, not audited or golden-gated like `--color-viz-1..6`. A future `remarque-audit --json`/`remarque-theme --json` could expose the same arrays as structured output; today, `--dataviz`'s CSS-property emission and direct JSON consumption above cover the need.
+
+### Color-vision robustness: opt-in recipes (0.30, #128)
+
+Since 0.28, `remarque-audit` warns when the categorical slots are hard to tell apart under simulated color-vision deficiency, and the default palette triggers it. The six slots span only 0.042 L (light) and 0.029 L (dark), so hue is their only channel, and the worst pair under simulation is ΔE2000 3.5 (light, deuteranopia) and 2.7 (dark, protanopia); below about 5, marks blur together. **The defaults stay as they are** (ratified 7–0, `vote-1792892374374-55pw50q`): a value change would recolor every consumer's charts, no consumer has asked, and the defaults are pinned to the upstream `oklch-terminal-themes` palettes by the golden gate. The "never color alone" rule above (labels, markers, dash patterns) is what keeps a default-palette chart readable.
+
+If your charts lean on color, override the slots with this **lightness ladder**: same hues and chroma, lightness alternated so that neighbouring slots differ in both hue and lightness. Every slot clears 3.4:1 on `--color-bg` and `--color-surface`. It is a palette-tier override, so `remarque-drift` reports it as INFO, and it's verified by the same coherence math the audit uses:
+
+| Slot | Light | Dark |
+|---|---|---|
+| `--color-viz-1` | `oklch(0.46 0.121 250.5)` | `oklch(0.72 0.129 249.5)` |
+| `--color-viz-2` | `oklch(0.61 0.111 85.5)` | `oklch(0.88 0.13 85.3)` |
+| `--color-viz-3` | `oklch(0.52 0.12 24.6)` | `oklch(0.56 0.129 310.2)` |
+| `--color-viz-4` | `oklch(0.40 0.12 144.8)` | `oklch(0.72 0.129 25.4)` |
+| `--color-viz-5` | `oklch(0.61 0.121 309.6)` | `oklch(0.56 0.129 144.9)` |
+| `--color-viz-6` | `oklch(0.55 0.09 195.8)` | `oklch(0.88 0.119 194.8)` |
+
+The worst pair under normal, protan, deutan and tritan simulation rises to **ΔE2000 11.7 (light) and 13.6 (dark)**. The lightness alternates rather than ramps, so the series don't read as an ordered scale; keep it that way if you reorder them. The trade-off is that the lightest slots read as brighter marks than the rest. Run against the audit, the recipe clears every `viz-cvd-*` warning; `accent-vs-viz-1` still warns, because viz-1 keeps the accent's hue (rotate it if links sit next to your charts).
+
+**Dark tertiary text.** Dark `--color-muted` (L 0.60) passes WCAG 2.x at 4.92:1 on `--color-bg`, but the advisory APCA column measures it at Lc −34.5, about half its light twin's 70.0. `--color-muted: oklch(0.64 0.01 80)` in your dark block gives 5.77:1 on bg, 5.49:1 on surface, and Lc −40.3; it moves muted closer to `--color-fg-muted` (0.70), so check the audit's text-tier warnings after.
+
+**When the defaults change.** Revisit when a consumer asks, or when the coherence warnings are promoted to failures (the default palette would then fail its own audit). The change then goes through an upstream `oklch-terminal-themes` release first and a pin bump here, so the golden gate stays exact; never as a per-token exception in the golden gate.
 
 ---
 
@@ -1260,6 +1289,14 @@ disabled control never gets a `data-state` — it uses the native
 `:disabled`/`disabled` state and `--color-disabled`, which is a muted
 register, not one of the three feedback hues (REMARQUE.md "State Colors":
 disabled is deliberately not ANSI-derived).
+
+**State is never color alone (0.30, #128; WCAG 1.4.1).** Each state message carries a glyph in every mode: ✕ error, ⚠ warning, ✓ success. Under simulated deuteranopia the default error and success colors are only ΔE2000 2.7 (light) and 1.7 (dark) apart, so the glyph is what tells them apart. It has empty alt text, so the message has to say what's wrong in words ("Enter an email address", not "Invalid"), and `aria-invalid` still carries the state for screen readers. Before 0.30 the glyphs appeared only under forced colors.
+
+**Read-only, pending and auto-growing fields (0.30, #129).**
+- `readonly` inputs get a quiet `--color-bg-subtle` fill: visibly not editable, still legible, focusable and copyable. The selector is `[readonly]`, not `:read-only`, which also matches checkboxes, selects and buttons.
+- **Pending submit is text, not a spinner.** Disable the button, change its label ("Send" → "Sending…"), and announce completion or failure through a polite live region (`<p role="status">`). Don't put `aria-busy` on the button (it's for regions being updated, and AT support on controls is poor), and never add a spinner (AGENT_RULES bans decorative motion).
+- `.remarque-input--autosize` on a `<textarea>` grows with its content (`field-sizing: content`, Baseline 2026-06), from the 6rem minimum up to a 24rem cap. Older engines keep the fixed, scrollable textarea.
+- **Hover only where hover exists.** Button and input hover washes sit inside `@media (hover: hover)`, so a tap doesn't leave a control looking hovered. `:active` gives buttons a pressed state (border to `--color-fg`) on every input type.
 
 As a zero-JS bonus layer, `.remarque-input:user-invalid` (guarded with
 `@supports selector(:user-invalid)`) picks up the same error border once
