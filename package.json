@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.31.1",
+  "version": "0.31.2",
   "engines": {
     "node": ">=22"
   },
@@ -81,8 +81,14 @@
     "./forms.css": "./forms.css",
     "./chrome": "./chrome.css",
     "./chrome.css": "./chrome.css",
-    "./deck": "./deck.js",
-    "./deck.js": "./deck.js",
+    "./deck": {
+      "types": "./deck.d.ts",
+      "default": "./deck.js"
+    },
+    "./deck.js": {
+      "types": "./deck.d.ts",
+      "default": "./deck.js"
+    },
     "./deck/curated.json": "./deck/curated.json",
     "./deck.css": "./deck/deck.css",
     "./deck.json": "./deck/deck.json",
@@ -124,6 +130,7 @@
     "forms.css",
     "chrome.css",
     "deck.js",
+    "deck.d.ts",
     "deck/",
     "scripts/deck.mjs",
     "scripts/lib/css-tokens.mjs",

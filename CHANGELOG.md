@@ -4,6 +4,12 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.31.2 — 2026-10-24
+
+### Fixed — TypeScript types for `remarque-tokens/deck`
+
+- **New `deck.d.ts`** declares `createDeck`, `bindPicker` and their option and return types, and the `./deck` and `./deck.js` exports carry it. A TypeScript consumer importing the deck failed `astro check` with TS7016 ("could not find a declaration file"). That was found while adopting the deck on the flagship. `test-types.mjs` checks that the declarations match what `deck.js` exports. No token or CSS change.
+
 ## 0.31.1 — 2026-10-24
 
 ### Fixed — font-feature check against fonts the site doesn't use

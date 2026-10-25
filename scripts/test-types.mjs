@@ -165,6 +165,20 @@ const firstPaletteName = Object.keys(brokenPalette.palette)[0];
 delete brokenPalette.palette[firstPaletteName].dark;
 expect(`mutated fixture (missing "dark" on --${firstPaletteName}) is REJECTED by the schema`, validate(brokenPalette) === false);
 
+// deck.d.ts (0.31.2): declares exactly what deck.js exports, and the
+// ./deck export carries it (a TypeScript consumer's `astro check` failed
+// with TS7016 before it existed).
+{
+  const deckJs = readFileSync('deck.js', 'utf8');
+  const deckDts = readFileSync('deck.d.ts', 'utf8');
+  const jsExports = [...deckJs.matchAll(/^export function (\w+)/gm)].map((m) => m[1]).sort();
+  const dtsExports = [...deckDts.matchAll(/^export function (\w+)/gm)].map((m) => m[1]).sort();
+  expect('deck.d.ts declares every function deck.js exports, and no others', JSON.stringify(jsExports) === JSON.stringify(dtsExports), `${jsExports} vs ${dtsExports}`);
+  const deckExport = pkg.exports['./deck'];
+  expect('package.json "./deck" export carries types: ./deck.d.ts', deckExport?.types === './deck.d.ts' && deckExport?.default === './deck.js');
+  expect('deck.d.ts ships (package.json files)', pkg.files.includes('deck.d.ts'));
+}
+
 if (bad) {
   console.error(`test-types FAILED — ${bad} check(s) did not pass`);
   process.exit(1);
