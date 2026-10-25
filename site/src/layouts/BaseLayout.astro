@@ -1,4 +1,5 @@
 ---
+import PalettePicker from '../components/PalettePicker.astro';
 import '../styles/globals.css';
 
 interface Props {
@@ -56,13 +57,12 @@ const nav = [['writing', 'Writing'], ['projects', 'Projects'], ['notes', 'Notes'
     <link rel="preload" href={`${base}fonts/newsreader-latin.woff2`} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={`${base}fonts/jetbrains-mono-latin.woff2`} as="font" type="font/woff2" crossorigin />
 
-    <!-- Palette Deck (remarque-tokens/deck, issue #56) — scoped palette
-         stylesheets, generated at build time by scripts/build-palette-deck.mjs
-         into public/palettes/*.css. Loaded sitewide (like the fonts above) so
-         a palette picked on one page stays applied across navigation; each
-         is inert ([data-palette="…"]-scoped) unless data-palette matches. -->
-    <link rel="stylesheet" href={`${base}palettes/gruvbox.css`} />
-    <link rel="stylesheet" href={`${base}palettes/rose-pine.css`} />
+    <!-- Palette Deck (remarque-tokens/deck): every curated palette in one
+         stylesheet, built at prebuild by remarque-deck --curated into
+         public/palettes/ (~8 KB gzipped). Each palette is inert
+         ([data-palette="…"]-scoped) until chosen, and follows the
+         light/dark toggle through light-dark(). -->
+    <link rel="stylesheet" href={`${base}palettes/deck.css`} />
 
     <!-- Theme detection BEFORE first paint — prevents wrong-theme flash when
          the stored preference differs from prefers-color-scheme -->
@@ -150,6 +150,9 @@ const nav = [['writing', 'Writing'], ['projects', 'Projects'], ['notes', 'Notes'
             <a href={`${base}start`} class="footer-link">Get Started</a>
             <a href={`${base}rss.xml`} class="footer-link">RSS</a>
           </div>
+        </div>
+        <div class="mt-4">
+          <PalettePicker />
         </div>
       </footer>
     </div>

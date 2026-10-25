@@ -93,6 +93,10 @@ jobs:
         run: node scripts/test-font-features.mjs
         working-directory: .
 
+      - name: "Palette Deck fixtures (deck/ fresh against the pinned dataset, manifest schema, scoping, CLI errors)"
+        run: node scripts/test-deck.mjs
+        working-directory: .
+
       - name: "CSS size budgets (gzip/brotli vs budgets.json) + module closure (every var() resolves — issue #120)"
         run: node scripts/test-budget.mjs
         working-directory: .

@@ -76,7 +76,7 @@ try {
 if (tarballPath && existsSync(tarballPath)) {
   try {
     const listing = execFileSync('tar', ['-tzf', tarballPath], { encoding: 'utf8' });
-    for (const p of ['package/skills/remarque/SKILL.md', 'package/skills/remarque-adopt/SKILL.md', 'package/skills/remarque-new-page/SKILL.md']) {
+    for (const p of ['package/skills/remarque/SKILL.md', 'package/skills/remarque-adopt/SKILL.md', 'package/skills/remarque-new-page/SKILL.md', 'package/deck/deck.css', 'package/deck/deck.json', 'package/deck/curated.json', 'package/scripts/deck.mjs']) {
       expect(`tarball contains ${p}`, listing.includes(p));
     }
   } catch (e) {
@@ -143,6 +143,23 @@ if (tarballPath && existsSync(tarballPath)) {
       }
       expect('npx remarque-audit --palette out.css --src . --json exits 0 with passed: true', false, report ? JSON.stringify(report.failures) : e.stderr?.toString() || e.message);
     }
+  }
+
+  // The Palette Deck (0.31): a custom deck builds from the installed
+  // tarball against the installed dataset, and the prebuilt curated deck
+  // resolves through its export.
+  try {
+    const deckDir = join(consumerDir, 'deck-out');
+    execFileSync('npx', ['remarque-deck', 'nord-light', '--out-dir', deckDir], { cwd: consumerDir, stdio: 'pipe', env });
+    expect('npx remarque-deck <slug> --out-dir builds a deck from the installed tarball', existsSync(join(deckDir, 'deck.css')) && existsSync(join(deckDir, 'deck.json')));
+  } catch (e) {
+    expect('npx remarque-deck <slug> --out-dir builds a deck from the installed tarball', false, e.stderr?.toString() || e.message);
+  }
+  try {
+    const resolved = execFileSync('node', ['--input-type=module', '-e', "console.log(import.meta.resolve('remarque-tokens/deck.css'), import.meta.resolve('remarque-tokens/deck.json'))"], { cwd: consumerDir, encoding: 'utf8', env });
+    expect('remarque-tokens/deck.css and /deck.json resolve to the prebuilt curated deck', /deck\/deck\.css/.test(resolved) && /deck\/deck\.json/.test(resolved), resolved);
+  } catch (e) {
+    expect('remarque-tokens/deck.css and /deck.json resolve to the prebuilt curated deck', false, e.stderr?.toString() || e.message);
   }
 }
 

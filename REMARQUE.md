@@ -1630,6 +1630,51 @@ theme toggle's head script doesn't import anything either):
 wire the switcher UI's change handler and to keep `restore()` available
 for pages that need to re-derive `current()` after the fact.
 
+### Building a deck: `remarque-deck` and the curated set (0.31)
+
+The terminal themes in [`@williamzujkowski/oklch-terminal-themes`](https://www.npmjs.com/package/@williamzujkowski/oklch-terminal-themes) are the deck's source. Ratified 6–1 in `vote-1792898589702-ofkch6y`: each site keeps **its own palette as the default**, and the deck is a reader's preference on top of it.
+
+- **The curated deck ships prebuilt.** `remarque-tokens/deck.css` holds 15 reviewed light/dark pairs: the dataset's `popular` pairs, minus near-duplicates. They are Atom One, Ayu, Catppuccin, GitHub, Gruvbox, Gruvbox Material, Iceberg, Material, Monokai Pro, Nord, One Half, Rosé Pine, Solarized, Tokyo Night and Tomorrow. `remarque-tokens/deck.json` is the matching manifest of names, labels, source slugs and swatches. They are built in this repo from the pinned dataset and freshness-gated in CI (`remarque-deck --curated --check`). The list pins slugs, and shipping the built files pins the colors too: a dataset release never changes a site's deck, and changes to the curated set ship as remarque minors. A site needs no dataset install to use it. The whole file is about 8 KB gzipped (budgeted in `budgets.json`), so one cached stylesheet is the default.
+- **Every palette is paired and follows the page's mode.** Each one is emitted with `remarque-theme --format light-dark` as a single `light-dark()` block. It renders light or dark from whatever `color-scheme` the page sets (`[data-theme]`, a `.dark` class, or `prefers-color-scheme` alone), so choosing a palette never forces a mode. The flagship's earlier single-mode deck did force one.
+- **Scoped selectors outrank the site palette.** Blocks are `:root:root[data-palette="<name>"]`, specificity (0,3,0). That beats `:root` and `[data-theme]` (0,1,0) and the class conventions sites use for their own palette, `:root.dark` and `:root:not(.light)` (0,2,0), whatever order the stylesheets load in. Until 0.31 a scoped light block was (0,1,0) and lost to any `:root` palette loaded after it.
+- **Every palette is audited.** `remarque-deck` runs `remarque-audit` on each palette and fails the whole build on any failure. All 73 light/dark pairs in the dataset derive and pass.
+- **Custom decks:** `npx remarque-deck <light>[:<dark>][=<name>] … --out-dir <dir>` builds your own list (add `--curated` to start from the reviewed set). `--default <your-palette.css>` emits the picker swatches for your own palette. Without it, the default swatches are the package's default palette, so a site with its own palette should declare `[data-palette-swatch="default"] { --swatch-bg; --swatch-fg; --swatch-accent }` in its palette file, or build with `--default`.
+
+### Picker markup contract
+
+A `<details>` disclosure holding a `<fieldset>` of **native radio inputs**: one per palette, plus `value=""` for the site's own. Native radios are keyboard-operable with no ARIA-radio script. `deck.js`'s `bindPicker(deck, container, { onChange })` applies the choice and checks the radio for the active palette on load. Swatches are `aria-hidden` decoration whose colors come from `deck.css` (`[data-palette-swatch="<name>"]`, as `light-dark()`), so they show each palette's own colors in the current mode and don't repaint when another palette is active. The picker styles live in `remarque-tokens/chrome`.
+
+<!-- registry-usage:deck-picker — scripts/build-registry.mjs (0.31)
+     extracts the fenced block immediately below into
+     registry/deck-picker.json's usage.html verbatim. -->
+```html
+<details class="remarque-deck-picker" id="palette-picker">
+  <summary>Theme: <span data-deck-current>Site default</span></summary>
+  <fieldset>
+    <legend class="remarque-sr-only">Color theme</legend>
+    <label class="remarque-deck-option">
+      <input type="radio" name="remarque-palette" value="" checked />
+      <span class="remarque-deck-swatches" data-palette-swatch="default" aria-hidden="true"><span></span><span></span><span></span></span>
+      Site default
+    </label>
+    <label class="remarque-deck-option">
+      <input type="radio" name="remarque-palette" value="nord" />
+      <span class="remarque-deck-swatches" data-palette-swatch="nord" aria-hidden="true"><span></span><span></span><span></span></span>
+      Nord
+    </label>
+  </fieldset>
+</details>
+```
+
+Render one `<label>` per entry in `deck.json`'s `palettes`. Wire it with an ES module, outside the registry's zero-script bar:
+
+```js
+import { createDeck, bindPicker } from 'remarque-tokens/deck';
+import manifest from 'remarque-tokens/deck.json' with { type: 'json' };
+const deck = createDeck(manifest.palettes);
+bindPicker(deck, document.getElementById('palette-picker'));
+```
+
 ### Provenance
 
 Re-scoped from the flagship site's theme-deck on the way up (issue #56,

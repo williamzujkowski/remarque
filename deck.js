@@ -68,3 +68,33 @@ export function createDeck(palettes, opts = {}) {
 
   return { names, current, apply, restore };
 }
+
+/**
+ * Wire a picker of native radio inputs (REMARQUE.md "Palette Deck",
+ * registry item "deck-picker") to a deck: checking a radio applies its
+ * value (value="" is the site's own palette), and the radio matching the
+ * active palette is checked on load. Optional `onChange(name)` runs after
+ * each change, e.g. to update a "current theme" label.
+ *
+ * @param {ReturnType<typeof createDeck>} deck
+ * @param {ParentNode} container element holding the radios
+ * @param {{ onChange?: (name: string | null) => void }} [opts]
+ */
+export function bindPicker(deck, container, opts = {}) {
+  const radios = [...container.querySelectorAll('input[type="radio"]')];
+  const sync = () => {
+    const active = deck.current() || '';
+    for (const r of radios) r.checked = r.value === active;
+    opts.onChange?.(active || null);
+  };
+  for (const r of radios) {
+    r.addEventListener('change', () => {
+      if (!r.checked) return;
+      deck.apply(r.value || null);
+      sync();
+    });
+  }
+  sync();
+  return { sync };
+}
+

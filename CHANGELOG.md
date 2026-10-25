@@ -4,6 +4,27 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## Unreleased
+
+### Added — the Palette Deck, built from the terminal themes (0.31; ratified 6–1, `vote-1792898589702-ofkch6y`)
+
+- **`remarque-tokens/deck.css` + `remarque-tokens/deck.json`: a prebuilt, curated deck** of 15 light/dark pairs from `@williamzujkowski/oklch-terminal-themes`:
+  - **The pairs:** Atom One, Ayu, Catppuccin, GitHub, Gruvbox, Gruvbox Material, Iceberg, Material, Monokai Pro, Nord, One Half, Rosé Pine, Solarized, Tokyo Night and Tomorrow. That's the dataset's popular pairs minus near-duplicates, listed in `deck/curated.json`.
+  - **Built and gated here.** The deck is built in this repo from the pinned dataset and freshness-gated in CI. A dataset release never changes a site's deck, and sites need no dataset install. It's about 8 KB gzipped, with a size budget.
+  - **Each site's own palette stays its default.** The deck is a reader's preference.
+- **New bin `remarque-deck`.** It builds a deck in one call (`--curated` and/or `<light>[:<dark>][=<name>]` entries, `--out-dir`). It runs `remarque-audit` on every palette and fails the build on any failure, and it writes per-palette CSS, `deck.css` and a `deck.json` manifest with picker swatches. `--default <palette.css>` adds swatches for the site's own palette; `--check` verifies a committed deck is fresh. All 73 light/dark pairs in the dataset derive and pass the audit.
+- **`remarque-theme --format light-dark`**: one scoped block of `light-dark()` colors, so a deck palette follows whatever `color-scheme` the page sets (`[data-theme]`, a `.dark` class, or `prefers-color-scheme`). Choosing a palette no longer forces a mode.
+- **Picker:** a new `deck-picker` registry item and `.remarque-deck-picker` styles in `chrome.css`. It's native radio inputs in a `<fieldset>` inside `<details>`, with swatches colored from `deck.css`. A new **`bindPicker()`** in `deck.js` wires it.
+
+### Fixed — scoped palettes lost to the site's own palette
+
+- **`remarque-theme --scope` now emits `:root:root[data-palette="<name>"]`** (specificity 0,3,0) instead of `[data-palette="<name>"]` (0,1,0). The old light block tied with `:root` and lost to any palette loaded after it. In the demo, the deck's light palettes never applied; only the dark block, one attribute heavier, did. The new selector also beats the `:root.dark` and `:root:not(.light)` conventions sites use for their own palettes. The audit's scoped-palette parsing is unchanged, since the selector starts with `:root`.
+
+### Changed
+
+- The root devDependency `@williamzujkowski/oklch-terminal-themes` moves from 0.5.0 to **0.9.0**. The golden gate passes unchanged, and the 65-pair theme corpus still derives and audits.
+- The demo serves the prebuilt deck with a picker in every page's footer, replacing the two-palette `<select>` on /tokens. Its tests now check that a palette applies in both light and dark mode, persists, and keeps its own swatch colors.
+
 ## 0.30.0 — 2026-10-24
 
 The demand-gated tail of the 2026-10 roadmap (#133), worked through item by item. The identity questions went to nexus panels first. **Consumer-visible changes:**

@@ -222,59 +222,70 @@ test.describe('palette deck (remarque-tokens/deck, issue #56)', () => {
     expect(headHtml).not.toMatch(/<script[^>]+(async|defer|type=["']module["'])[^>]*>[\s\S]*?data-palette/);
   });
 
-  test('switcher is a native, keyboard-operable control at >= 44x44 CSS px', async ({ page }) => {
+  // The picker (remarque-deck + deck.js bindPicker, 0.31) sits in every
+  // page's footer: a <details> of native radio inputs.
+  const openPicker = async (page) => {
+    await page.locator('#palette-picker summary').click();
+    return page.locator('#palette-picker');
+  };
+
+  test('picker is native radios, keyboard-operable, every option >= 44px tall', async ({ page }) => {
     await gotoWithTheme(page, 'tokens', 'light');
-
-    const select = page.locator('#palette-select');
-    await expect(select).toHaveJSProperty('tagName', 'SELECT');
-    const box = await select.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.width).toBeGreaterThanOrEqual(44);
-    expect(box!.height).toBeGreaterThanOrEqual(44);
-
-    // Keyboard-operable: reachable via Tab, changeable via the keyboard
-    // alone (no pointer interaction), same bar as any other form control.
-    await select.focus();
-    await expect(select).toBeFocused();
+    const picker = await openPicker(page);
+    const options = picker.locator('.remarque-deck-option');
+    expect(await options.count()).toBeGreaterThanOrEqual(10);
+    for (const box of await options.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height))) {
+      expect(box).toBeGreaterThanOrEqual(44);
+    }
+    const first = picker.locator('input[type="radio"]').first();
+    await first.focus();
     await page.keyboard.press('ArrowDown');
-    await expect(select).not.toHaveValue('');
+    await expect(page.locator('html')).toHaveAttribute('data-palette', /.+/);
   });
 
-  test('switching palettes sets data-palette, persists, and survives reload', async ({ page }) => {
+  test('choosing a palette sets data-palette, persists, and survives reload', async ({ page }) => {
     await gotoWithTheme(page, 'tokens', 'light');
-
-    const select = page.locator('#palette-select');
-    await select.selectOption('gruvbox');
+    const picker = await openPicker(page);
+    await picker.locator('input[value="gruvbox"]').check();
 
     await expect(page.locator('html')).toHaveAttribute('data-palette', 'gruvbox');
-    const stored = await page.evaluate(() => localStorage.getItem('remarque-palette'));
-    expect(stored).toBe('gruvbox');
+    expect(await page.evaluate(() => localStorage.getItem('remarque-palette'))).toBe('gruvbox');
+    await expect(picker.locator('[data-deck-current]')).toHaveText('Gruvbox');
 
-    // Reload: the FOUC-guard script (not this test) is what re-applies
-    // data-palette before first paint — assert the end state, not the
-    // mechanism, since the mechanism is covered by the static test above.
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-palette', 'gruvbox');
-    await expect(select).toHaveValue('gruvbox');
+    await expect(page.locator('#palette-picker input[value="gruvbox"]')).toBeChecked();
+
+    await (await openPicker(page)).locator('input[value=""]').check();
+    await expect(page.locator('html')).not.toHaveAttribute('data-palette', /.*/);
   });
 
-  test('composes with the light/dark theme toggle (both attributes coexist and change color-bg)', async ({ page }) => {
-    await gotoWithTheme(page, 'tokens', 'dark');
-
+  test('a deck palette follows the light/dark toggle (light-dark(), not a fixed mode)', async ({ page }) => {
     const bodyBg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    const bgBefore = await bodyBg();
+    await gotoWithTheme(page, 'tokens', 'light');
+    const defaultLight = await bodyBg();
+    await (await openPicker(page)).locator('input[value="rose-pine"]').check();
+    const light = await bodyBg();
+    // The palette must win over the site's own :root palette in LIGHT mode
+    // too. Until 0.31 the scoped block was (0,1,0), tied with :root, and
+    // lost to any palette loaded after it; only the dark block won.
+    expect(light).not.toBe(defaultLight);
+    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+    const dark = await bodyBg();
+    expect(dark).not.toBe(light);
+    // ...and both differ from the default palette in the same mode.
+    await page.evaluate(() => document.documentElement.removeAttribute('data-palette'));
+    expect(await bodyBg()).not.toBe(dark);
+  });
 
-    await page.locator('#palette-select').selectOption('rose-pine');
-    await expect(page.locator('html')).toHaveAttribute('data-palette', 'rose-pine');
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-
-    // The scoped dark palette must actually take effect: body's
-    // background-color (driven by --color-bg) changes once the deck
-    // palette + dark theme are both active, proving the
-    // [data-palette="rose-pine"][data-theme="dark"] block — not just
-    // [data-palette="rose-pine"] alone — is the one winning the cascade.
-    const bgAfter = await bodyBg();
-    expect(bgAfter).not.toBe(bgBefore);
+  test("swatches show each palette's own colors, not the active palette's", async ({ page }) => {
+    await gotoWithTheme(page, 'tokens', 'light');
+    const picker = await openPicker(page);
+    const sw = (name) => picker.locator(`[data-palette-swatch="${name}"] > span`).first().evaluate((e) => getComputedStyle(e).backgroundColor);
+    const nordBefore = await sw('nord');
+    await picker.locator('input[value="gruvbox"]').check();
+    expect(await sw('nord')).toBe(nordBefore);
+    expect(await sw('nord')).not.toBe(await sw('gruvbox'));
   });
 });
 

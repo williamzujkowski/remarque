@@ -1,0 +1,95 @@
+{
+  "$comment": "remarque-deck --curated. Reviewed list of light/dark pairs from @williamzujkowski/oklch-terminal-themes: the dataset's popular-tagged pairs, near-duplicates dropped (gruvbox-hard, the two Tango variants, onenord). Every pair derives and passes remarque-audit (checked by scripts/test-deck.mjs). Changes to this list ship as a remarque-tokens minor.",
+  "palettes": [
+    {
+      "name": "atom-one",
+      "label": "Atom One",
+      "light": "atom-one-light",
+      "dark": "atom-one-dark"
+    },
+    {
+      "name": "ayu",
+      "label": "Ayu",
+      "light": "ayu-light",
+      "dark": "ayu"
+    },
+    {
+      "name": "catppuccin",
+      "label": "Catppuccin",
+      "light": "catppuccin-latte",
+      "dark": "catppuccin-mocha"
+    },
+    {
+      "name": "github",
+      "label": "GitHub",
+      "light": "github",
+      "dark": "github-dark"
+    },
+    {
+      "name": "gruvbox",
+      "label": "Gruvbox",
+      "light": "gruvbox-light",
+      "dark": "gruvbox-dark"
+    },
+    {
+      "name": "gruvbox-material",
+      "label": "Gruvbox Material",
+      "light": "gruvbox-material-light",
+      "dark": "gruvbox-material-dark"
+    },
+    {
+      "name": "iceberg",
+      "label": "Iceberg",
+      "light": "iceberg-light",
+      "dark": "iceberg-dark"
+    },
+    {
+      "name": "material",
+      "label": "Material",
+      "light": "material",
+      "dark": "material-dark"
+    },
+    {
+      "name": "monokai-pro",
+      "label": "Monokai Pro",
+      "light": "monokai-pro-light",
+      "dark": "monokai-pro"
+    },
+    {
+      "name": "nord",
+      "label": "Nord",
+      "light": "nord-light",
+      "dark": "nord"
+    },
+    {
+      "name": "one-half",
+      "label": "One Half",
+      "light": "one-half-light",
+      "dark": "one-half-dark"
+    },
+    {
+      "name": "rose-pine",
+      "label": "Rosé Pine",
+      "light": "rose-pine-dawn",
+      "dark": "rose-pine"
+    },
+    {
+      "name": "solarized",
+      "label": "Solarized",
+      "light": "iterm2-solarized-light",
+      "dark": "iterm2-solarized-dark"
+    },
+    {
+      "name": "tokyonight",
+      "label": "Tokyo Night",
+      "light": "tokyonight-day",
+      "dark": "tokyonight"
+    },
+    {
+      "name": "tomorrow",
+      "label": "Tomorrow",
+      "light": "tomorrow",
+      "dark": "tomorrow-night"
+    }
+  ]
+}

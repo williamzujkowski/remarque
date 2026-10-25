@@ -26,7 +26,7 @@ function expect(label, cond, detail = '') {
   if (!ok) bad++;
 }
 
-const ITEM_NAMES = ['essay', 'broadsheet', 'forms', 'skip-link', 'breadcrumb', 'pager', 'tags', 'palette-deck'];
+const ITEM_NAMES = ['essay', 'broadsheet', 'forms', 'skip-link', 'breadcrumb', 'pager', 'tags', 'deck-picker', 'palette-deck'];
 
 // 1. Freshness — regeneration from the CSS + REMARQUE.md markers must be a no-op.
 try {
@@ -111,8 +111,8 @@ expect('mutated fixture (file type "application/javascript") is REJECTED by regi
 
 // 4. cssVars sanity — re-derive independently from the real CSS files and
 // compare, so "cssVars is grepped from the CSS" is proven, not asserted.
-for (const name of ['essay', 'broadsheet', 'forms', 'skip-link', 'breadcrumb', 'pager', 'tags']) {
-  const cssPath = ['skip-link', 'breadcrumb', 'pager', 'tags'].includes(name) ? 'chrome.css' : `${name}.css`;
+for (const name of ['essay', 'broadsheet', 'forms', 'skip-link', 'breadcrumb', 'pager', 'tags', 'deck-picker']) {
+  const cssPath = ['skip-link', 'breadcrumb', 'pager', 'tags', 'deck-picker'].includes(name) ? 'chrome.css' : `${name}.css`;
   const expected = cssVarsOf(readFileSync(cssPath, 'utf8'));
   expect(`${name}: cssVars matches a fresh var(...) grep of ${cssPath}`, JSON.stringify(items[name].cssVars) === JSON.stringify(expected));
   expect(`${name}: cssVars is non-empty`, items[name].cssVars.length > 0);
@@ -222,6 +222,19 @@ expect('palette-deck: ships no CSS file (deck.js has no CSS of its own)', !items
   const tagsRules = [...chromeCss.matchAll(/\.remarque-tags[^{]*\{([^}]*)\}/g)].map((m) => m[1]).join('');
   expect('chrome.css: tags carry no border, background or radius (mono text, not pills)', !/border|background|radius/.test(tagsRules));
   expect('chrome.css: the skip link is never moved off-screen by offset', !/left:\s*-\d/.test(chromeCss));
+}
+
+// 6f. Palette picker (0.31) — native radios in a fieldset with a legend,
+// a value="" default option, a swatch per option, swatches aria-hidden.
+{
+  const html = items['deck-picker'].files.find((f) => f.path === 'usage.html').content;
+  const radios = [...html.matchAll(/<input\b[^>]*>/g)].map((m) => m[0]);
+  expect('deck-picker usage.html: every control is a native radio in one group', radios.length > 1 && radios.every((r) => /type="radio"/.test(r) && /name="remarque-palette"/.test(r)), JSON.stringify(radios));
+  expect('deck-picker usage.html: a value="" option for the site\u2019s own palette', radios.some((r) => /value=""/.test(r)));
+  expect('deck-picker usage.html: the radios sit in a <fieldset> with a <legend>', /<fieldset>\s*<legend[^>]*>[^<]+<\/legend>/.test(html));
+  const swatches = [...html.matchAll(/<span class="remarque-deck-swatches"[^>]*>/g)].map((m) => m[0]);
+  expect('deck-picker usage.html: one aria-hidden swatch per option, keyed by data-palette-swatch', swatches.length === radios.length && swatches.every((t) => /aria-hidden="true"/.test(t) && /data-palette-swatch="[a-z0-9-]+"/.test(t)));
+  expect('deck-picker usage.html: no role="radio" (native inputs only)', !/role="radio"/.test(html));
 }
 
 // 6d. Palette Deck — data-palette/data-theme compose on the same element; no FOUC script embedded.
