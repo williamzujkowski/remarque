@@ -4,7 +4,15 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
-## Unreleased
+## 0.30.0 — 2026-10-24
+
+The demand-gated tail of the 2026-10 roadmap (#133), worked through item by item. The identity questions went to nexus panels first. **Consumer-visible changes:**
+- prose `h4` is set in the display face (#131);
+- form state messages carry a glyph in every mode (#128);
+- hover washes appear only where hover exists, and buttons get a pressed state (#129);
+- the spec's lede samples are in full foreground (#131).
+
+Additive: code-block titles, figure indent, opt-in external-link marks, readonly and auto-growing fields (#129), the shadcn-installable registry and `llms-full.txt` (#130), and an advisory APCA column in `remarque-audit` (#128). **Default palette values are unchanged:** the panel held them behind the demand gate 7–0 and documented opt-in recipes instead (#128). No token was added, removed or renamed.
 
 ### Changed — the heading ladder and the lede (#131; consumer-visible)
 

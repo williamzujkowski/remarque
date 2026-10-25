@@ -24,7 +24,7 @@
         }
       ],
       "meta": {
-        "version": "0.29.0",
+        "version": "0.30.0",
         "integrity": "sha256-HwTP/hiT/oid/YHBlzSECSvG5wSg9ICYVfns7luc6SA=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#essay-module",
         "cssVars": [
@@ -80,7 +80,7 @@
         }
       ],
       "meta": {
-        "version": "0.29.0",
+        "version": "0.30.0",
         "integrity": "sha256-0gdOLXhIStXi2nrbSvWuyaOvCfjAdTdJAeZkprafekU=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#broadsheet",
         "cssVars": [
@@ -148,7 +148,7 @@
         }
       ],
       "meta": {
-        "version": "0.29.0",
+        "version": "0.30.0",
         "integrity": "sha256-5Ej+gAhlA9KPROSSb+x5SeYC8BPI/b0GgRYCxd7KiLM=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#forms",
         "cssVars": [
@@ -210,7 +210,7 @@
         }
       ],
       "meta": {
-        "version": "0.29.0",
+        "version": "0.30.0",
         "integrity": "sha256-qMjHT0szK/Abv4lAXodoVKcXEa0tpJV44vjfp6Cyzqs=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module",
         "cssVars": [
@@ -264,7 +264,7 @@
         }
       ],
       "meta": {
-        "version": "0.29.0",
+        "version": "0.30.0",
         "integrity": "sha256-V+FqUVopXBpnu9jfd8frbZJcs3NWmjv8KBuU/Uknaco=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module",
         "cssVars": [
@@ -318,7 +318,7 @@
         }
       ],
       "meta": {
-        "version": "0.29.0",
+        "version": "0.30.0",
         "integrity": "sha256-cTKt1fprH/XLtYSympI+pfjM+IO0rhinvazf1gGQKIo=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module",
         "cssVars": [
@@ -372,7 +372,7 @@
         }
       ],
       "meta": {
-        "version": "0.29.0",
+        "version": "0.30.0",
         "integrity": "sha256-g38UvUKiMIU1P9kIhKxjNSg+KKnhsmB8pNdbtVHZpe4=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module",
         "cssVars": [
@@ -421,7 +421,7 @@
         }
       ],
       "meta": {
-        "version": "0.29.0",
+        "version": "0.30.0",
         "integrity": "sha256-WGgBZ2j0VnLPRAZlzv/4G1Wu9rKqTdXf1536dWWu8nU=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#palette-deck",
         "cssVars": []
