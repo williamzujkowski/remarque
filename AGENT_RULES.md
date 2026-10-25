@@ -221,7 +221,7 @@ Before considering any implementation complete, verify:
 - [ ] Every image has a 1px border and mono caption
 - [ ] Every page maps to an archetype (Essay, Dossier, Notebook, Landing, Reference/Docs, Changelog, Gallery)
 - [ ] If the Essay uses sidenotes/a TOC rail (`remarque-tokens/essay`): `.remarque-sidenote-ref`/`.remarque-sidenote` alternate in strict DOM order, the rail never intrudes into `.remarque-prose`'s own measure, and the page renders correctly with `essay.css`'s `@media` block deleted (the narrow-viewport/no-JS fallback)
-- [ ] If a Landing/archive page uses the Broadsheet pattern (`remarque-tokens/broadsheet`): entry numerals are generated from `data-entry-number` via `attr()` (not `counter()`), the entry list stays a `<ul>` (not `<ol>` — the numeral is `aria-hidden` and decorative), and every kicker/dateline row uses `font-variant-caps: all-small-caps`, never `text-transform: uppercase`
+- [ ] If a Landing/archive page uses the Broadsheet pattern (`remarque-tokens/broadsheet`): entry numerals are generated from `data-entry-number` via `attr()` (not `counter()`), the entry list stays a `<ul>` (not `<ol>` — the numeral is `aria-hidden` and decorative), and every kicker/dateline row uses the label voice: tracked capitals (`text-transform: uppercase` + `--tracking-caps`), because the default mono face has no small caps; `font-variant-caps: all-small-caps` only on a label face that has `smcp` + `c2sc` (REMARQUE.md "Small Caps"; `remarque-audit` fails synthesized small caps)
 - [ ] If a page uses form controls (`remarque-tokens/forms`): checkboxes/radios are styled with `accent-color` only — never `appearance: none` plus a hand-drawn replacement; every control (input, button, checkbox/radio label) is ≥44×44px; every input collecting known personal data has a valid `autocomplete` token and paste is never blocked (WCAG 3.3.7/3.3.8); validation state lives on `.remarque-field[data-state]` AND a real `aria-invalid`/`aria-describedby` pair on the input, not `data-state` alone; disabled controls use `--color-disabled`, never a state color
 - [ ] If a page uses the Palette Deck (`remarque-tokens/deck`): `data-palette` is set/cleared on the same root element as `data-theme` (they compose, never conflict); the FOUC-safe restore is a synchronous classic `<script>` physically in `<head>` (never `type="module"`, which defers); the switcher control itself is a native, keyboard-operable element (e.g. `.remarque-input` `<select>`) at ≥44×44px, not a hand-rolled widget; every registered palette was generated via `remarque-theme --scope`, never hand-authored
 - [ ] Mobile version is roomy — not a compressed desktop layout
@@ -295,8 +295,19 @@ npx remarque-audit --palette <file> --src <dir> --json
     threshold: number;      // the minimum it was compared to
     message: string;        // human-readable, same text the non-JSON run prints
   }>;
+  fontFeatures: Array<{    // font-feature requests the face can't render (REMARQUE.md "Small Caps"); added in 0.28.0, additive
+    file: string;           // 'remarque-tokens/<module>.css' for the package's own modules, else the --src-relative path
+    line: number; selector: string;
+    family: string | null;  // first family of the rule's font-family (or --font-body when the rule sets none)
+    inferred: boolean;      // true when the family was inferred as --font-body
+    tag: string;            // OpenType feature tag, e.g. 'smcp', 'onum'
+    via: string;            // the declaration that asked for it
+    status: 'missing' | 'conditional' | 'unverifiable'; // only 'missing' is also a failure
+  }>;
 }
 ```
+
+`--font-features <manifest.json>` (repeatable) adds your own faces to the check, in the shape of the package's `fonts/features.json` (`{ families: { "<family>": { figures: { style, spacing }, files: { "<file>": { features: [tags] } } } } }`). Faces missing from every manifest are reported `unverifiable` and never fail.
 
 `warnings` never affects `passed` or the exit code in this release — only `failures` does. The warning set is expected to grow and to be promoted to failures in a later minor, so treat an unknown `id` as informational.
 

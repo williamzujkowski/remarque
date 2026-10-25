@@ -67,7 +67,7 @@ const ITEM_DEFS = [
     name: 'broadsheet',
     title: 'Broadsheet Pattern',
     description:
-      'The editorial Landing/archive pattern: masthead, lead article, numbered entry list, and post-header kicker. Entry numerals are generated from `data-entry-number` via `attr()`, never `counter()`, and every kicker/dateline row is true `font-variant-caps: all-small-caps`, never `text-transform: uppercase`.',
+      'The editorial Landing/archive pattern: masthead, lead article, numbered entry list, and post-header kicker. Entry numerals are generated from `data-entry-number` via `attr()`, never `counter()`, and every kicker/dateline row is the label voice: tracked capitals, because the default mono face has no small caps (`font-variant-caps: all-small-caps` only on a face with `smcp` + `c2sc`; remarque-audit checks).',
     docs: `${SPEC_BASE}#broadsheet`,
     cssPaths: ['broadsheet.css'],
   },

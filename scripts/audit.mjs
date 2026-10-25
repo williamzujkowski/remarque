@@ -35,6 +35,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { coherenceWarnings } from './lib/palette-coherence.mjs';
+import { checkFontFeatures, mergeManifests } from './lib/font-features.mjs';
 import { extractBlocks, declsOf, isLightRoot, isDarkBlock, resolveSide, darkOverridesOf } from './lib/css-tokens.mjs';
 
 const args = process.argv.slice(2);
@@ -45,6 +46,9 @@ function argOf(flag, dflt) {
 const PALETTE = argOf('--palette', 'tokens-palette.css');
 const SRC = argOf('--src', existsSync('site/src') ? 'site/src' : '.');
 const JSON_MODE = args.includes('--json');
+// Optional consumer font-feature manifest(s), same shape as the package's
+// fonts/features.json (issue #124); repeatable.
+const FONT_MANIFESTS = args.flatMap((a, i) => (a === '--font-features' && args[i + 1] ? [args[i + 1]] : []));
 
 // The audit's OWN package version (this script's remarque-tokens, resolved
 // via import.meta.url so it is correct whether run in this repo or as
@@ -63,6 +67,7 @@ const report = {
   srcScans: { fontFloor: [], unverifiableFontSize: [], hardcodedColors: [], oklchLiteral: [], ambiguousTextSize: [] },
   failures: [],
   warnings: [],
+  fontFeatures: [],
 };
 
 function log(...a) {
@@ -305,6 +310,49 @@ for (const file of walk(SRC)) {
       fail(`${rel}:${i + 1} ambiguous Tailwind ${m[0]} compiles to a color, not a font-size — write text-[length:var(--text-…)]`);
     }
   });
+}
+
+/* ── Font features (issue #124) ───────────────────────────
+ * Every typographic feature a stylesheet asks for, checked against the
+ * face it renders in: the package's own modules (what a consumer
+ * imports) plus every .css under --src. A request the face can't render
+ * fails unless the rule marks it `remarque-feature: conditional`. See
+ * scripts/lib/font-features.mjs for the statuses. */
+{
+  const manifest = mergeManifests(
+    JSON.parse(readFileSync(join(PKG_ROOT, 'fonts', 'features.json'), 'utf8')),
+    ...FONT_MANIFESTS.map((f) => JSON.parse(readFileSync(f, 'utf8')))
+  );
+  const pkgDefaults = declsOf(extractBlocks(readFileSync(join(PKG_ROOT, 'tokens-palette.css'), 'utf8')), isLightRoot);
+  const fontStacks = {};
+  // declsOf keys drop the leading --
+  for (const t of ['font-body', 'font-display', 'font-mono']) fontStacks[`--${t}`] = lightDecls[t] || pkgDefaults[t];
+  const MODULES = ['tokens-core.css', 'prose.css', 'essay.css', 'broadsheet.css', 'forms.css'];
+  const targets = MODULES.map((m) => [join(PKG_ROOT, m), `remarque-tokens/${m}`]);
+  for (const file of walk(SRC)) if (file.endsWith('.css')) targets.push([file, relative('.', file)]);
+  const seen = new Set();
+  let header = false;
+  for (const [file, rel] of targets) {
+    const abs = join(file);
+    if (seen.has(abs)) continue;
+    seen.add(abs);
+    // One message per declaration (all-small-caps needs smcp AND c2sc).
+    const grouped = new Map();
+    for (const r of checkFontFeatures(readFileSync(file, 'utf8'), manifest, fontStacks)) {
+      if (r.status === 'ok') continue;
+      report.fontFeatures.push({ file: rel, ...r });
+      const key = `${r.line}|${r.via}|${r.status}`;
+      if (grouped.has(key)) grouped.get(key).tags.push(r.tag);
+      else grouped.set(key, { ...r, tags: [r.tag] });
+    }
+    for (const r of grouped.values()) {
+      if (!header) { log('\nfont features (requests the face cannot render)'); header = true; }
+      const where = `${rel}:${r.line} ${r.selector}`;
+      const tags = r.tags.join('+');
+      if (r.status === 'missing') fail(`${where}: ${r.via} needs ${tags}, which ${r.family} doesn't have${/smcp|c2sc|pcap/.test(tags) ? ' (the browser synthesizes small caps by shrinking capitals)' : ''}; drop it, or mark the rule /* remarque-feature: conditional */`);
+      else log(`  · ${where}: ${r.via} (${tags}) ${r.status} on ${r.family ?? 'an unresolved family'}`);
+    }
+  }
 }
 
 report.passed = failures === 0;

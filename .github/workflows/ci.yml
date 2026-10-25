@@ -89,6 +89,10 @@ jobs:
         run: node scripts/test-skills.mjs
         working-directory: .
 
+      - name: "Font-feature fixtures (fonts/features.json fresh vs the woff2s; audit fails CSS that asks a face for features it lacks — issue #124)"
+        run: node scripts/test-font-features.mjs
+        working-directory: .
+
       - name: "CSS size budgets (gzip/brotli vs budgets.json) + module closure (every var() resolves — issue #120)"
         run: node scripts/test-budget.mjs
         working-directory: .

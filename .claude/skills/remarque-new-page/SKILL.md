@@ -112,7 +112,7 @@ Requires `passed: true` in the JSON — not "looks close." If the page used
 a registry module, also re-check it against that module's own
 markup-contract rule from AGENT_RULES.md's Quality Checklist: Essay's
 sidenote/TOC-rail DOM-order + `aria-label` rule, Broadsheet's
-`data-entry-number`/`attr()` + small-caps rule, Forms' label/
+`data-entry-number`/`attr()` + label-voice (tracked capitals) rule, Forms' label/
 `aria-describedby` pairing rule, or Palette Deck's `data-palette`/
 `data-theme` co-location rule.
 

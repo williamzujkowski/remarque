@@ -105,7 +105,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-meta);
   line-height: var(--leading-meta);
-  font-variant-caps: all-small-caps;
+  text-transform: uppercase; /* label voice, as .text-label (#124) */
   font-variant-numeric: tabular-nums lining-nums;
   letter-spacing: var(--tracking-caps);
   color: var(--color-muted);
@@ -419,12 +419,17 @@
    `font-variant-numeric: oldstyle-nums proportional-nums` AND
    `font-feature-settings: "onum" 1, "pnum" 1` are required together
    for reliable rendering across weights — either alone is
-   inconsistent (issue #36 "Findings"). */
+   inconsistent (issue #36 "Findings").
+   CONDITIONAL (#124): the default display face, Newsreader, has no onum,
+   so on the default stack these numerals are lining. They turn oldstyle
+   on a display face that has onum; remarque-audit reports the rule as
+   conditional rather than failing it. */
 .remarque-entry-numeral {
   display: block;
 }
 
 .remarque-entry-numeral::before {
+  /* remarque-feature: conditional (onum: oldstyle only where the face has it) */
   content: attr(data-entry-number);
   font-family: var(--font-display);
   font-style: italic;
