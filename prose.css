@@ -108,16 +108,16 @@
 }
 
 .remarque-prose blockquote {
-  border-left: 2px solid var(--color-border-bold);
-  padding-left: var(--space-5);
-  margin-left: 0;
+  border-inline-start: 2px solid var(--color-border-bold);
+  padding-inline-start: var(--space-5);
+  margin-inline-start: 0;
   color: var(--color-fg-muted);
   font-style: italic;
 }
 
 .remarque-prose ul,
 .remarque-prose ol {
-  padding-left: var(--space-5);
+  padding-inline-start: var(--space-5);
 }
 
 .remarque-prose li + li {
@@ -264,7 +264,7 @@
   font-size: var(--text-meta);
   letter-spacing: var(--tracking-meta);
   color: var(--color-muted);
-  text-align: left;
+  text-align: start;
   caption-side: top;
   margin-bottom: var(--space-2);
 }
@@ -274,7 +274,7 @@
   font-size: var(--text-meta);
   letter-spacing: var(--tracking-meta);
   font-weight: var(--weight-semibold);
-  text-align: left;
+  text-align: start;
   padding: var(--space-2) var(--space-3);
   border-bottom: 2px solid var(--color-border-bold);
   color: var(--color-fg);
@@ -289,7 +289,7 @@
 .remarque-prose th.num,
 .remarque-prose td.num {
   font-variant-numeric: tabular-nums lining-nums;
-  text-align: right;
+  text-align: end;
   /* A value never breaks across lines — "44–80" split after its en
      dash reads as two numbers (2026-10 design review). Numeric cells
      are short; a genuinely wide table still belongs in .scroll-wrap. */
@@ -323,7 +323,7 @@
 }
 
 .remarque-prose dd {
-  margin-left: 0;
+  margin-inline-start: 0;
   margin-top: var(--space-1);
   padding-bottom: var(--space-4);
   color: var(--color-fg-muted);
@@ -401,7 +401,7 @@
 .remarque-prose summary::before {
   content: "\25B8";
   display: inline-block;
-  margin-right: var(--space-2);
+  margin-inline-end: var(--space-2);
   color: var(--color-muted);
   transition: transform var(--motion-fast) var(--motion-easing);
 }
@@ -431,8 +431,10 @@
   font-style: italic;
   font-size: 3.5em;
   line-height: 0.85;
-  float: left;
-  padding: 0.08em 0.12em 0 0;
+  float: left; /* fallback: no logical float values */
+  float: inline-start;
+  padding-block: 0.08em 0;
+  padding-inline: 0 0.12em;
   color: var(--color-fg);
 }
 
@@ -441,7 +443,8 @@
     initial-letter: 3.5;
     -webkit-initial-letter: 3.5;
     float: none;
-    padding: 0 0.08em 0 0;
+    padding-block: 0;
+    padding-inline: 0 0.08em;
   }
 }
 
@@ -485,6 +488,31 @@
  * The fleuron (U+2766) is outside the latin font subsets by design;
  * it intentionally falls through to the serif fallback stack.
  */
+
+/* ─── Script-aware italics (issue #123) ───────────────────────────────
+ * Arabic, Persian, Urdu, Hebrew and CJK have no italic tradition, and
+ * browsers fake one by slanting the glyphs. The decorative italics
+ * (blockquote, pullquote, h5, dt, the drop cap) set upright instead, and
+ * `em` carries its emphasis in weight. */
+:is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)):is(
+  .remarque-prose blockquote,
+  .remarque-prose h5,
+  .remarque-prose dt,
+  .pullquote
+),
+:is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)).remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
+  font-style: normal;
+}
+
+:is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)):is(.remarque-prose em) {
+  font-style: normal;
+  font-weight: var(--weight-semibold);
+}
+
+/* The disclosure marker points along the inline direction. */
+.remarque-prose summary:dir(rtl)::before {
+  transform: scaleX(-1);
+}
 
 .remarque-endmark {
   text-align: center;

@@ -357,8 +357,10 @@
     font-weight: var(--weight-display, var(--weight-regular));
     font-size: 3.5em;
     line-height: 0.85;
-    float: left;
-    padding: 0.08em 0.12em 0 0;
+    float: left; /* fallback: no logical float values */
+    float: inline-start;
+    padding-block: 0.08em 0;
+    padding-inline: 0 0.12em;
     color: var(--color-fg);
   }
 
@@ -367,7 +369,8 @@
       initial-letter: 3.5;
       -webkit-initial-letter: 3.5;
       float: none;
-      padding: 0 0.08em 0 0;
+      padding-block: 0;
+      padding-inline: 0 0.08em;
     }
   }
 }
@@ -430,7 +433,7 @@
   color: var(--color-border-bold);
   font-variant-numeric: oldstyle-nums proportional-nums;
   font-feature-settings: "onum" 1, "pnum" 1;
-  text-align: right;
+  text-align: end;
   display: block;
   padding-block-start: 0.1em;
   user-select: none;
@@ -486,10 +489,23 @@
   }
 
   .remarque-entry-numeral::before {
-    text-align: left;
+    text-align: start;
     font-size: var(--text-section);
     padding-block-start: 0;
   }
+}
+
+/* ─── Script-aware italics (issue #123) ───────────────────────────────
+ * Same rule as prose.css: no faked italics for scripts without an italic
+ * tradition. The masthead's italic half and the lead's italic lede and
+ * drop cap set upright; the numerals do too. */
+:is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)):is(
+  .remarque-masthead-title em,
+  .remarque-lead-lede
+),
+:is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)).remarque-lead-lede::first-letter,
+:is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)).remarque-entry-numeral::before {
+  font-style: normal;
 }
 
 /* ─── 4. Post-Header Kicker ───────────────────────────────────────────

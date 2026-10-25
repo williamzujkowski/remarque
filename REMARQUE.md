@@ -183,6 +183,8 @@ This is why the measure is palette-tier: it is a property of the font choice, no
 
 **Known limitation: Latin script only.** The table above, and the `ch`-based measure math behind it, assume Latin-alphabet conventions — character width roughly proportional to em-height, word-space-separated tokens, left-to-right flow. None of that holds for CJK, Arabic, or Devanagari body text: CJK measure is conventionally counted in full-width characters per line, a different unit than a Latin `ch` entirely; Arabic's contextual letterforms and right-to-left flow change what "character count" even means; Devanagari's conjunct consonants and matras make per-character width too irregular for a single ch-target to describe. Remarque has not derived a measure-compensation row for any non-Latin script — a site setting CJK/Arabic/Devanagari body copy needs to work out its own measure the way this table works out Latin ones; the ch-target does not transfer by assumption. Named here honestly, in the same spirit as this spec's Butterick line-spacing deviation write-up further down, rather than left for a future non-Latin consumer to discover the hard way.
 
+**What Remarque does guard (0.28, #123).** Layout is written in logical properties (`margin-inline-start`, `float: inline-start`, `text-align: start`/`end`), so `dir="rtl"` mirrors the essay grid, sidenotes, TOC rail, blockquote bar, lists, tables and drop caps with no extra CSS. The tracking and display-leading tokens are reset under `:lang()`: `ar`, `fa` and `ur` get zero tracking (negative or positive tracking breaks cursive joining); `zh`, `ja` and `ko` get zero display tracking and 1.35–1.4 heading leading. The decorative italics (blockquote, pullquote, `h5`, `dt`, drop caps, the masthead's italic half, the lead's lede) set upright for `ar`, `fa`, `ur`, `he`, `zh`, `ja` and `ko`, which have no italic tradition and get a faked slant otherwise, and `em` carries its emphasis in weight. The fonts have no glyphs for these scripts, so the guards only stop the tokens from harming whatever face the fallback stack picks; choosing that face, and the measure, is still the consumer's job. `site/tests/rtl.spec.ts` gates the mirroring and the guards.
+
 ---
 
 ## Editorial Microtypography
@@ -945,7 +947,7 @@ breakpoint, no JS:
 | Viewport | Sidenotes | TOC |
 |---|---|---|
 | `< 80rem` (narrow) | Small-print block, in-flow, right after the citing paragraph — bordered with `--color-border-bold` (a 3:1 functional border, since it's the note's only visual separator at this width) | Inline collapsible `<details>` in the reading column, native disclosure triangle |
-| `>= 80rem` (wide) | Floats into the LEFT margin gutter via a Tufte-style negative-margin technique, `clear: left` stacks consecutive notes, border relaxes to decorative `--color-border` (whitespace is now the real separator) | `position: sticky` in the RIGHT rail, `.remarque-essay` becomes a 3-column grid (gutter / reading column / rail) |
+| `>= 80rem` (wide) | Floats into the inline-start margin gutter (left in LTR, right in RTL) via a Tufte-style negative-margin technique, `clear: inline-start` stacks consecutive notes, border relaxes to decorative `--color-border` (whitespace is now the real separator) | `position: sticky` in the inline-end rail (right in LTR), `.remarque-essay` becomes a 3-column grid (gutter / reading column / rail) |
 
 The rail and margin notes always live OUTSIDE `--content-reading` — that
 is the entire point of the module. The center grid track is
