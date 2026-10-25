@@ -126,13 +126,13 @@ Gzip (level 9) / brotli (max) bytes per shipped stylesheet, enforced by `scripts
 
 | File | gzip | brotli |
 |------|-----:|-------:|
-| `tokens.css` (effective: core + palette + prose) | 15,788 | 13,269 |
+| `tokens.css` (effective: core + palette + prose) | 16,628 | 13,973 |
 | `tokens-core.css` | 4,790 | 3,995 |
 | `tokens-palette.css` | 7,036 | 5,848 |
-| `prose.css` | 4,949 | 4,139 |
+| `prose.css` | 5,792 | 4,852 |
 | `essay.css` | 7,914 | 6,680 |
 | `broadsheet.css` | 7,463 | 6,241 |
-| `forms.css` | 7,709 | 6,378 |
+| `forms.css` | 8,412 | 6,987 |
 | `chrome.css` | 3,296 | 2,772 |
 | `print.css` | 2,542 | 2,095 |
 | `theme.css` | 1,744 | 1,452 |
