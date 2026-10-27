@@ -35,7 +35,7 @@
     "test": "node scripts/audit.mjs && node scripts/tokens-json.mjs --check && node scripts/build-registry.mjs --check && node scripts/build-skills.mjs --check && node scripts/palette-golden.mjs && for t in scripts/test-*.mjs; do node \"$t\" || exit 1; done"
   },
   "devDependencies": {
-    "@williamzujkowski/oklch-terminal-themes": "0.9.0",
+    "@williamzujkowski/oklch-terminal-themes": "0.10.0",
     "ajv": "^8.20.0",
     "culori": "^4.0.2"
   },
