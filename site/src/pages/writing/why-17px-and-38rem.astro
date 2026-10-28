@@ -1,0 +1,164 @@
+---
+/**
+ * Essay — Page Archetype
+ *
+ * Long-form writing, built on the Essay Module (remarque-tokens/essay):
+ * the `.remarque-essay` grid shell, a sticky TOC rail, and sidenotes
+ * (`.remarque-sidenote-ref` / `.remarque-sidenote`) placed in DOM order
+ * right after the paragraph that cites them. Same structure and markup
+ * as `typography-as-interface.astro`. Every number in the body traces to
+ * REMARQUE.md, tokens.json or a primary source linked in a sidenote.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Meta from '../../components/Meta.astro';
+import Prose from '../../components/Prose.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="Why 17px and 38rem" description="Where Remarque’s body size, reading measure and leading come from: a published floor, a measurement that corrected an earlier mistake, and one deviation argued in the open.">
+  <article class="remarque-essay pt-[var(--space-9)]">
+    <header class="content-reading mb-8">
+      <h1 class="text-display font-display text-[var(--color-fg)]">Why 17px and 38rem</h1>
+      <div class="mt-4">
+        <Meta date="2026-10-28" readingTime="7 min read" tags={["typography", "measure", "accessibility"]} />
+      </div>
+    </header>
+
+    <nav class="remarque-toc-rail" aria-label="Table of contents">
+      <details open>
+        <summary>On this page</summary>
+        <ul>
+          <li><a href="#the-floor">One pixel over a floor</a></li>
+          <li><a href="#the-measure">The measure, counted</a></li>
+          <li><a href="#the-leading">Leading, and a deviation</a></li>
+          <li><a href="#text-spacing">Text Spacing compatibility</a></li>
+        </ul>
+      </details>
+    </nav>
+
+    <Prose>
+      <p class="text-[length:var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg)]">
+        Three numbers carry most of the reading experience on this site: a <code>17px</code> body size, a <code>38rem</code> column and a line height of <code>1.75</code>. They can look like taste. Each has a source, and one of them was wrong once before it was right.
+      </p>
+
+      <h2 id="the-floor">One pixel over a floor</h2>
+
+      <p>
+        The US Web Design System tells designers: “For most text, including body copy, use at least an effective size of 16px”<a href="#note-uswds" id="note-uswds-ref" class="remarque-sidenote-ref" aria-label="Note 1" aria-describedby="note-uswds"></a>. Remarque’s <code>--text-body</code> is <code>1.0625rem</code>, which is 17px at the default root size, and the spec calls it a non-negotiable floor. It lives in the core tier of the tokens, so a site that changes it has forked the system.
+      </p>
+      <aside class="remarque-sidenote" id="note-uswds" role="note">
+        USWDS typography guidance, “Font size”: <a href="https://designsystem.digital.gov/components/typography/">designsystem.digital.gov/components/typography</a>. REMARQUE.md’s USWDS table records 17px as exceeding that 16px minimum.
+      </aside>
+
+      <p>
+        The record is plain about what this is. The spec states the 17px as a deliberate step over the USWDS minimum. It does not cite a reading study, and neither does this essay. Matthew Butterick recommends “body text of 15–25 pixels” for websites<a href="#note-butterick-size" id="note-butterick-size-ref" class="remarque-sidenote-ref" aria-label="Note 2" aria-describedby="note-butterick-size"></a>, so 17 sits well inside the range a working typographer gives, and one pixel above the government floor. The size is authored in <code>rem</code>, which means a reader who raises their browser’s default size gets a proportionally larger page.
+      </p>
+      <aside class="remarque-sidenote" id="note-butterick-size" role="note">
+        Butterick, <em>Practical Typography</em>, “Point size”: <a href="https://practicaltypography.com/point-size.html">practicaltypography.com/point-size</a>.
+      </aside>
+
+      <p>
+        The text scale below the floor follows the same logic. Per the spec, 14px and 13px are the USWDS minimums for small text and for fine print, and <code>remarque-audit</code> fails any font-size declaration under 13px.
+      </p>
+
+      <h2 id="the-measure">The measure, counted</h2>
+
+      <p>
+        The reading column is <code>38rem</code>, or 608px at the default root size. The target behind it is a character count, and the spec treats the count as the invariant: a median of 66 to 72 characters per line at <code>--text-body</code>, with the 90th percentile under about 78.
+      </p>
+
+      <p>
+        Three authorities give ranges for it, and they do not quite agree. Bringhurst, in <em>The Elements of Typographic Style</em>, writes that “Anything from 45 to 75 characters is widely regarded as a satisfactory length of line for a single-column page set in a serifed text face in a text size”<a href="#note-bringhurst" id="note-bringhurst-ref" class="remarque-sidenote-ref" aria-label="Note 3" aria-describedby="note-bringhurst"></a>.
+      </p>
+      <aside class="remarque-sidenote" id="note-bringhurst" role="note">
+        Bringhurst, <em>The Elements of Typographic Style</em>, section 2.1.2. The sentence is checked against the reproduction in Richard Rutter’s <a href="https://webtypography.net/2.1.2">webtypography.net/2.1.2</a>, not against the book.
+      </aside>
+
+      <p>
+        Butterick says to “Aim for an average line length of 45–90 characters, including spaces”<a href="#note-butterick-length" id="note-butterick-length-ref" class="remarque-sidenote-ref" aria-label="Note 4" aria-describedby="note-butterick-length"></a>.
+      </p>
+      <aside class="remarque-sidenote" id="note-butterick-length" role="note">
+        Butterick, <em>Practical Typography</em>, “Line length”: <a href="https://practicaltypography.com/line-length.html">practicaltypography.com/line-length</a>.
+      </aside>
+
+      <p>
+        USWDS gives the same 45 to 90 and names 66 as a good target for long texts<a href="#note-uswds-measure" id="note-uswds-measure-ref" class="remarque-sidenote-ref" aria-label="Note 5" aria-describedby="note-uswds-measure"></a>.
+      </p>
+      <aside class="remarque-sidenote" id="note-uswds-measure" role="note">
+        USWDS typography guidance, “Measure (line length)”: <a href="https://designsystem.digital.gov/components/typography/">designsystem.digital.gov/components/typography</a>.
+      </aside>
+
+      <p>
+        Bringhurst’s 75 is stricter than the other two, and his sentence is about a serifed text face; Inter is not one. Remarque borrows the range rather than applying it. At 17px Inter, <code>38rem</code> sets a median of 71 characters per line and a 90th percentile of 76, measured on this repo’s demo essays in October 2026. The median sits inside all three ranges. The tail runs one character past Bringhurst’s 75 and well inside the 90 that Butterick and USWDS allow.
+      </p>
+
+      <p>
+        The word “measured” matters. The default was <code>46rem</code> until 0.27.0, documented as about 70 <code>ch</code> at 17px Inter. That figure came from arithmetic with the <code>ch</code> unit, which MDN defines as the advance measure of the glyph “0”<a href="#note-ch" id="note-ch-ref" class="remarque-sidenote-ref" aria-label="Note 6" aria-describedby="note-ch"></a>. Proportional text averages narrower than a zero, so a line holds more characters than the <code>ch</code> count suggests. When 0.27.0 counted the characters actually rendered, <code>46rem</code> set a median of 86 and a 90th percentile of 93, past even Butterick’s ceiling.
+      </p>
+      <aside class="remarque-sidenote" id="note-ch" role="note">
+        MDN, CSS <code>&lt;length&gt;</code>, the <code>ch</code> unit: <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/length">developer.mozilla.org/en-US/docs/Web/CSS/length</a>.
+      </aside>
+
+      <p>
+        The method is written down so anyone can repeat it. For each body paragraph, walk its text nodes with a <code>Range</code> per character, group the characters by the top of their first client rect into lines, drop each paragraph’s last and usually short line, and take the median and 90th percentile across the page. Spaces count; <code>code</code> and <code>sup</code> are skipped. A computed-style test now asserts that the demo essays measure a median between 66 and 72.
+      </p>
+
+      <p>
+        Because the right width depends on the face, the measure is a palette-tier token. The spec’s Measure Compensation table records Source Serif 4 at 73 and 78 on the reference consumer site, also at <code>38rem</code>. Change the body font and you re-measure; the character count stays fixed and the rem value follows it.
+      </p>
+
+      <h2 id="the-leading">Leading, and a deviation</h2>
+
+      <p>
+        Line height is <code>1.75</code>, or 175% of the type size. Butterick’s guidance for “most text” is “between 120% and 145% of the point size”<a href="#note-butterick-leading" id="note-butterick-leading-ref" class="remarque-sidenote-ref" aria-label="Note 7" aria-describedby="note-butterick-leading"></a>, and on the same page a sample set at 170% is labelled too loose. Remarque is outside his range, and REMARQUE.md says so in its Butterick lineage table, where the row is marked a deliberate deviation.
+      </p>
+      <aside class="remarque-sidenote" id="note-butterick-leading" role="note">
+        Butterick, <em>Practical Typography</em>, “Line spacing”: <a href="https://practicaltypography.com/line-spacing.html">practicaltypography.com/line-spacing</a>.
+      </aside>
+
+      <p>
+        The spec makes three arguments for it. First, leading scales with measure, and screen prose at 17px with a column of about 70 characters benefits from more air than a print-derived band allows. USWDS makes the same connection from the other side: text with greater line height can have a longer measure<a href="#note-uswds-leading" id="note-uswds-leading-ref" class="remarque-sidenote-ref" aria-label="Note 8" aria-describedby="note-uswds-leading"></a>. Second, hierarchy. Body leading at or below 145% would sit under <code>--leading-meta</code>, which is 1.5 because of the USWDS and WCAG floors the system also adopts, and body text should not read tighter than captions. Third, identity: the spacious register is part of what makes a page recognizable.
+      </p>
+      <aside class="remarque-sidenote" id="note-uswds-leading" role="note">
+        USWDS typography guidance, “Line height”: longer texts “should have a line height of at least 1.5”. <a href="https://designsystem.digital.gov/components/typography/">designsystem.digital.gov/components/typography</a>.
+      </aside>
+
+      <p>
+        The third argument is a preference, and the spec treats it as one. It also states the cost: 1.75 spends more vertical space and reads calmer and slower than 1.5 to 1.65. A site that wants Butterick’s tighter rhythm is choosing a different identity, which the spec calls an honorable fork. The design-review panel ratified the deviation 3 to 0 on 2026-07-20, over the alternative of changing the token.
+      </p>
+
+      <h2 id="text-spacing">Text Spacing compatibility</h2>
+
+      <p>
+        WCAG 2.2 success criterion 1.4.12 is often read as a minimum line height. It is not. It requires that “no loss of content or functionality occurs” when a reader sets line height to at least 1.5 times the font size, spacing after paragraphs to at least 2 times, letter spacing to at least 0.12 times and word spacing to at least 0.16 times<a href="#note-wcag" id="note-wcag-ref" class="remarque-sidenote-ref" aria-label="Note 9" aria-describedby="note-wcag"></a>. The criterion’s first note adds that content is not required to use those values, only to survive a reader applying them.
+      </p>
+      <aside class="remarque-sidenote" id="note-wcag" role="note">
+        W3C, Understanding SC 1.4.12 Text Spacing: <a href="https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html">w3.org/WAI/WCAG22/Understanding/text-spacing</a>.
+      </aside>
+
+      <p>
+        So 1.75 is not what makes Remarque compatible. What does is how the spacing is authored. Measures and spacing are in relative units, line heights are unitless, <code>overflow-wrap: break-word</code> is set on <code>html</code>, and code blocks and wide tables scroll inside their own box. A Playwright suite, <code>site/tests/reflow.spec.ts</code>, applies the override set from the criterion to selected pages and checks the TOC rail, sidenotes, buttons and form fields for clipped text and the pages for horizontal overflow. That is coverage of chosen elements, not a conformance claim for every page, and the spec assigns conformance claims about a whole site to the site’s owner.
+      </p>
+
+      <hr />
+
+      <p>
+        If you change one of these numbers, change the evidence with it. Re-measure the column with the method above, and record the reason for a leading that leaves Butterick’s range somewhere a reviewer will find it.
+      </p>
+    </Prose>
+
+    <div class="remarque-endmark content-reading" aria-hidden="true"></div>
+
+    <nav class="remarque-pager content-reading" aria-label="More writing">
+      <a class="remarque-pager-prev" href={`${base}writing/typography-as-interface`} rel="prev">
+        <span class="remarque-pager-label">Previous</span>
+        <span class="remarque-pager-title">Typography as Interface</span>
+      </a>
+      <a class="remarque-pager-next" href={`${base}writing/palettes-as-data`} rel="next">
+        <span class="remarque-pager-label">Next</span>
+        <span class="remarque-pager-title">Palettes as Data</span>
+      </a>
+    </nav>
+    <p class="content-reading mt-4"><a href={`${base}writing`} class="footer-link -ml-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">All writing</a></p>
+  </article>
+</BaseLayout>

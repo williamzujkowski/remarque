@@ -18,7 +18,7 @@ const base = import.meta.env.BASE_URL;
     <h1 class="remarque-masthead-title">Writing on <em>Typography</em></h1>
     <p class="remarque-masthead-dateline">
       <span class="remarque-rule" aria-hidden="true"></span>
-      <span>2 essays</span>
+      <span>4 essays</span>
       <span class="remarque-rule" aria-hidden="true"></span>
     </p>
   </header>
@@ -45,6 +45,26 @@ const base = import.meta.env.BASE_URL;
       readingTime="2 min read"
       date="2026-03-29"
       description="The modern web is drowning in visual noise. Gradients, glassmorphism, animated backgrounds. What if the antidote is restraint?"
+    />
+    <BroadsheetEntry
+      variant="entry"
+      number={3}
+      title="Why 17px and 38rem"
+      href={`${base}writing/why-17px-and-38rem`}
+      section="Essay"
+      readingTime="7 min read"
+      date="2026-10-28"
+      description="Where the body size, the reading measure and the leading come from: a published floor, a measurement that corrected an earlier mistake, and one deviation argued in the open."
+    />
+    <BroadsheetEntry
+      variant="entry"
+      number={4}
+      title="Palettes as Data"
+      href={`${base}writing/palettes-as-data`}
+      section="Essay"
+      readingTime="7 min read"
+      date="2026-10-28"
+      description="How a dataset of terminal themes becomes audited site palettes, why the contrast gate outranks taste, and what a footer picker nobody could find taught us."
     />
   </ul>
 </BaseLayout>

@@ -1,0 +1,139 @@
+---
+/**
+ * Project Dossier — Page Archetype
+ *
+ * A project page. Technical, structured, informative.
+ * Always includes: serif title + summary, mono metadata block, architecture section, decisions/notes.
+ * Never includes: marketing language, CTAs, feature comparison grids, testimonials.
+ *
+ * Every figure below comes from the package's README and CHANGELOG, the
+ * published 0.10.0 package (`npm view`, and counts taken from its
+ * data/themes.json), or Remarque's own repo.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Meta from '../../components/Meta.astro';
+import Prose from '../../components/Prose.astro';
+const base = import.meta.env.BASE_URL;
+const linkClass = 'text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque';
+---
+
+<BaseLayout title="oklch-terminal-themes (project)" description="A dataset of 908 terminal color schemes converted to OKLCH, with contrast, colorblind-safety and dataviz data per theme, published as an npm package and JSON API.">
+  <article class="pt-[var(--space-9)]">
+    <header class="mb-8">
+      <nav class="remarque-breadcrumb mb-4" aria-label="Breadcrumb">
+        <ol>
+          <li><a href={base}>Home</a></li>
+          <li><a href={`${base}projects`}>Projects</a></li>
+          <li><span aria-current="page">oklch-terminal-themes</span></li>
+        </ol>
+      </nav>
+      <h1 class="text-display font-display text-[var(--color-fg)]">oklch-terminal-themes</h1>
+      <p class="mt-4 text-[length:var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg)] max-w-reading">
+        908 terminal color schemes converted to OKLCH and republished as an npm package and a JSON API. Each theme carries WCAG contrast data, colorblind-safety scores and a derived chart palette, so a site or tool can choose colors by what was measured. Remarque’s Palette Deck is built from it.
+      </p>
+    </header>
+
+    <div class="mb-12 p-6 border border-[var(--color-border)] rounded-[var(--radius-md)] bg-[var(--color-surface)]">
+      <h2 class="text-label mb-4">Metadata</h2>
+      <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-8 gap-y-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">
+        <dt class="text-[var(--color-muted)]">Status</dt>
+        <dd class="text-[var(--color-fg)]">Active</dd>
+        <dt class="text-[var(--color-muted)]">Version</dt>
+        <dd class="text-[var(--color-fg)]">0.10.0 (2026-10-27)</dd>
+        <dt class="text-[var(--color-muted)]">Stack</dt>
+        <dd class="text-[var(--color-fg)]">TypeScript, culori, Zod, apca-w3, Astro</dd>
+        <dt class="text-[var(--color-muted)]">Started</dt>
+        <dd class="text-[var(--color-fg)]">2026-04-20</dd>
+        <dt class="text-[var(--color-muted)]">License</dt>
+        <dd class="text-[var(--color-fg)]">MIT, with per-theme upstream licenses</dd>
+        <dt class="text-[var(--color-muted)]">Source</dt>
+        <dd><a href="https://github.com/williamzujkowski/oklch-terminal-themes" class={linkClass}>github.com/<wbr />williamzujkowski/<wbr />oklch-terminal-themes</a></dd>
+        <dt class="text-[var(--color-muted)]">Package</dt>
+        <dd><a href="https://www.npmjs.com/package/@williamzujkowski/oklch-terminal-themes" class={linkClass}>npmjs.com/<wbr />package/<wbr />@williamzujkowski/<wbr />oklch-terminal-themes</a></dd>
+        <dt class="text-[var(--color-muted)]">Live demo</dt>
+        <dd><a href="https://williamzujkowski.github.io/oklch-terminal-themes/" class={linkClass}>williamzujkowski.github.io/<wbr />oklch-terminal-themes</a></dd>
+      </dl>
+    </div>
+
+    <Prose>
+      <h2>Architecture</h2>
+
+      <p>
+        The package is a build pipeline plus its generated output. A weekly GitHub Action re-runs the pipeline and opens a pull request if any upstream source changed. The steps are:
+      </p>
+
+      <ul>
+        <li><strong>Fetch</strong> — sparse clones of every repository listed in <code>sources.json</code>, each pinned to a SHA in <code>.upstream-shas.json</code>.</li>
+        <li><strong>Convert</strong> — hex to OKLCH with <code>culori</code>. Lightness is clamped to 0–1 and chroma to 0–0.5, and an achromatic hue is coerced to 0 so the JSON stays valid.</li>
+        <li><strong>Classify</strong> — <code>isDark</code> from OKLCH lightness, tags from average chroma, WCAG contrast and name heuristics, plus the <code>cvd</code> and <code>apca</code> blocks.</li>
+        <li><strong>Validate</strong> — a Zod schema, a within-source duplicate-slug guard and a ΔE2000 round-trip gate under 1.0. The gate measures the published values, and the README gives the current corpus maximum as 0.5439.</li>
+        <li><strong>Emit</strong> — <code>themes.json</code>, <code>themes-slim.json</code>, <code>index.json</code> and one JSON file per theme, with static CSS, base16/base24 YAML and W3C design-token files for each.</li>
+      </ul>
+
+      <p>
+        The package is ESM only and needs Node 22 or later. Every theme has 20 color keys: background, foreground, cursor, selection and the 16 ANSI slots. Of the 908 themes, 688 are dark and 220 are light; 860 come from mbadolato/iTerm2-Color-Schemes and 17 are authored in the project itself, with the rest drawn from other upstreams.
+      </p>
+
+      <h2>What it measures</h2>
+
+      <h3>WCAG contrast</h3>
+      <p>
+        The <code>contrast</code> block holds the foreground-on-background ratio, the worst non-blend ANSI slot, and cursor and selection ratios. The WCAG tags are driven only by this block. Counted from the 0.10.0 data, 882 themes carry <code>wcag-aa</code> (a foreground ratio of at least 4.5), 813 of those also clear 7 and carry <code>wcag-aaa</code>, 16 land between 3 and 4.5, and 10 fall under 3.
+      </p>
+
+      <h3>APCA, as data</h3>
+      <p>
+        The <code>apca</code> block holds signed Lc scores computed with the <code>apca-w3</code> reference implementation, for all 908 themes. Nothing in the package tags or gates on them. The README’s stated reason is that APCA is still evolving outside the W3C standards process, and its example is <code>github-dark</code>, which passes WCAG AA at 6.09:1 with an APCA score of only −43.5.
+      </p>
+
+      <h3>Colorblind safety</h3>
+      <p>
+        The <code>cvd</code> block simulates deuteranopia, protanopia and tritanopia with <code>culori</code>’s filters (Machado, Oliveira and Fernandes, 2009) in linear-light RGB, then takes the minimum pairwise ΔE2000 among the six classic ANSI hues. A theme is tagged <code>cvd-safe</code> only if both the deuteranopia and protanopia scores are at least 10. In 0.10.0, 24 themes are tagged <code>cvd-safe</code> and 884 <code>cvd-caution</code>. The README says plainly that most themes are decorative community palettes never designed for this, so a low pass rate is not a bug.
+      </p>
+
+      <h3>Dataviz blocks</h3>
+      <p>
+        Every theme has a derived <code>dataviz</code> block: a categorical set of 6 to 8 colors picked by farthest-point hue selection from the chromatic ANSI slots, a 7-step sequential ramp from background to accent, and a 7-step diverging ramp. Sequential and diverging colors are gamut-fitted at every step. Where a theme has too few chromatic slots to fill a categorical set, the shortfall is derived from its accent and <code>categoricalSynthesized</code> says how many entries are synthetic. The README counts 33 such themes.
+      </p>
+
+      <h3>Pairs and accents</h3>
+      <p>
+        <code>counterpart</code> links a theme to its canonical opposite-polarity theme, from a slug-stem heuristic plus a small curated map. In 0.10.0 there are 97 light themes with a counterpart. The field is directional and not always symmetric: <code>tokyonight-storm</code> points at <code>tokyonight-day</code>, which points back at the bare <code>tokyonight</code>. <code>accent</code> is the theme’s signature color, taken from the cursor when it is chromatic and otherwise from the most chromatic classic ANSI slot.
+      </p>
+
+      <h2>How Remarque consumes it</h2>
+
+      <ul>
+        <li><strong>The bridge.</strong> <code>remarque-theme &lt;light-slug&gt;</code> derives a full Remarque palette from a theme and its counterpart, keeping the theme’s hue and chroma and solving lightness only where a contrast target fails. The accent heuristic above is the one the bridge already used.</li>
+        <li><strong>The default palette.</strong> Remarque’s own <code>tokens-palette.css</code> is bound to the <code>remarque-light</code> and <code>remarque-dark</code> native themes. A golden gate compares every color token against what the bridge derives and fails on drift beyond ΔE2000 2.0.</li>
+        <li><strong>The Palette Deck.</strong> The 15 curated pairs in <code>deck.css</code> are built from the dataset, pinned to the exact version 0.10.0 as a dev dependency, and audited with <code>remarque-audit</code>. All 97 counterpart pairs in 0.10.0 derive and pass. The dataset is an optional peer dependency, so a site that uses the prebuilt deck installs nothing extra.</li>
+        <li><strong>Policy stays in Remarque.</strong> The audit gates on WCAG 2.x ratios and does not read the APCA data. The dataset exposes the numbers, and Remarque decides what to enforce.</li>
+      </ul>
+
+      <h2>Design Decisions</h2>
+
+      <h3>Derived fields are references where possible</h3>
+      <p>
+        <code>accent</code> points at an existing slot’s color rather than inventing one, and a validation script asserts the equality. Categorical entries follow the same convention, except for the synthesized ones described above. Newly derived colors, the sequential and diverging ramps, go through the same ΔE2000 round-trip gate as converted ones.
+      </p>
+
+      <h3>Licenses are not uniform</h3>
+      <p>
+        Most of the corpus is MIT, but some sources are Apache-2.0 or BSD-3-Clause, and the project’s own MIT license covers the pipeline and the native themes, not the upstream artwork. Each theme records its <code>source</code>, and the README advises checking it before redistributing a subset.
+      </p>
+
+      <h2>Changelog</h2>
+
+      <ul>
+        <li><strong>2026-04-20</strong> — 0.1.0, first npm release.</li>
+        <li><strong>2026-07-23</strong> — 0.2.0 adds <code>counterpart</code> and the Remarque Light and Dark native themes; 0.3.0 adds <code>accent</code>; 0.5.0 adds <code>dataviz</code>; 0.6.0 adds <code>cvd</code> and <code>apca</code>; 0.7.0 adds base16/base24 YAML and static CSS per theme.</li>
+        <li><strong>2026-10-03</strong> — 0.9.0 refreshes the dataset from 644 to 742 themes.</li>
+        <li><strong>2026-10-27</strong> — 0.10.0 refreshes it from 742 to 908 themes, removing none and recoloring five.</li>
+      </ul>
+    </Prose>
+
+    <nav class="content-reading mt-12 pt-8 border-t border-[var(--color-border)] flex" aria-label="More projects">
+      <a href={`${base}projects`} class="footer-link -ml-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">&larr; All projects</a>
+    </nav>
+  </article>
+</BaseLayout>

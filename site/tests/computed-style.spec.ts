@@ -315,7 +315,8 @@ test.describe('palette deck (remarque-tokens/deck, issue #56)', () => {
    Each block below guards a defect the review found shipped. */
 
 const ALL_PATHS = ['', 'start', 'writing', 'writing/typography-as-interface', 'writing/against-decoration',
-  'projects', 'projects/remarque', 'notes', 'specimen', 'tokens', 'components'];
+  'writing/why-17px-and-38rem', 'writing/palettes-as-data',
+  'projects', 'projects/remarque', 'projects/oklch-terminal-themes', 'notes', 'specimen', 'tokens', 'components'];
 
 test.describe('no horizontal scroll at 375px', () => {
   for (const path of ALL_PATHS) {
