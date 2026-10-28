@@ -213,8 +213,8 @@ const CHECKS = [
   ['color-fg', 'color-error-subtle', 4.5, 'state: fg on error-subtle banner bg'],
   ['color-fg', 'color-success-subtle', 4.5, 'state: fg on success-subtle banner bg'],
   ['color-fg', 'color-warning-subtle', 4.5, 'state: fg on warning-subtle banner bg'],
-  // Dataviz categorical slots (issue #94) — 3:1 is Carbon's mark-on-
-  // background line, not text's 4.5:1: these are chart marks read at a
+  // Dataviz categorical slots (issue #94) — 3:1 is WCAG 1.4.11's
+  // graphical-object line, not text's 4.5:1: these are chart marks read at a
   // glance, not prose. See REMARQUE.md "Dataviz Tokens".
   ['color-viz-1', 'color-bg', 3.0, 'dataviz: categorical 1 (mark)'],
   ['color-viz-2', 'color-bg', 3.0, 'dataviz: categorical 2 (mark)'],

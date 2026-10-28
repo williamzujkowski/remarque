@@ -5,8 +5,11 @@
  * shipped, so every consumer hand-rolled its own (issue #127, roadmap
  * 0.29.0). Four implementations of the skip link alone existed across the
  * flagship, tsundoku, the starter and this demo; one tsundoku pagination
- * kept its disabled endpoints focusable. GOV.UK Frontend and USWDS ship
- * all of these as components.
+ * kept its disabled endpoints focusable. GOV.UK Design System publishes
+ * a skip link, breadcrumbs, pagination and tag component
+ * (design-system.service.gov.uk/components); USWDS ships usa-skipnav,
+ * usa-breadcrumb, usa-pagination and usa-tag
+ * (github.com/uswds/uswds/tree/develop/packages).
  *
  * Own subpath (remarque-tokens/chrome, remarque-tokens/chrome.css), not
  * part of the tokens.css aggregator. Import after the tokens:

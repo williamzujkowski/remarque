@@ -483,8 +483,8 @@
    `--space-10` (8rem) x 5. Container-query conditions can't reference
    custom properties or `calc()` (unlike a plain declaration value, the
    condition itself is parsed before the cascade resolves custom
-   properties, and Lightning CSS's minifier rejects a `calc()` there
-   outright) so this is spelled as the literal it resolves to, with the
+   properties, and Lightning CSS 1.32 rejects `calc(var(--x) * 5)` there
+   with "Invalid media query", checked 2026-10) so this is spelled as the literal it resolves to, with the
    token-multiple noted here rather than in the syntax — matches the
    flagship's own `640px` breakpoint exactly. */
 @container (max-width: 40rem) {

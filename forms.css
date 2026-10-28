@@ -118,7 +118,7 @@
 }
 
 /* Help/error/success message line — meta voice, body-face-adjacent size
-   floor (--text-meta, 14px, clears the USWDS small-text minimum). Neutral
+   floor (--text-meta, 14px, Remarque's secondary-text floor). Neutral
    (muted) by default; recolored by `.remarque-field[data-state]` below.
    `text-wrap: pretty` matches `.remarque-prose`'s optical default for
    short justified-feeling message copy. */
@@ -145,7 +145,7 @@
 .remarque-input {
   display: block;
   width: 100%;
-  min-height: 44px; /* USWDS/WCAG 2.5.5 touch-target floor — see AGENT_RULES.md */
+  min-height: 44px; /* WCAG 2.5.5 (AAA) 44px target size; USWDS's own touch-target variable is 48px — see AGENT_RULES.md */
   padding: var(--space-2) var(--space-3);
   font-family: var(--font-body);
   font-size: var(--text-body);

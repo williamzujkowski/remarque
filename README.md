@@ -13,9 +13,9 @@ Most developer sites inherit the visual language of SaaS dashboards or component
 **What makes it different:**
 
 - **Typography is the interface** — not color, not illustration, not animation. Three fonts (Newsreader, Inter, JetBrains Mono), each with a strict role.
-- **17px minimum body text** — one pixel above the industry default. The difference in reading comfort is immediate.
-- **38rem reading column** — ~71 measured characters per line at 17px Inter, inside the typographic standard of 45–75.
-- **OKLCH color space** — perceptually uniform. A lightness of 0.50 actually looks mid-brightness.
+- **17px minimum body text** — one pixel above [USWDS's 16px floor](https://designsystem.digital.gov/components/typography/) for body text. A judgement call for extended reading, not a measured threshold.
+- **38rem reading column** — ~71 measured characters per line at 17px Inter, inside the 45–75 range [Bringhurst gives for a single-column page](https://webtypography.net/2.1.2) (and Butterick's 45–90).
+- **OKLCH color space** — built on [Oklab](https://bottosson.github.io/posts/oklab/), which its author designed to do "a good job at predicting perceived lightness, chroma and hue". That makes tuning contrast by lightness practical; the contrast gate is still computed WCAG 2.x ratios.
 - **Self-hosted fonts** — no Google CDN dependency. Strict CSP. GDPR-compliant.
 - **AI-native** — designed to be consumed by Claude Code, Cursor, Copilot, and other AI coding tools with zero aesthetic drift.
 
@@ -127,18 +127,18 @@ Gzip (level 9) / brotli (max) bytes per shipped stylesheet, enforced by `scripts
 
 | File | gzip | brotli |
 |------|-----:|-------:|
-| `tokens.css` (effective: core + palette + prose) | 16,628 | 13,973 |
-| `tokens-core.css` | 4,790 | 3,995 |
-| `tokens-palette.css` | 7,036 | 5,848 |
+| `tokens.css` (effective: core + palette + prose) | 16,826 | 14,116 |
+| `tokens-core.css` | 4,888 | 4,066 |
+| `tokens-palette.css` | 7,145 | 5,932 |
 | `prose.css` | 5,792 | 4,852 |
-| `essay.css` | 7,914 | 6,680 |
-| `broadsheet.css` | 7,463 | 6,241 |
-| `forms.css` | 8,412 | 6,987 |
-| `chrome.css` | 3,853 | 3,257 |
+| `essay.css` | 7,895 | 6,671 |
+| `broadsheet.css` | 7,484 | 6,259 |
+| `forms.css` | 8,431 | 7,008 |
+| `chrome.css` | 4,552 | 3,868 |
 | `print.css` | 2,542 | 2,095 |
 | `theme.css` | 1,744 | 1,452 |
 | `fonts.css` | 612 | 484 |
-| `deck/deck.css` | 7,835 | 6,153 |
+| `deck/deck.css` | 7,836 | 6,156 |
 
 Minimal import: `tokens-core.css` + `tokens-palette.css` alone (about 12 KB gzip) work without `prose.css`; the same test checks that every `var(--x)` in the optional modules resolves to a core or palette token.
 

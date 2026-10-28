@@ -89,8 +89,8 @@ explicitly:
   "remarque-tokens" layer(...)` — layering makes every `@theme inline`
   mapped utility circular and invalid.
 - **String-form `@import` only (Pitfall #6).** `@import './tokens.css';`,
-  never `@import url(...)` — Tailwind v4/Lightning CSS silently drops the
-  latter for local files. Verify the built CSS contains `.remarque-prose`
+  never `@import url(...)` — Tailwind v4 leaves the latter unresolved for
+  local files, so the cascade can silently go missing. Verify the built CSS contains `.remarque-prose`
   after touching any import.
 - **`.remarque-prose` + `.content-reading` pairing.** `.remarque-prose`
   supplies typography only; it does not center the column. Every reading

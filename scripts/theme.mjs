@@ -537,10 +537,10 @@ function deriveStateSubtle(bgL, H, chromaCap, fg, dir) {
  * array — 6-8 ordered ColorValues already selected upstream for mutual
  * distinguishability, the same kind of "this domain already carries the
  * personality" argument as the syntax slots' ANSI colors. --color-viz-1
- * through --color-viz-6 take the first 6 (633/633 corpus themes ship at
- * least 6; 516 ship exactly 6 — that floor is why 6 ships, not 8), kept-
- * if-passing/solved the same way as every other slot, verified against
- * --color-bg (not --color-surface) at 3:1 — Carbon's mark-vs-background
+ * through --color-viz-6 take the first 6 (908/908 corpus themes ship at
+ * least 6 in dataset 0.10.0; 775 ship exactly 6 — that floor is why 6
+ * ships, not 8), kept-if-passing/solved the same way as every other slot, verified against
+ * --color-bg (not --color-surface) at 3:1 — WCAG 1.4.11's graphical-object
  * line, not text's 4.5:1 (REMARQUE.md "Dataviz Tokens": these are chart
  * marks read at a glance, not prose read continuously).
  *
@@ -560,7 +560,7 @@ function deriveStateSubtle(bgL, H, chromaCap, fg, dir) {
  */
 
 const VIZ_CHROMA_CAP = 0.14; // same restrained ceiling as accent/syntax/state
-const VIZ_TARGET = 3.0; // Carbon's mark-on-background line
+const VIZ_TARGET = 3.0; // WCAG 1.4.11 graphical-object line
 
 function deriveVizCategorical(t, label, slug, bg, dir) {
   const cats = t.dataviz && Array.isArray(t.dataviz.categorical) ? t.dataviz.categorical : null;
