@@ -119,10 +119,10 @@
   counter-increment: remarque-sidenote;
   font-family: var(--font-mono);
   font-size: var(--text-meta);
-  /* USWDS floor rationale: --text-micro is reserved for timestamps/fine
-     print only (tokens-core.css, REMARQUE.md "Font Size Floors") — the
-     flagship's own marker used that size, but this module holds to
-     Remarque's stricter 14px floor for anything read as content. */
+  /* --text-micro is reserved for timestamps/fine print only
+     (tokens-core.css, REMARQUE.md "Font Size Floors", Remarque's own
+     floor) — the flagship's own marker used that size, but this module
+     holds to the 14px floor for anything read as content. */
   line-height: 0;
   vertical-align: super;
   color: var(--color-accent);

@@ -36,7 +36,7 @@ const base = import.meta.env.BASE_URL;
         <dt class="text-[var(--color-muted)]">Stack</dt>
         <dd class="text-[var(--color-fg)]">CSS Custom Properties, Tailwind CSS, Astro</dd>
         <dt class="text-[var(--color-muted)]">Started</dt>
-        <dd class="text-[var(--color-fg)]">2026-04-01</dd>
+        <dd class="text-[var(--color-fg)]">2026-04-11</dd>
         <dt class="text-[var(--color-muted)]">License</dt>
         <dd class="text-[var(--color-fg)]">MIT</dd>
         <dt class="text-[var(--color-muted)]">Source</dt>
@@ -68,24 +68,24 @@ const base = import.meta.env.BASE_URL;
 
       <h3>17px Minimum Body Text</h3>
       <p>
-        Most systems default to 16px or smaller; USWDS, for one, asks for at least 16px. Remarque sets a floor one pixel higher, a deliberate choice for comfort in extended reading rather than a measured threshold.
+        <a href="https://designsystem.digital.gov/components/typography/">USWDS</a> asks for at least an effective 16px for most text, body copy included. Remarque sets its floor one pixel higher: a judgement call for extended reading, not a measured threshold, and no reading-comfort measurement is recorded for it.
       </p>
 
       <h3>38rem Reading Column</h3>
       <p>
-        Chosen to sit inside the 45–75 characters per line that Robert Bringhurst gives as a satisfactory range for a single-column page (<em>The Elements of Typographic Style</em>, §2.1.2; Matthew Butterick allows 45–90). At 17px Inter, 38rem sets a median of about 71 characters per line — measured on rendered text, since <code>ch</code> arithmetic overstates the count (46rem, the earlier default, actually set 86).
+        Chosen to sit inside the 45–75 characters per line that Robert Bringhurst gives as a satisfactory range for a single-column page set in a serifed text face (<em>The Elements of Typographic Style</em>, §2.1.2, <a href="https://webtypography.net/2.1.2">quoted at webtypography.net</a>; Inter is a sans, so read it as a guide) and the 45–90 that Matthew Butterick <a href="https://practicaltypography.com/typography-in-ten-minutes.html">gives for average line length</a>. At 17px Inter, 38rem sets a median of about 71 characters per line — measured on rendered text, since <code>ch</code> arithmetic overstates the count (46rem, the earlier default, actually set 86).
       </p>
 
       <h3>OKLCH Color Space</h3>
       <p>
-        Colors are defined in OKLCH, whose lightness axis is built to track perceived lightness. Two colors with the same OKLCH lightness look about equally light across hues, unlike HSL, where a yellow and a blue at the same L differ greatly in perceived brightness. That makes it practical to tune contrast by adjusting lightness alone.
+        Colors are defined in OKLCH, the polar form of <a href="https://bottosson.github.io/posts/oklab/">Oklab</a>, which its author designed to do “a good job at predicting perceived lightness, chroma and hue”. Colors at the same OKLCH lightness should therefore look closer in lightness across hues than they do in HSL, where a yellow and a blue at the same L differ greatly in perceived brightness. That makes it practical to tune contrast by adjusting lightness first; contrast itself is still checked against WCAG 2.x ratios.
       </p>
 
       <h2>Changelog</h2>
 
       <ul>
-        <li><strong>2026-04-06</strong> — Initial release with specification, tokens, Tailwind config, and agent rules.</li>
-        <li><strong>2026-04-08</strong> — Demo site built with Astro. All four page archetypes implemented.</li>
+        <li><strong>2026-04-11</strong> — Repository created: specification, tokens, Tailwind config, agent rules, and the Astro demo site with all four page archetypes.</li>
+        <li><strong>2026-07-20</strong> — First npm publish, <code>remarque-tokens</code> 0.2.0.</li>
       </ul>
     </Prose>
 

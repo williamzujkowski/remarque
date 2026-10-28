@@ -72,9 +72,10 @@ These pass a normal build with no error and no warning, so verify them
 explicitly rather than trusting a green build:
 
 **#6 — String-form `@import` only.** Always write `@import './tokens.css';`
-(string form). Tailwind v4 / Lightning CSS silently **drops**
-`@import url(...)` for local files — the build succeeds while the entire
-token cascade vanishes from the output. Verify the built CSS contains
+(string form). Tailwind v4 inlines only the string form: it leaves
+`@import url(...)` for local files unresolved (checked with
+`tailwindcss` 4.3.3), and the entire token cascade can vanish from the
+output while the build succeeds. Verify the built CSS contains
 `.remarque-prose` after changing any import.
 
 **#7 — Tokens must be imported unlayered (Tailwind v4).** Never

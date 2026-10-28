@@ -23,15 +23,15 @@
   --text-section: clamp(1.375rem, 2.25vw, 2rem);
   --text-body-lg: 1.1875rem;    /* 19px — for lead paragraphs */
   --text-body: 1.0625rem;       /* 17px — minimum body size, non-negotiable */
-  --text-meta: 0.875rem;        /* 14px — USWDS minimum for small text */
-  --text-micro: 0.8125rem;      /* 13px — USWDS floor for timestamps only */
+  --text-meta: 0.875rem;        /* 14px — Remarque's floor for secondary text (USWDS's scale has a 14px step but states no minimum) */
+  --text-micro: 0.8125rem;      /* 13px — Remarque's floor, timestamps only (USWDS's scale has a 13px step but states no minimum) */
 
   /* Line heights — matched to their type roles */
   --leading-display: 1.05;
   --leading-title: 1.15;
   --leading-section: 1.2;
   --leading-body: 1.75;         /* generous — this is what makes prose readable */
-  --leading-meta: 1.5;          /* USWDS minimum for short text */
+  --leading-meta: 1.5;          /* Remarque's choice for short text (USWDS asks for at least 1.5 on longer text) */
 
   /* Letter spacing */
   --tracking-display: -0.02em;
@@ -250,8 +250,9 @@ html {
    #51. But no default face has small caps: JetBrains Mono has neither
    smcp nor c2sc, so the browser synthesized them by shrinking capitals,
    and a 14px label drew its caps at about 9.9px, under the 13px floor.
-   Butterick's rule for faces without small caps is capitals with added
-   tracking, which is this. If your label face has real smcp + c2sc
+   Butterick advises letterspacing capitals and avoiding fake small caps
+   (practicaltypography.com/all-caps.html, /small-caps.html); real capitals
+   with added tracking is this. If your label face has real smcp + c2sc
    (remarque-audit checks), all-small-caps with text-transform: none is
    still the finer choice; see REMARQUE.md "Small Caps". */
 .text-label {
@@ -300,7 +301,7 @@ html {
  * border`'s decorative-only hairlines stand in as real system-color
  * rules exactly where they need to.
  *
- * Focus (WCAG 2.4.7 / 2.4.11): `outline` (not `box-shadow`) is the
+ * Focus (WCAG 2.4.7 Focus Visible): `outline` (not `box-shadow`) is the
  * forced-colors-safe mechanism — `box-shadow` is unconditionally
  * suppressed under forced-colors, so a focus indicator built from it
  * alone would vanish entirely; `outline-style`/`outline-width` survive

@@ -25,7 +25,7 @@ const colorPairs = [
 // Dataviz categorical ramp (issue #94) — bridge-derived + golden-gated
 // against remarque-light/remarque-dark's dataviz.categorical block; see
 // REMARQUE.md "Dataviz Tokens". Ratios are against --color-bg at the 3:1
-// mark threshold (Carbon's line), not text's 4.5:1.
+// mark threshold (WCAG 1.4.11 Non-text Contrast), not text's 4.5:1.
 const vizPairs = [
   { name: '--color-viz-1', light: 'oklch(0.538 0.121 250.5)', dark: 'oklch(0.708 0.129 249.5)', ratioLight: '4.74:1', ratioDark: '7.53:1' },
   { name: '--color-viz-2', light: 'oklch(0.541 0.111 85.5)', dark: 'oklch(0.712 0.13 85.3)', ratioLight: '4.73:1', ratioDark: '7.54:1' },
@@ -104,7 +104,7 @@ const spacing = [
   <section class="mt-12">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-2">Dataviz</h2>
     <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)] mb-6 max-w-reading">
-      6 categorical marks (<code class="font-mono text-[length:var(--text-meta)]">--color-viz-1</code> through <code class="font-mono text-[length:var(--text-meta)]">--color-viz-6</code>), bridge-derived from the upstream dataset’s <code class="font-mono text-[length:var(--text-meta)]">dataviz.categorical</code> block and golden-gated like the rest of the default palette. Each clears 3:1 against <code class="font-mono text-[length:var(--text-meta)]">--color-bg</code> — Carbon’s mark-on-background line, not text’s 4.5:1 — and pairs with a non-color redundancy (shape here) rather than standing alone. See REMARQUE.md “Dataviz Tokens”.
+      6 categorical marks (<code class="font-mono text-[length:var(--text-meta)]">--color-viz-1</code> through <code class="font-mono text-[length:var(--text-meta)]">--color-viz-6</code>), bridge-derived from the upstream dataset’s <code class="font-mono text-[length:var(--text-meta)]">dataviz.categorical</code> block and golden-gated like the rest of the default palette. Each clears 3:1 against <code class="font-mono text-[length:var(--text-meta)]">--color-bg</code> — the 3:1 that <a href="https://www.w3.org/TR/WCAG22/#non-text-contrast" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]">WCAG 2.2 success criterion 1.4.11</a> sets for “Parts of graphics required to understand the content”, not text’s 4.5:1 — and pairs with a non-color redundancy (shape here) rather than standing alone, as <a href="https://www.w3.org/TR/WCAG22/#use-of-color" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]">1.4.1</a> requires. See REMARQUE.md “Dataviz Tokens”.
     </p>
     <div class="border-t border-[var(--color-border)]">
       {vizPairs.map((v, i) => (

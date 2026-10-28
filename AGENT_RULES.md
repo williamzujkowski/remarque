@@ -195,7 +195,7 @@ Three further archetypes — Reference/Docs, Changelog, Gallery — are specifie
 
 5. **GitHub Pages base path:** When deploying to a subpath (e.g., `/remarque/`), all internal links must use a base URL helper (Astro: `import.meta.env.BASE_URL`). Set `base` in your framework config.
 
-6. **String-form @import only:** Always write `@import './tokens.css';` (string form). Tailwind v4 / Lightning CSS silently DROPS `@import url(...)` for local files — the build succeeds while the entire token cascade vanishes from the output. Verify the built CSS contains `.remarque-prose` after changing imports.
+6. **String-form @import only:** Always write `@import './tokens.css';` (string form). Tailwind v4 inlines only the string form: given `@import url(./tokens.css);`, `tailwindcss` 4.3.3's `compile()` passes the line through unresolved instead of inlining the file (checked 2026-10), and in consumer builds the entire token cascade went missing from the output without a build error. Verify the built CSS contains `.remarque-prose` after changing imports.
 
 7. **Tokens must be imported unlayered (Tailwind v4):** never `@import "remarque-tokens" layer(...)`. theme.css's `@theme inline` mappings emit same-named self-referencing declarations inside `@layer theme`; the real token values win only because unlayered declarations beat layered ones. Layering the tokens makes every mapped utility circular and invalid, with no build error.
 
