@@ -27,6 +27,13 @@
  * information is lost, only an emphasis nuance.
  */
 
+/* Opt-in partials, each also its own subpath (0.33). They stay here so a
+   prose.css consumer needs no extra import, and the rules live in exactly
+   one file each. @import must precede every rule. */
+@import './dropcap.css';
+@import './endmark.css';
+@import './code-title.css';
+
 /* ─── Prose Styling ─────────────────────────────────────── */
 /*
  * Apply .remarque-prose to any container with article/essay content.
@@ -146,21 +153,6 @@
   border-radius: var(--radius-md);
   padding: var(--space-5);
   overflow-x: auto;
-}
-
-.remarque-prose pre[data-title]::before {
-  /* Code-block title (#129): a mono filename line at the top of the
-     block, in the no-chrome voice: a hairline under it, no filled tab.
-     Set data-title="src/config.ts" on the <pre> (Shiki and
-     rehype-pretty-code both can). The negative margins reach the block's
-     edges through its padding. */
-  content: attr(data-title);
-  display: block;
-  margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) var(--space-4);
-  padding: var(--space-2) var(--space-5);
-  border-block-end: var(--border-width) var(--border-style) var(--color-border);
-  letter-spacing: var(--tracking-meta);
-  color: var(--color-muted);
 }
 
 /* Line highlighting is the highlighter's markup; this is only the color
@@ -452,39 +444,6 @@
 }
 
 
-/* ─── Drop Cap (opt-in) ──────────────────────────────────── */
-/*
- * Essay first paragraph only. Add alongside .remarque-prose:
- *   <div class="remarque-prose remarque-prose--dropcap">
- * `initial-letter` is used where supported, with a float + font-size
- * fallback for browsers that lack it. Inherits --color-fg — the drop
- * cap is not a place for accent color. Automatically skipped when the
- * paragraph opens with a quote or inline code, since the ornament
- * assumes a plain capital letter.
- */
-
-.remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 3.5em;
-  line-height: 0.85;
-  float: left; /* fallback: no logical float values */
-  float: inline-start;
-  padding-block: 0.08em 0;
-  padding-inline: 0 0.12em;
-  color: var(--color-fg);
-}
-
-@supports (initial-letter: 4) or (-webkit-initial-letter: 4) {
-  .remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
-    initial-letter: 3.5;
-    -webkit-initial-letter: 3.5;
-    float: none;
-    padding-block: 0;
-    padding-inline: 0 0.08em;
-  }
-}
-
 /* ─── Pull Quote ─────────────────────────────────────────── */
 /*
  * Not .remarque-prose blockquote — a blockquote cites someone else; a
@@ -512,20 +471,6 @@
 }
 
 
-/* ─── The Remarque Mark ─────────────────────────────────── */
-/*
- * The system's namesake, made visible: a small mark closing every
- * essay, the way a printer's fleuron ends a chapter. Quiet by rule —
- * muted color, meta scale, one per essay, nothing else on its line.
- *
- * Markup (aria-hidden — it is punctuation, not content):
- *   <div class="remarque-endmark" aria-hidden="true"></div>
- * placed after the last element inside .remarque-prose.
- *
- * The fleuron (U+2766) is outside the latin font subsets by design;
- * it intentionally falls through to the serif fallback stack.
- */
-
 /* ─── External-link marks (opt-in, #129) ──────────────────────────────
  * .remarque-prose--external-marks adds a small ↗ after links marked
  * rel="external". Screen only: print.css prints every link's URL after
@@ -545,15 +490,15 @@
 /* ─── Script-aware italics (issue #123) ───────────────────────────────
  * Arabic, Persian, Urdu, Hebrew and CJK have no italic tradition, and
  * browsers fake one by slanting the glyphs. The decorative italics
- * (blockquote, pullquote, h5, dt, the drop cap) set upright instead, and
+ * (blockquote, pullquote, h5, dt; the drop cap's own rule lives in
+ * dropcap.css) set upright instead, and
  * `em` carries its emphasis in weight. */
 :is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)):is(
   .remarque-prose blockquote,
   .remarque-prose h5,
   .remarque-prose dt,
   .pullquote
-),
-:is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)).remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
+) {
   font-style: normal;
 }
 
@@ -572,16 +517,4 @@
 /* The disclosure marker points along the inline direction. */
 .remarque-prose summary:dir(rtl)::before {
   transform: scaleX(-1);
-}
-
-.remarque-endmark {
-  text-align: center;
-  margin-top: var(--space-7);
-}
-
-.remarque-endmark::after {
-  content: "\2766";
-  font-family: var(--font-display);
-  font-size: var(--text-body);
-  color: var(--color-muted);
 }

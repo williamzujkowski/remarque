@@ -1,0 +1,116 @@
+/*
+ * Remarque — Drop Cap (opt-in)
+ * ────────────────────────────
+ * Its own subpath, remarque-tokens/dropcap: a site with its own prose
+ * system can take the drop cap alone without restyling the article body
+ * (importing prose.css does that). prose.css @imports this file, so
+ * prose.css consumers get it with no extra import. One copy of the rule:
+ * do not paste it into another file (the flagship's vendored copy was
+ * exactly that, and drifted).
+ *
+ * Essay first paragraph only. Add alongside .remarque-prose:
+ *   <div class="remarque-prose remarque-prose--dropcap">
+ * Inherits --color-fg: the drop cap is not a place for accent color.
+ * Automatically skipped when the paragraph opens with a quote or inline
+ * code, since the ornament assumes a plain capital letter.
+ *
+ * THE FIT (0.33). The cap spans THREE lines: its top aligns with the
+ * first line's cap-height and its foot sits on the third line's baseline.
+ * `initial-letter` must be an INTEGER for that: a fractional size leaves
+ * the baseline between two body baselines (3.5 measured about 12px high
+ * at the top and half a line low at the foot, in Chromium and WebKit).
+ *
+ * CONSUMER CLASSES (CSS cannot see text length or letter case, so the
+ * page builder applies these to the first <p>; a rehype plugin is the
+ * natural place):
+ *   .remarque-dropcap--short  a lead of two lines (roughly 100-190
+ *                             characters at the reading measure): a
+ *                             two-line cap instead. A three-line cap on a
+ *                             shorter lead hangs below the text.
+ *   .no-drop-cap              (alias .remarque-dropcap--none) no cap at
+ *                             all. For a lead of one line, or one that
+ *                             opens lowercase ("npm", "gVisor") where a
+ *                             capital-sized initial would split the name.
+ *
+ * FALLBACK. Firefox has no `initial-letter` (MDN browser-compat-data,
+ * 8.1.7: Firefox "version_added: false"; bugzil.la/1223880), so it gets a
+ * float. The float is sized to span the same three (or two) lines, tuned
+ * for the default display face and the default body leading; see
+ * REMARQUE.md "Drop Caps" for the measured residual on the approved
+ * Fraunces substitute.
+ *
+ * PADDING. Chromium ignores LOGICAL padding on ::first-letter, so every
+ * gap is declared twice: physical first, logical after. Where the logical
+ * longhands apply they win by order; where they are ignored (Chromium)
+ * the physical ones still hold. RTL flips the physical side below.
+ */
+
+/* Three-line cap (the default). */
+.remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child)):not(:is(.no-drop-cap, .remarque-dropcap--none))::first-letter {
+  font-family: var(--font-display);
+  font-style: italic;
+  /* The cap-height metric describes the face's DEFAULT instance. At the
+     automatic optical size a display face with an `opsz` axis (Newsreader,
+     Fraunces) draws taller capitals than that metric, and 100px type gets
+     the top of the axis: Newsreader measured 4px high at the top of the
+     cap. Pinning the optical size keeps drawn height and metric equal. */
+  font-optical-sizing: none;
+  /* Float fallback, spanning three lines at the default leading (1.75):
+     the cap is normalised to 0.7em tall whatever the face, then sized so
+     its ink runs from the first line's cap-height to the third line's
+     baseline; padding-top and the short line-height drop it onto the first
+     line and keep the float from claiming a fourth. */
+  font-size: 6.04em;
+  font-size-adjust: cap-height 0.7;
+  line-height: 0.585;
+  float: left; /* fallback: no logical float values */
+  float: inline-start;
+  padding-top: 0.081em;
+  padding-right: 0.12em;
+  padding-block: 0.081em 0;
+  padding-inline: 0 0.12em;
+  color: var(--color-fg);
+}
+
+/* Two-line cap, for a two-line lead (see CONSUMER CLASSES). */
+.remarque-prose--dropcap > p.remarque-dropcap--short:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
+  font-size: 3.54em;
+  padding-top: 0.13em;
+  padding-block: 0.13em 0;
+}
+
+@supports (initial-letter: 3) or (-webkit-initial-letter: 3) {
+  .remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child)):not(:is(.no-drop-cap, .remarque-dropcap--none))::first-letter {
+    initial-letter: 3;
+    -webkit-initial-letter: 3;
+    font-size-adjust: none;
+    float: none;
+    padding-top: 0;
+    padding-right: 0.08em;
+    padding-block: 0;
+    padding-inline: 0 0.08em;
+  }
+
+  .remarque-prose--dropcap > p.remarque-dropcap--short:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
+    initial-letter: 2;
+    -webkit-initial-letter: 2;
+  }
+}
+
+/* Right-to-left: the gap belongs on the left of the cap. :dir() matches
+   an inherited direction too, so a dir="rtl" ancestor is enough. */
+.remarque-prose--dropcap > p:dir(rtl):first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child)):not(:is(.no-drop-cap, .remarque-dropcap--none))::first-letter {
+  padding-right: 0;
+  padding-left: 0.12em;
+}
+
+@supports (initial-letter: 3) or (-webkit-initial-letter: 3) {
+  .remarque-prose--dropcap > p:dir(rtl):first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child)):not(:is(.no-drop-cap, .remarque-dropcap--none))::first-letter {
+    padding-left: 0.08em;
+  }
+}
+
+/* Script-aware italics (issue #123): no italic tradition, so upright. */
+:is(:lang(ar), :lang(fa), :lang(ur), :lang(he), :lang(zh), :lang(ja), :lang(ko)).remarque-prose--dropcap > p:first-of-type:not(:has(> q:first-child)):not(:has(> code:first-child))::first-letter {
+  font-style: normal;
+}

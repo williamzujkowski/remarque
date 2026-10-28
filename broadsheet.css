@@ -342,35 +342,75 @@
    (issue #36 "Findings") — it cannot just inherit italic from the
    parent's font-style the way a roman-text drop cap can, since this
    pseudo-element re-asserts every typographic property of its own.
-   Same mechanics/sizing as prose.css's `.remarque-prose--dropcap`
-   (3.5em / 0.85 line-height / initial-letter progressive enhancement)
-   for one consistent drop-cap voice across the system, rather than a
-   second bespoke number. */
+   Same mechanics as dropcap.css (the .remarque-prose--dropcap rule,
+   remarque-tokens/dropcap) for one consistent drop-cap voice across the
+   system: a three-line `initial-letter` cap (an INTEGER, 0.33: 3.5 left
+   the baseline between two lines), physical padding beside the logical
+   (Chromium ignores logical padding on ::first-letter), a float fallback
+   sized to span the same three lines for Firefox, the optical size
+   pinned so drawn caps match the cap-height metric. Same consumer
+   classes: .remarque-dropcap--short on a two-line lede, .no-drop-cap
+   (or .remarque-dropcap--none) on a one-line or lowercase-led one.
+   This is a separate rule from dropcap.css only because the lede is its
+   own element (a display-italic deck, not .remarque-prose's first
+   paragraph) with the wide-viewport guard below. */
 /* Wide viewports only (2026-10 design review): on a phone-width column
    the 3.5em italic capital (~110px for a "W") left the italic deck a
    ~20-character sliver for four lines and sat against the title above
    it. Below 40rem the lede reads as plain italic text. */
 @media (min-width: 40rem) {
-  .remarque-lead-lede::first-letter {
+  .remarque-lead-lede:not(:is(.no-drop-cap, .remarque-dropcap--none))::first-letter {
     font-family: var(--font-display);
     font-style: italic;
     font-weight: var(--weight-display, var(--weight-regular));
-    font-size: 3.5em;
-    line-height: 0.85;
+    font-optical-sizing: none;
+    /* Float fallback, three lines (the lede sets in the display italic,
+       so the body cap-height here is the display face's own). */
+    font-size: 5.96em;
+    font-size-adjust: cap-height 0.7;
+    line-height: 0.585;
     float: left; /* fallback: no logical float values */
     float: inline-start;
-    padding-block: 0.08em 0;
+    padding-top: 0.077em;
+    padding-right: 0.12em;
+    padding-block: 0.077em 0;
     padding-inline: 0 0.12em;
     color: var(--color-fg);
   }
 
-  @supports (initial-letter: 4) or (-webkit-initial-letter: 4) {
-    .remarque-lead-lede::first-letter {
-      initial-letter: 3.5;
-      -webkit-initial-letter: 3.5;
+  .remarque-lead-lede.remarque-dropcap--short::first-letter {
+    font-size: 3.4em;
+    padding-top: 0.135em;
+    padding-block: 0.135em 0;
+  }
+
+  @supports (initial-letter: 3) or (-webkit-initial-letter: 3) {
+    .remarque-lead-lede:not(:is(.no-drop-cap, .remarque-dropcap--none))::first-letter {
+      initial-letter: 3;
+      -webkit-initial-letter: 3;
+      font-size-adjust: none;
       float: none;
+      padding-top: 0;
+      padding-right: 0.08em;
       padding-block: 0;
       padding-inline: 0 0.08em;
+    }
+
+    .remarque-lead-lede.remarque-dropcap--short::first-letter {
+      initial-letter: 2;
+      -webkit-initial-letter: 2;
+    }
+  }
+
+  /* Right-to-left: the gap belongs on the left of the cap. */
+  .remarque-lead-lede:dir(rtl):not(:is(.no-drop-cap, .remarque-dropcap--none))::first-letter {
+    padding-right: 0;
+    padding-left: 0.12em;
+  }
+
+  @supports (initial-letter: 3) or (-webkit-initial-letter: 3) {
+    .remarque-lead-lede:dir(rtl):not(:is(.no-drop-cap, .remarque-dropcap--none))::first-letter {
+      padding-left: 0.08em;
     }
   }
 }

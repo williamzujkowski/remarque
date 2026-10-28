@@ -14,6 +14,10 @@ import { defineConfig, devices } from '@playwright/test';
  * first) so these tests exercise the same static output that ships to
  * GitHub Pages, base path (`/remarque/`) included.
  */
+// RQ_PORT lets a local run use a private port when 4319 is taken; CI keeps
+// the default.
+const PORT = Number(process.env.RQ_PORT ?? 4319);
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -29,7 +33,7 @@ export default defineConfig({
   },
 
   use: {
-    baseURL: 'http://localhost:4319/remarque/',
+    baseURL: `http://localhost:${PORT}/remarque/`,
     trace: 'retain-on-failure',
     // Zeroes --motion-fast/--motion-normal (tokens-core.css) so no
     // color/opacity transition can be mid-flight during a screenshot.
@@ -41,6 +45,19 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    // The drop cap's float fallback is what Firefox renders, and WebKit
+    // has its own initial-letter: dropcap-fit.spec.ts runs in all three
+    // engines. Every other suite is Chromium-only.
+    {
+      name: 'firefox',
+      testMatch: /dropcap-fit\.spec\.ts/,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      testMatch: /dropcap-fit\.spec\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
   ],
 
   // Port 4319 is deliberately non-default: astro's default (4321/4322) is
@@ -49,8 +66,8 @@ export default defineConfig({
   // next free port rather than erroring — which would make this config's
   // hardcoded baseURL point at the wrong server.
   webServer: {
-    command: 'npm run preview -- --port 4319 --strictPort',
-    url: 'http://localhost:4319/remarque/',
+    command: `npm run preview -- --port ${PORT} --strictPort`,
+    url: `http://localhost:${PORT}/remarque/`,
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
   },

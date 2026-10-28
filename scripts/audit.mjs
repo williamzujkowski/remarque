@@ -363,7 +363,7 @@ for (const file of walk(SRC)) {
   // rules were failed against Inter and Newsreader).
   const isPackagePalette = resolve(PALETTE) === resolve(join(PKG_ROOT, 'tokens-palette.css'));
   for (const t of ['font-body', 'font-display', 'font-mono']) fontStacks[`--${t}`] = lightDecls[t] || (isPackagePalette ? pkgDefaults[t] : undefined);
-  const MODULES = ['tokens-core.css', 'prose.css', 'essay.css', 'broadsheet.css', 'forms.css', 'chrome.css'];
+  const MODULES = ['tokens-core.css', 'prose.css', 'dropcap.css', 'endmark.css', 'code-title.css', 'essay.css', 'broadsheet.css', 'forms.css', 'chrome.css'];
   const targets = MODULES.map((m) => [join(PKG_ROOT, m), `remarque-tokens/${m}`]);
   for (const file of walk(SRC)) if (file.endsWith('.css')) targets.push([file, relative('.', file)]);
   const seen = new Set();

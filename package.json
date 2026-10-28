@@ -1,6 +1,6 @@
 {
   "name": "remarque-tokens",
-  "version": "0.32.0",
+  "version": "0.33.0",
   "engines": {
     "node": ">=22"
   },
@@ -71,6 +71,12 @@
     "./tokens.schema.json": "./tokens.schema.json",
     "./prose": "./prose.css",
     "./prose.css": "./prose.css",
+    "./dropcap": "./dropcap.css",
+    "./dropcap.css": "./dropcap.css",
+    "./endmark": "./endmark.css",
+    "./endmark.css": "./endmark.css",
+    "./code-title": "./code-title.css",
+    "./code-title.css": "./code-title.css",
     "./print": "./print.css",
     "./print.css": "./print.css",
     "./essay": "./essay.css",
@@ -124,6 +130,9 @@
     "tokens.schema.json",
     "scripts/tokens-json.mjs",
     "prose.css",
+    "dropcap.css",
+    "endmark.css",
+    "code-title.css",
     "print.css",
     "essay.css",
     "broadsheet.css",

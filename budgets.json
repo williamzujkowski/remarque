@@ -7,9 +7,21 @@
     "gzip": 5000,
     "brotli": 4200
   },
+  "code-title.css": {
+    "gzip": 700,
+    "brotli": 600
+  },
   "deck/deck.css": {
     "gzip": 8700,
     "brotli": 6800
+  },
+  "dropcap.css": {
+    "gzip": 2400,
+    "brotli": 2000
+  },
+  "endmark.css": {
+    "gzip": 900,
+    "brotli": 800
   },
   "essay.css": {
     "gzip": 8800,
@@ -48,7 +60,7 @@
     "brotli": 500
   },
   "tokens.css (effective)": {
-    "gzip": 18300,
-    "brotli": 15400
+    "gzip": 20400,
+    "brotli": 17100
   }
 }

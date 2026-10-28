@@ -4,7 +4,7 @@
   "type": "remarque:contract",
   "title": "Tags (chrome.css)",
   "description": "Tags as plain mono links in a `<ul>` with an accessible name, each `rel=\"tag\"`. No border, fill or radius: an outlined or filled chip is a documented deviation, not personalization.",
-  "version": "0.32.0",
+  "version": "0.33.0",
   "integrity": "sha256-+q36B2RJNg3PovxdL99iqqp6GU/HiKpauPoxYXQePFo=",
   "dependencies": [
     "remarque-tokens"

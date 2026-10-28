@@ -133,6 +133,27 @@
   content: counter(remarque-sidenote);
 }
 
+/* Tap target (0.33, WCAG 2.5.8 Target Size Minimum, 24x24 CSS px). The
+   marker is a ~8x18px superscript digit, and `line-height: 0` is what
+   keeps it from stretching its line. A transparent ::before overlay,
+   centred on the marker and at least 24px square, extends the clickable
+   area without moving the digit or touching the line box: absolutely
+   positioned boxes take no part in line layout, so the paragraph's
+   leading is unchanged. `.remarque-sidenote-ref--repeat` gets it too. */
+.remarque-sidenote-ref {
+  position: relative;
+}
+
+.remarque-sidenote-ref::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 24px);
+  height: 24px;
+  transform: translate(-50%, -50%);
+}
+
 .remarque-sidenote-ref:hover {
   color: var(--color-accent-hover);
   text-decoration: underline;
