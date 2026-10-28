@@ -10,6 +10,18 @@ export function GET(context: APIContext) {
     site: context.site?.toString() ?? 'https://williamzujkowski.github.io/',
     items: [
       {
+        title: 'Palettes as Data',
+        pubDate: new Date('2026-10-28'),
+        description: 'How a dataset of terminal themes becomes audited site palettes, why the contrast gate outranks taste, and what a footer picker nobody could find taught us.',
+        link: '/remarque/writing/palettes-as-data/',
+      },
+      {
+        title: 'Why 17px and 38rem',
+        pubDate: new Date('2026-10-28'),
+        description: 'Where the body size, the reading measure and the leading come from: a published floor, a measurement that corrected an earlier mistake, and one deviation argued in the open.',
+        link: '/remarque/writing/why-17px-and-38rem/',
+      },
+      {
         title: 'Typography as Interface',
         pubDate: new Date('2026-04-08'),
         description: 'When typography is the primary visual system, every decision about type is a decision about interface.',
