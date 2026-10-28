@@ -565,6 +565,8 @@ Remarque adopts typography and accessibility standards from the [US Web Design S
 | `--text-meta` | 14px (0.875rem) | Remarque's own floor for small text. USWDS says to use tokens smaller than its 16px step "more sparingly — for shorter companion text like captions, footnotes, photo credits, or specialized UI elements" but states no minimum. Used sparingly for metadata, labels, captions. |
 | `--text-micro` | 13px (0.8125rem) | Remarque's own floor for timestamps and fine print only; USWDS's scale has a 13px step (`3xs`) but no stated minimum. Never for body content. |
 
+**Re-evaluated 2026-10-28, kept 7–0** (`vote-1793196422062-oy4tcnz`). These values used to be described as "USWDS minimums", which was false. The panel re-examined them on the corrected evidence: USWDS has 13px and 14px as scale steps to use "more sparingly", WCAG 2.2 sets no minimum font size, and the values pass the audit, axe, reflow and forced-colors suites on every consumer. It chose to keep them over retiring the 13px tier or raising both to 15/14px. A caveat the panel recorded: those checks show the sizes survive resizing and user overrides (WCAG 1.4.4, 1.4.12), not that they're optimal at default size. The values stand because nothing shows them failing, and a change would cost every consumer a MINOR.
+
 ### Contrast Ratios (WCAG 2.2 AA)
 
 | Pairing | Requirement | Notes |
@@ -706,15 +708,20 @@ deviate — values below are asserted against `tokens.json` in CI:
 
 ### The line-spacing deviation, argued
 
-Remarque's 175% body leading sits **outside Butterick's 120–145% range,
-at the airy extreme of quality web practice (commonly 150–165%)**. We
-own that plainly rather than argue it away. The reasons it is a
+Remarque's 175% body leading sits **outside Butterick's 120–145% range**,
+on the generous side. We own that plainly rather than argue it away. The reasons it is a
 deliberate identity choice, not an oversight:
 
-1. **Leading scales with measure.** Classic guidance ties looser leading
-   to longer lines; Remarque's ~70 ch measure sits in the upper-middle
-   of Butterick's own 45–90 ch range, and screen prose at 17px benefits
-   from more air than his print-derived band.
+1. **Longer text wants more leading.** USWDS: "Longer texts require more
+   line height" and "Longer texts should have a line height of at least
+   1.5" ([typography](https://designsystem.digital.gov/components/typography/)).
+   Body prose is exactly that longer text, so a body value inside Butterick's
+   band (≤1.45) would fall below USWDS's floor. USWDS also notes the
+   counterpoint: "long lines of text can benefit from slightly less line
+   height than usual, as too much line height can make each individual line
+   appear too prominent". Remarque's ~71-character measure is upper-middle
+   of Butterick's 45–90 range rather than a long line, and the caution is
+   recorded here rather than argued away.
 2. **Token-hierarchy coherence.** Literal conformance (≤145%) would put
    body leading *below* `--leading-meta: 1.5` (Remarque's own choice for short
    text; USWDS asks for at least 1.5 on longer text). Body text reading tighter
@@ -727,7 +734,14 @@ The trade-off is real: 1.75 spends more vertical space and reads calmer
 and slower than 1.5–1.65. Sites wanting Butterick-tighter rhythm are
 choosing a different identity — that is a fork, and an honorable one,
 but it is not Remarque. (Ratified 3–0 by design-review panel, 2026-07-20,
-over the alternative of changing the token.)
+over the alternative of changing the token. **Re-ratified 7–0 on corrected
+facts, 2026-10-28** (`vote-1793196515937-ahp7o7t`). The 2026-07-20 vote
+leaned partly on a "USWDS/WCAG floors" premise for short text that was false,
+and on an unsourced "commonly 150–165%" figure and a "print-derived band"
+description of Butterick's web guide, both removed here. The panel chose
+REAFFIRM over tightening to 1.6 or moving inside Butterick's band at 1.45.
+WCAG 2.2 SC 1.4.12 only requires that 1.5× line height be *supportable*
+under user overrides; it doesn't prescribe the authored value.)
 
 ---
 
