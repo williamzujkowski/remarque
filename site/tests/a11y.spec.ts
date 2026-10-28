@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { PAGES, THEMES, gotoWithTheme } from './helpers';
+import { PAGES, EXTRA_PAGES, THEMES, gotoWithTheme } from './helpers';
 
 /**
  * axe-core gate (issue #126): WCAG 2.0/2.1/2.2 A + AA rules, every demo page
@@ -38,7 +38,7 @@ async function scan(page: Page, opts: { forcedColors?: boolean } = {}) {
     }));
 }
 
-for (const { slug, path } of PAGES) {
+for (const { slug, path } of [...PAGES, ...EXTRA_PAGES]) {
   for (const theme of THEMES) {
     test(`axe: ${slug} (${theme})`, async ({ page }) => {
       await gotoWithTheme(page, path, theme);

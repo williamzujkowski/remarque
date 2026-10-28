@@ -43,6 +43,18 @@ export const PAGES: PageSpec[] = [
 ];
 
 /**
+ * Pages that join the axe and 320px reflow suites but not the screenshot
+ * baselines: the Essay and Project Dossier archetypes already have VR
+ * baselines (`essay`, `dossier` above), and these are further instances of
+ * them. Kept out of `PAGES` so adding an instance doesn't mint eight more PNGs.
+ */
+export const EXTRA_PAGES: PageSpec[] = [
+  { slug: 'essay-17px-38rem', path: 'writing/why-17px-and-38rem' },
+  { slug: 'essay-palettes-as-data', path: 'writing/palettes-as-data' },
+  { slug: 'dossier-oklch-terminal-themes', path: 'projects/oklch-terminal-themes' },
+];
+
+/**
  * Navigate to `path` with `data-theme` already resolved before first paint,
  * then pin it directly to `theme` — avoids driving the toggle button (icon
  * swap + hover transition) purely to get into the target theme.

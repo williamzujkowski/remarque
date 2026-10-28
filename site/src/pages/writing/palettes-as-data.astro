@@ -1,0 +1,126 @@
+---
+/**
+ * Essay — Page Archetype
+ *
+ * Long-form writing on the Essay Module: `.remarque-essay` grid shell,
+ * sticky TOC rail, DOM-order sidenotes. Same structure and markup as
+ * `typography-as-interface.astro`. Facts come from REMARQUE.md "Palette
+ * Deck", CHANGELOG 0.31.x / 0.32.0 and the oklch-terminal-themes 0.10.0
+ * package; external claims link to the primary source in a sidenote.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Meta from '../../components/Meta.astro';
+import Prose from '../../components/Prose.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="Palettes as Data" description="How Remarque turns a dataset of terminal themes into audited site palettes, why the contrast gate outranks taste, and what a footer picker nobody could find taught us.">
+  <article class="remarque-essay pt-[var(--space-9)]">
+    <header class="content-reading mb-8">
+      <h1 class="text-display font-display text-[var(--color-fg)]">Palettes as Data</h1>
+      <div class="mt-4">
+        <Meta date="2026-10-28" readingTime="5 min read" tags={["color", "oklch", "palette deck"]} />
+      </div>
+    </header>
+
+    <nav class="remarque-toc-rail" aria-label="Table of contents">
+      <details open>
+        <summary>On this page</summary>
+        <ul>
+          <li><a href="#a-dataset">A dataset, not a theme gallery</a></li>
+          <li><a href="#oklch-and-light-dark">OKLCH and light-dark()</a></li>
+          <li><a href="#gates-over-taste">Gates over taste</a></li>
+          <li><a href="#the-picker">The picker nobody found</a></li>
+        </ul>
+      </details>
+    </nav>
+
+    <Prose>
+      <p class="text-[length:var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg)]">
+        Remarque lets a reader switch a site to one of 15 terminal-derived palettes while the site keeps its own as the default. Nobody drew those 15 by hand. They are derived from a dataset, and each one has to pass the same audit the default palette passes.
+      </p>
+
+      <h2 id="a-dataset">A dataset, not a theme gallery</h2>
+
+      <p>
+        The source is <code>@williamzujkowski/oklch-terminal-themes</code>, which at version 0.10.0 holds 908 terminal color schemes converted to OKLCH<a href="#note-dataset" id="note-dataset-ref" class="remarque-sidenote-ref" aria-label="Note 1" aria-describedby="note-dataset"></a>. Each record carries its colors, WCAG contrast figures and, where one exists, a <code>counterpart</code>: the canonical opposite-polarity theme. A light theme with a counterpart is a pair, and a pair is what a site needs, because a site has to answer to both a light and a dark mode.
+      </p>
+      <aside class="remarque-sidenote" id="note-dataset" role="note">
+        The package description on npm says “908 terminal color schemes converted to OKLCH, with WCAG contrast data per theme”; the repository README carries the same count. <a href="https://github.com/williamzujkowski/oklch-terminal-themes">github.com/williamzujkowski/oklch-terminal-themes</a>. The project has its own <a href={`${base}projects/oklch-terminal-themes`}>dossier</a> on this site.
+      </aside>
+
+      <p>
+        In 0.10.0 there are 97 light themes with a counterpart. Remarque’s test corpus derives a palette from every one of them and runs the audit, and all 97 pass. That number was 73 when the Palette Deck shipped in 0.31 and grew when the dataset added 166 themes. The pins matter here: the deck ships prebuilt in <code>deck.css</code>, built from the pinned dataset and checked for freshness in CI, so a dataset release can never change the colors on a live site. A change to the curated set ships as a Remarque minor.
+      </p>
+
+      <p>
+        The curated set is the dataset’s <code>popular</code> pairs minus near-duplicates: Atom One, Ayu, Catppuccin, GitHub, Gruvbox, Gruvbox Material, Iceberg, Material, Monokai Pro, Nord, One Half, Rosé Pine, Solarized, Tokyo Night and Tomorrow. The file is about 8 KB gzipped, inside a budget the repo enforces. The decision that each site’s own palette stays the default, with the deck as a reader’s preference on top, was ratified 6 to 1.
+      </p>
+
+      <h2 id="oklch-and-light-dark">OKLCH and light-dark()</h2>
+
+      <p>
+        OKLCH is the polar form of Björn Ottosson’s Oklab, which he designed “to be simple to use, while doing a good job at predicting perceived lightness, chroma and hue”<a href="#note-oklab" id="note-oklab-ref" class="remarque-sidenote-ref" aria-label="Note 2" aria-describedby="note-oklab"></a>. For palette work that has a concrete payoff. Lightness is the axis contrast depends on, hue and chroma carry a theme’s character, and in OKLCH they are separate numbers. You can hold a theme’s hue and chroma and move only lightness until a ratio passes.
+      </p>
+      <aside class="remarque-sidenote" id="note-oklab" role="note">
+        Ottosson, “A perceptual color space for image processing”: <a href="https://bottosson.github.io/posts/oklab/">bottosson.github.io/posts/oklab</a>. MDN describes the <code>oklch</code> function as “the cylindrical form of <code>oklab()</code>”: <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch">developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch</a>.
+      </aside>
+
+      <p>
+        That is what the bridge does. <code>remarque-theme</code> lets hue and chroma carry the theme’s personality. For the slots that have a meaningful value of their own (foreground, accent, accent hover, and in dark mode the selection and code foregrounds), the theme’s authored lightness is kept if it already clears the slot’s contrast target and is solved only if it does not. Every other slot is derived. A well-made theme comes through close to its own feel, and a theme that fails a target still gets a value that passes.
+      </p>
+
+      <p>
+        The deck emits each palette with <code>remarque-theme --format light-dark</code> as a single block built on <code>light-dark()</code>. MDN describes the function as returning a color “based on the active color scheme, without needing a <code>prefers-color-scheme</code> media feature”<a href="#note-light-dark" id="note-light-dark-ref" class="remarque-sidenote-ref" aria-label="Note 3" aria-describedby="note-light-dark"></a>. The practical result is that choosing Nord does not force a mode. The palette follows whatever <code>color-scheme</code> the page sets, whether that comes from a <code>data-theme</code> attribute, a <code>.dark</code> class or the operating system. The flagship site’s earlier single-mode deck forced one.
+      </p>
+      <aside class="remarque-sidenote" id="note-light-dark" role="note">
+        MDN, <code>light-dark()</code>: <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark">developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark</a>. It requires <code>color-scheme</code> to include both values, usually set on <code>:root</code>.
+      </aside>
+
+      <h2 id="gates-over-taste">Gates over taste</h2>
+
+      <p>
+        The spec says it directly: terminal themes carry only a background, a foreground, a cursor, a selection and 16 ANSI slots, and most fail the system’s 7:1 AAA line for secondary text as authored. A palette that is lovely in a terminal can be unreadable as a page. Taste has no way to settle that, because the disagreement is about a number.
+      </p>
+
+      <p>
+        So <code>remarque-audit</code> settles it. It computes WCAG 2.x contrast ratios for the token pairings, requires 4.5:1 for text<a href="#note-wcag" id="note-wcag-ref" class="remarque-sidenote-ref" aria-label="Note 4" aria-describedby="note-wcag"></a> and 3:1 for the borders a reader needs to see, and fails any color outside the sRGB gamut, since a browser clips it and the authored value is not what renders. <code>remarque-deck</code> runs it on every palette and fails the whole build if one fails. The same thresholds sit inside the generator, which self-verifies its output before it emits anything.
+      </p>
+      <aside class="remarque-sidenote" id="note-wcag" role="note">
+        W3C, Understanding SC 1.4.3 Contrast (Minimum), <a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html">w3.org/WAI/WCAG22/Understanding/contrast-minimum</a>, and SC 1.4.11 Non-text Contrast, <a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html">w3.org/WAI/WCAG22/Understanding/non-text-contrast</a>.
+      </aside>
+
+      <p>
+        A passing ratio is not the same as a good palette, and the audit knows it. A second tier of coherence warnings catches palettes that clear every floor and are still wrong. The spec lists two real cases: Rosé Pine light shipped with primary text at 7.42:1 under secondary text at 7.52:1, and Gruvbox shipped an accent identical to its error color. Neither fails a contrast floor. Both are the kind of problem a gate finds and a glance at a swatch does not.
+      </p>
+
+      <p>
+        The dataset is careful about the same distinction. It records APCA contrast scores for every theme, and uses <code>github-dark</code> as its example: it passes WCAG at 6.09:1 and scores only -43.5 on APCA, well short of the roughly 60 the README gives as the body-text guide. It publishes that as data and gates on nothing. Remarque takes the same position, and records that it will revisit when a ratified WCAG 3 conformance model specifies an algorithm and thresholds. Until then the gate is WCAG 2.x ratios, because a gate has to be something you can fail.
+      </p>
+
+      <h2 id="the-picker">The picker nobody found</h2>
+
+      <p>
+        The Palette Deck shipped in 0.31 with the picker in the footer. That is where the first adopters put it, and the demo site did too. A reader of tsundoku’s live site could not find it. The picker rendered as one line of mono text at the very bottom of a long page, with nothing to say it opened.
+      </p>
+
+      <p>
+        The picker itself worked: native radio inputs, operable from the keyboard. For a person scrolling a long page it was not there. 0.32.0 changed what the module recommends: a popover variant, a 44px icon button in the header beside the light/dark toggle, with a panel that drops down from the inline-end edge and becomes a bottom sheet under 40rem. The plain variant gained a disclosure marker, since nothing in it said “this opens”. The spec, the agent rules and the adoption skill now say to put the picker in the header.
+      </p>
+
+      <p>
+        The 0.31 release had a quieter failure of the same kind. Scoped deck palettes used the selector <code>[data-palette="…"]</code> at specificity (0,1,0), which tied with <code>:root</code> and lost to any site palette loaded after it. In the demo the light variants never applied, and only the dark blocks, one attribute heavier, did. The fix is <code>:root:root[data-palette="…"]</code> at (0,3,0), which beats the class conventions sites use for their own palettes whatever order the stylesheets load in. Every palette in the deck passed the audit throughout; the audit says nothing about whether a palette is ever applied.
+      </p>
+    </Prose>
+
+    <div class="remarque-endmark content-reading" aria-hidden="true"></div>
+
+    <nav class="remarque-pager content-reading" aria-label="More writing">
+      <a class="remarque-pager-prev" href={`${base}writing/why-17px-and-38rem`} rel="prev">
+        <span class="remarque-pager-label">Previous</span>
+        <span class="remarque-pager-title">Why 17px and 38rem</span>
+      </a>
+    </nav>
+    <p class="content-reading mt-4"><a href={`${base}writing`} class="footer-link -ml-2 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)]">All writing</a></p>
+  </article>
+</BaseLayout>

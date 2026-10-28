@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { PAGES, gotoWithTheme } from './helpers';
+import { PAGES, EXTRA_PAGES, gotoWithTheme } from './helpers';
 
 /**
  * WCAG 2.2 SC 1.4.10 Reflow and SC 1.4.12 Text Spacing (issue #122).
@@ -16,7 +16,7 @@ const LONG_CODE = '@scope/package-name-that-is-long/dist/esm/internal/' + 'x'.re
 const LONG_WORD = 'Pneumonoultramicroscopicsilicovolcanoconiosisinternationalization';
 
 test.describe('reflow at 320 CSS px (WCAG 1.4.10)', () => {
-  for (const p of PAGES) {
+  for (const p of [...PAGES, ...EXTRA_PAGES]) {
     test(`/${p.path} has no horizontal scroll`, async ({ page }) => {
       await page.setViewportSize({ width: 320, height: 700 });
       await gotoWithTheme(page, p.path, 'light');
