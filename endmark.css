@@ -1,0 +1,40 @@
+/*
+ * Remarque — Essay end mark
+ * ─────────────────────────
+ * Its own subpath, remarque-tokens/endmark, so a site with its own prose
+ * system can take the mark alone; prose.css @imports this file, so
+ * prose.css consumers get it with no extra import. One copy of the rule:
+ * do not paste it into another file.
+ */
+
+/* ─── The Remarque Mark ─────────────────────────────────── */
+/*
+ * The system's namesake, made visible: a small mark closing every
+ * essay, the way a printer's fleuron ends a chapter. Quiet by rule —
+ * muted color, meta scale, one per essay, nothing else on its line.
+ *
+ * Markup (aria-hidden — it is punctuation, not content):
+ *   <div class="remarque-endmark" aria-hidden="true"></div>
+ * placed after the last element inside .remarque-prose.
+ *
+ * The fleuron (U+2766) is outside the latin font subsets by design;
+ * it intentionally falls through to the serif fallback stack.
+ */
+
+/* The second selector is a cascade guard, not decoration. This file is
+   @imported at the TOP of prose.css, so it now precedes `.remarque-prose >
+   * + *` (margin-top: var(--space-5), same specificity), which used to
+   come first and lose to this rule by order. Inside .remarque-prose the
+   mark must keep its --space-7 gap, so that case outranks it. */
+.remarque-endmark,
+.remarque-prose > .remarque-endmark {
+  text-align: center;
+  margin-top: var(--space-7);
+}
+
+.remarque-endmark::after {
+  content: "\2766";
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  color: var(--color-muted);
+}

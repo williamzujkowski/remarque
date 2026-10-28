@@ -35,3 +35,24 @@ for (const viewport of VIEWPORTS) {
     }
   });
 }
+
+/**
+ * The essay drop cap (0.33). Only /writing/against-decoration/ opts into
+ * `.remarque-prose--dropcap`, and the full-page shots above do not carry
+ * it, so its fit has its own baselines: the opening paragraph, cropped,
+ * light/dark × 375/1280. The numeric fit (ink top on the first line's
+ * cap-height, foot on line 3's baseline, per engine and face) is
+ * asserted in dropcap-fit.spec.ts; these catch the look.
+ */
+for (const viewport of VIEWPORTS) {
+  for (const theme of THEMES) {
+    test(`dropcap-essay ${theme} ${viewport.name}`, async ({ page }) => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      await gotoWithTheme(page, 'writing/against-decoration', theme);
+      const box = await page.locator('.remarque-prose--dropcap > p:first-of-type').first().boundingBox();
+      expect(box).not.toBeNull();
+      const clip = { x: Math.max(0, box!.x - 16), y: Math.max(0, box!.y - 16), width: Math.min(viewport.width, box!.width + 32), height: box!.height + 32 };
+      await expect(page).toHaveScreenshot(`dropcap-essay-${theme}-${viewport.name}.png`, { clip, fullPage: true, animations: 'disabled' });
+    });
+  }
+}

@@ -48,8 +48,16 @@ for (const f of shipped) {
 }
 // Effective bare tokens.css: @import targets in order, then the aggregator body.
 const aggregator = read('tokens.css');
-const imports = [...stripComments(aggregator).matchAll(/@import\s+(?:url\()?['"]\.\/([^'"]+)['"]/g)].map((m) => m[1]);
-const effective = imports.map(read).join('\n') + '\n' + aggregator;
+// @imports are followed recursively (prose.css pulls in dropcap.css,
+// endmark.css and code-title.css, 0.33), depth-first, each file once.
+const importsOf = (css) => [...stripComments(css).matchAll(/@import\s+(?:url\()?['"]\.\/([^'"]+)['"]/g)].map((m) => m[1]);
+const flatten = (file, seen = new Set()) => {
+  if (seen.has(file)) return [];
+  seen.add(file);
+  const css = read(file);
+  return [...importsOf(css).flatMap((f) => flatten(f, seen)), css];
+};
+const effective = [...importsOf(aggregator).flatMap((f) => flatten(f)), aggregator].join('\n');
 sizes[EFFECTIVE] = { gzip: gz(effective), brotli: br(effective) };
 
 const budgetsPath = join(root, 'budgets.json');
@@ -82,7 +90,7 @@ for (const k of Object.keys(budgets)) {
 }
 
 // ---- 2. module closure ----------------------------------------------------
-const MODULES = ['prose.css', 'essay.css', 'broadsheet.css', 'forms.css', 'chrome.css', 'print.css'];
+const MODULES = ['prose.css', 'dropcap.css', 'endmark.css', 'code-title.css', 'essay.css', 'broadsheet.css', 'forms.css', 'chrome.css', 'print.css'];
 /* Intentional consumer hooks: referenced but not declared by the package.
    One entry per name, each with the reason. Empty on purpose. */
 const ALLOW = new Set([

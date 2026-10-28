@@ -24,8 +24,8 @@
         }
       ],
       "meta": {
-        "version": "0.32.0",
-        "integrity": "sha256-wX6+Ei3cy7GVJRxpiBGXRSDGULPdwrVzsjBQRIQyWFQ=",
+        "version": "0.33.0",
+        "integrity": "sha256-W0lFacGiEd/fvifrk/E1zV0k4ayMlF8yltNgFFnds4M=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#essay-module",
         "cssVars": [
           "--border-style",
@@ -80,8 +80,8 @@
         }
       ],
       "meta": {
-        "version": "0.32.0",
-        "integrity": "sha256-dUwg7P0Zx1nH5kfx/Bj7wKiUagc28BD5//zDWmFTU/Y=",
+        "version": "0.33.0",
+        "integrity": "sha256-MtIHd63bZGj74mRHTeH31pqH0iI5PWuh0R9zYIRPeSc=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#broadsheet",
         "cssVars": [
           "--border-style",
@@ -149,7 +149,7 @@
         }
       ],
       "meta": {
-        "version": "0.32.0",
+        "version": "0.33.0",
         "integrity": "sha256-DdcOyeMrVuYrMe+bz6t2zJSkUpjkoqyVNZdXRHTqJo8=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#forms",
         "cssVars": [
@@ -211,7 +211,7 @@
         }
       ],
       "meta": {
-        "version": "0.32.0",
+        "version": "0.33.0",
         "integrity": "sha256-5+gc1S8sFq0sAd+njqO2qVElT2XYlJLAbkostIgJcOU=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module",
         "cssVars": [
@@ -272,7 +272,7 @@
         }
       ],
       "meta": {
-        "version": "0.32.0",
+        "version": "0.33.0",
         "integrity": "sha256-LCJRSciiCl5hZrKhpX45Mdqb4Oom+Uht/3ANEFO5D+0=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module",
         "cssVars": [
@@ -333,7 +333,7 @@
         }
       ],
       "meta": {
-        "version": "0.32.0",
+        "version": "0.33.0",
         "integrity": "sha256-GZKNoviE6RMGyCaZADAkLwBeyq1CKMiDzx120ENqUck=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module",
         "cssVars": [
@@ -394,7 +394,7 @@
         }
       ],
       "meta": {
-        "version": "0.32.0",
+        "version": "0.33.0",
         "integrity": "sha256-+q36B2RJNg3PovxdL99iqqp6GU/HiKpauPoxYXQePFo=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#chrome-module",
         "cssVars": [
@@ -455,7 +455,7 @@
         }
       ],
       "meta": {
-        "version": "0.32.0",
+        "version": "0.33.0",
         "integrity": "sha256-50ZuW45KgrVuGhyOrC7yqHpBMswfrasI1sjGKa8Zu4E=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#picker-markup-contract",
         "cssVars": [
@@ -511,7 +511,7 @@
         }
       ],
       "meta": {
-        "version": "0.32.0",
+        "version": "0.33.0",
         "integrity": "sha256-WGgBZ2j0VnLPRAZlzv/4G1Wu9rKqTdXf1536dWWu8nU=",
         "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#palette-deck",
         "cssVars": []

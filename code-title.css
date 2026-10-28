@@ -1,0 +1,22 @@
+/*
+ * Remarque — Code-block title (#129)
+ * ──────────────────────────────────
+ * A mono filename line at the top of a code block, in the no-chrome
+ * voice: a hairline under it, no filled tab. Set data-title="src/config.ts"
+ * on the <pre> inside .remarque-prose (Shiki and rehype-pretty-code both
+ * can). Its own subpath, remarque-tokens/code-title, so a site with its
+ * own prose system can take the filename line alone; prose.css @imports
+ * this file, so prose.css consumers get it with no extra import. One
+ * copy of the rule: do not paste it into another file.
+ */
+
+.remarque-prose pre[data-title]::before {
+  /* The negative margins reach the block's edges through its padding. */
+  content: attr(data-title);
+  display: block;
+  margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) var(--space-4);
+  padding: var(--space-2) var(--space-5);
+  border-block-end: var(--border-width) var(--border-style) var(--color-border);
+  letter-spacing: var(--tracking-meta);
+  color: var(--color-muted);
+}

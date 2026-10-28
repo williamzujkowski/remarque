@@ -76,7 +76,7 @@ try {
 if (tarballPath && existsSync(tarballPath)) {
   try {
     const listing = execFileSync('tar', ['-tzf', tarballPath], { encoding: 'utf8' });
-    for (const p of ['package/skills/remarque/SKILL.md', 'package/skills/remarque-adopt/SKILL.md', 'package/skills/remarque-new-page/SKILL.md', 'package/deck/deck.css', 'package/deck/deck.json', 'package/deck/curated.json', 'package/scripts/deck.mjs']) {
+    for (const p of ['package/skills/remarque/SKILL.md', 'package/skills/remarque-adopt/SKILL.md', 'package/skills/remarque-new-page/SKILL.md', 'package/deck/deck.css', 'package/deck/deck.json', 'package/deck/curated.json', 'package/scripts/deck.mjs', 'package/dropcap.css', 'package/endmark.css', 'package/code-title.css']) {
       expect(`tarball contains ${p}`, listing.includes(p));
     }
   } catch (e) {
@@ -142,6 +142,34 @@ if (tarballPath && existsSync(tarballPath)) {
         /* fall through to the false expect below */
       }
       expect('npx remarque-audit --palette out.css --src . --json exits 0 with passed: true', false, report ? JSON.stringify(report.failures) : e.stderr?.toString() || e.message);
+    }
+  }
+
+  // The prose partials (0.33): dropcap, endmark and code-title are their own
+  // subpaths AND are @imported by prose.css. Each must resolve through its
+  // export from the installed tarball, hold its rule, and every file
+  // prose.css imports must exist in the install (a missing partial would
+  // silently unstyle every prose.css consumer).
+  {
+    const installed = join(consumerDir, 'node_modules', 'remarque-tokens');
+    const partials = [['dropcap', 'dropcap.css', '.remarque-prose--dropcap'], ['endmark', 'endmark.css', '.remarque-endmark'], ['code-title', 'code-title.css', 'pre[data-title]']];
+    for (const [name, file, needle] of partials) {
+      for (const spec of [`remarque-tokens/${name}`, `remarque-tokens/${file}`]) {
+        try {
+          const url = execFileSync('node', ['--input-type=module', '-e', `console.log(import.meta.resolve(${JSON.stringify(spec)}))`], { cwd: consumerDir, encoding: 'utf8', env }).trim();
+          const css = readFileSync(new URL(url), 'utf8');
+          expect(`${spec} resolves from the installed tarball to ${file} and holds ${needle}`, url.endsWith(`/${file}`) && css.includes(needle), url);
+        } catch (e) {
+          expect(`${spec} resolves from the installed tarball`, false, e.stderr?.toString() || e.message);
+        }
+      }
+    }
+    const prose = readFileSync(join(installed, 'prose.css'), 'utf8');
+    const imported = [...prose.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/@import\s+['"]\.\/([^'"]+)['"]/g)].map((m) => m[1]);
+    expect('prose.css @imports the three partials', ['dropcap.css', 'endmark.css', 'code-title.css'].every((f) => imported.includes(f)), imported.join(', '));
+    for (const f of imported) expect(`prose.css's @import ./${f} is in the installed package`, existsSync(join(installed, f)));
+    for (const [, file, needle] of partials) {
+      expect(`prose.css itself no longer carries the ${file} rule (one copy)`, !prose.replace(/\/\*[\s\S]*?\*\//g, '').includes(needle));
     }
   }
 

@@ -47,7 +47,7 @@ Remarque projects should feel like a modern technical publication — not a gene
 - **Accessibility:** USWDS-informed. Keyboard navigation, skip-to-content link, ARIA labels, WCAG AA contrast compliance, 44px touch targets, and a 14px floor for small text (Remarque's own choice; see "Font Size Floors")
 - **Tokens:** Centralized CSS custom properties in two tiers — `tokens-core.css` (immutable identity) + `tokens-palette.css` (sanctioned personalization). `tokens.css` aggregates both. See "Token Tiers"
 - **Fonts:** Self-hosted woff2 (no CDN dependency). Preloaded via `<link rel="preload">`
-- **Package:** `npm install remarque-tokens` — subpaths: `remarque-tokens` (aggregator), `/core`, `/palette`, `/fonts.css`, `/tailwind`; ships `npx remarque-audit`. Copy path also supported: `fonts.css` + `tokens.css` + `tokens-core.css` + `tokens-palette.css` + `fonts/` travel together (the aggregator imports the tier files)
+- **Package:** `npm install remarque-tokens` — subpaths: `remarque-tokens` (aggregator), `/core`, `/palette`, `/fonts.css`, `/tailwind`, and the optional modules (`/prose`, `/dropcap`, `/endmark`, `/code-title`, `/essay`, `/broadsheet`, `/forms`, `/chrome`, `/print`); ships `npx remarque-audit`. Copy path also supported: `fonts.css` + `tokens.css` + `tokens-core.css` + `tokens-palette.css` + `fonts/` travel together (the aggregator imports the tier files)
 
 ### Tailwind Spacing Integration Note
 
@@ -64,7 +64,7 @@ Tokens live in two files with different contracts:
 | **Core** | `tokens-core.css` | Type scale + 17px body floor, line heights, tracking, weights, spacing scale, `--content-standard`/`--content-wide`, radius ceiling, motion durations, prose/typography machinery | **Never overridden.** A site that changes these has forked Remarque — it is no longer a Remarque site, by definition |
 | **Palette** | `tokens-palette.css` | Font slots (`--font-display/body/mono`), all `--color-*`, `--content-reading` (the measure, which moves with the body font) | **Override freely** in a site stylesheet loaded after the tokens. Every replacement palette must pass the audit in both themes: `npm run audit` in this repo, `npx remarque-audit --palette <file> --src <dir>` in a consumer project |
 
-Package subpaths for consumers: `remarque-tokens` (aggregator), `remarque-tokens/core`, `remarque-tokens/palette`, `remarque-tokens/fonts.css`.
+Package subpaths for consumers: `remarque-tokens` (aggregator), `remarque-tokens/core`, `remarque-tokens/palette`, `remarque-tokens/fonts.css`. The optional modules (`/prose`, `/dropcap`, `/endmark`, `/code-title`, `/essay`, `/broadsheet`, `/forms`, `/chrome`, `/print`) are listed in "Drop Caps" and the module sections below; `/dropcap`, `/endmark` and `/code-title` are partials that `prose.css` also `@import`s.
 
 This makes compliance mechanical: a site that overrides only palette-tier tokens is *authored*; one that touches core-tier tokens has *forked*. `tokens.css` imports both tiers, so existing consumers are unaffected.
 
@@ -252,13 +252,45 @@ Labels that want a caps-like treatment use **real capitals with added tracking**
 
 ### Drop Caps (opt-in)
 
-`.remarque-prose--dropcap`, applied alongside `.remarque-prose`, floats a large italic display-face initial letter on the first paragraph only — the way a printed essay opens its first page. Rules:
+`.remarque-prose--dropcap`, applied alongside `.remarque-prose`, sets a large italic display-face initial letter on the first paragraph only — the way a printed essay opens its first page. Rules:
 
 - Essay first paragraph only — never mid-article, never in Dossier/Notebook/Landing content.
-- Uses `initial-letter` where supported, with a `float` + font-size fallback for browsers that lack it.
+- **The cap spans three lines** (0.33). Its ink top sits on the first line's cap-height and its foot on the third line's baseline. `initial-letter: 3` does that in Chromium and WebKit; the size must be an **integer**, because a fractional one leaves the baseline between two body baselines.
 - Inherits `--color-fg` — the drop cap is not a place for accent color.
 - Skipped automatically when the paragraph opens with a quote or inline code (the ornament assumes a plain capital letter).
 - Opt-in only. Most pages should not use it; it is reserved for essays that want a printed, literary register.
+
+**Shipped as its own subpath** (0.33): `remarque-tokens/dropcap` (`dropcap.css`). A site with its own prose system takes the drop cap by `@import` without taking the rest of `prose.css` (the flagship found that importing `prose.css` restyled its whole article body, so it vendored a copy, which can drift). `prose.css` `@import`s `dropcap.css`, so existing `prose.css` consumers need no change, and there is one copy of the rule. The same extraction gave `remarque-tokens/endmark` (the closing `.remarque-endmark` fleuron) and `remarque-tokens/code-title` (the `pre[data-title]` filename line). Copy-path consumers: the three partials now travel with `prose.css`, because it imports them.
+
+**Consumer conventions.** CSS cannot see text length or letter case, so the page builder (a rehype plugin, a template) applies these to the first paragraph:
+
+| Class | When | Effect |
+|---|---|---|
+| `.remarque-dropcap--short` | The lead is two lines long: roughly 100 to 190 characters at the reading measure | A two-line cap (`initial-letter: 2`) |
+| `.no-drop-cap` (alias `.remarque-dropcap--none`) | The lead is one line, or opens lowercase ("npm", "gVisor") | No cap; the first letter stays plain |
+
+A three-line cap on a lead shorter than three lines hangs below the text. The following block still clears it, but the cap no longer sits in the paragraph it belongs to. The corpus that prompted this had leads of 109, 165, 169 and 180 characters. A capital-sized initial on a lowercase-led name would split it ("n pm"). The same classes work on `.remarque-lead-lede` in the broadsheet module, which got the same fit.
+
+**Why three lines, not two.** A 2026-10-28 design review of the flagship suggested a two-line cap (`initial-letter: 2`). A measured drop-cap study the same day chose three. The old size, `initial-letter: 3.5`, never lands on a line. In Chromium and WebKit with Newsreader, the cap's top sat about 6px above line 1's cap-height and its foot about 14px below line 3's baseline, so the cap hung between lines. An integer size is exact by construction, so the choice is between 2 and 3. Three keeps the large initial that 3.5 was reaching for, about 2.4 body lines of cap height against about 1.4 at two lines, and now it fits. Two lines ships as `.remarque-dropcap--short`, for leads too short to carry three. The workstream that specified `initial-letter: 3` was ratified 7–0 in `vote-1793200470008-hiqgebl`.
+
+**Measured fit** (ink top against line 1's cap-height; ink foot against line 3's baseline; flat letters H and B; the test is `site/tests/dropcap-fit.spec.ts`, ≤2px asserted in Chromium, WebKit and Firefox, for Newsreader and Fraunces, the prose cap and the broadsheet lede):
+
+| Engine | Cap | Before (px: top / foot) | After (px: top / foot) |
+|---|---|---|---|
+| Chromium | prose | -6.0 / +14.5 | +1.0 / +0.5 |
+| Chromium | lede | -7.0 / +16.5 | 0.0 / +0.5 |
+| WebKit | prose | +0.6 / +12.1 | +0.6 / -1.9 |
+| WebKit | lede | +0.9 / +15.4 | +1.4 / +0.4 |
+| Firefox (float) | prose | -2.9 / -33.4 | +0.1 / -0.4 |
+| Firefox (float) | lede | -2.1 / -35.6 | +1.9 / +1.4 |
+
+(Newsreader values; Fraunces within the same band, see the test.) The Firefox "before" foot is about a line above where it should be: the old float spanned two lines, not three.
+
+**Optical size is pinned.** Newsreader and Fraunces have an `opsz` axis. At the automatic optical size, a 100px letter gets the top of the axis, and its capitals are drawn about 7% taller than the font's cap-height metric, which is what `initial-letter` sizes by: Newsreader's cap measured 4px too high at the top. The cap sets `font-optical-sizing: none`, so the drawn height and the metric agree. A cap set at the face's default optical size is a little sturdier than an optically sized one; that is the price of an exact fit.
+
+**Firefox fallback.** Firefox has no `initial-letter` (MDN browser-compat-data 8.1.7: `version_added: false`; bugzil.la/1223880), so it, and any browser without it, gets a float. The float is derived, not guessed: `font-size-adjust: cap-height 0.7` fixes the cap at 0.7em whatever the face; the font size (6.04em for a three-line cap on a 17px Inter paragraph) makes the ink run from line 1's cap-height to line 3's baseline; a short `line-height` and a `padding-top` drop it onto line 1 and keep the float from claiming a fourth line. It is tuned for the default leading (1.75) and the default faces. The measured residual on the approved Fraunces substitute is within 2.5px (the broadsheet lede's tallest case is 2.1px), and the test allows that for Firefox on a non-default face.
+
+**Padding.** Chromium ignores *logical* padding (`padding-block`, `padding-inline`) on `::first-letter`, so the gap after the cap never applied there and the float lost its top offset. Every gap is now declared physically first and logically after: where the logical longhands apply they win by order, and Chromium keeps the physical ones. `:dir(rtl)` flips the physical side.
 
 ### Pull Quotes
 
@@ -281,7 +313,7 @@ Labels that want a caps-like treatment use **real capitals with added tracking**
   | `text-wrap: balance` | 114 | 121 | 17.5 | normal wrapping (Baseline 2024) |
   | `text-wrap: pretty` | 117 | — | 26 | normal wrapping; orphans possible |
   | `hanging-punctuation` | — | — | yes | quotes sit inside the measure |
-  | `initial-letter` (drop caps) | 110 | — | prefixed (`-webkit-initial-letter`) | the `float` drop cap in prose.css |
+  | `initial-letter` (drop caps) | 110 | — | prefixed (`-webkit-initial-letter`) | a derived `float` cap spanning the same lines (see "Drop Caps") |
   | `font-variant-caps` small caps | needs `smcp`/`c2sc` in the font | same | same | synthesized; why labels are capitals (see "Small Caps") |
   | `oldstyle-nums` | needs `onum` in the font | same | same | lining figures (see "Numerals") |
 - Long strings: `html { overflow-wrap: break-word; }` (`tokens-core.css`, 0.28, #122). A URL, hash, package path or long inline `code` that can't fit its line breaks instead of widening the page (WCAG 1.4.10 Reflow). It changes nothing for text that fits and inherits into every layer and consumer chrome. `break-word` doesn't shrink an element's min-content width, so the flex labels that must narrow past a long word (TOC rail links and summary, buttons, checkbox and radio labels) use `overflow-wrap: anywhere`; do the same in your own flex or grid chrome. Code blocks are the exception on purpose: `<pre>` keeps `white-space: pre` and scrolls horizontally inside its own box (`overflow-x: auto`), because re-wrapping code changes what it says. Wide tables likewise scroll inside `.scroll-wrap` (prose) or `.remarque-table-wrap` (forms); a bare wide table still widens the page.
@@ -974,6 +1006,7 @@ Requirements the CSS depends on:
   `.remarque-sidenote` after it; later citations of the same note use
   `.remarque-sidenote-ref--repeat` (styled identically, does not advance
   the counter) so the shared numbering doesn't skip.
+- **Tap target (0.33).** The marker is a small superscript digit (about 8x18px, `line-height: 0` so it cannot stretch its line). A transparent `::before` overlay, centered and at least 24x24 CSS px, makes the clickable area meet WCAG 2.5.8 (Target Size, Minimum). The digit does not move and the line's leading does not change: an absolutely positioned box takes no part in line layout. `site/tests/sidenote-target.spec.ts` hit-tests a 24x24 box and compares paragraph height and marker position with the overlay removed.
 - `aria-label="Note N"` on every `.remarque-sidenote-ref`, numbered in
   the same order the CSS counter advances — the ref's visible digit is
   counter-generated, so the anchor itself has no text content, and an

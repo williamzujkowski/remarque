@@ -9,7 +9,9 @@ name: Visual Regression
 #      site/tests/visual.spec.ts-snapshots/. Baselines are generated on
 #      Linux (this runner's OS family) and are CI-canonical: if a local
 #      run elsewhere disagrees with CI, trust CI, don't hand-edit the PNGs.
-#   2. Computed-style assertions (flake-free — no pixel diffing) — the
+#   2. Drop cap fit (measured ink vs baselines, Chromium + Firefox + WebKit)
+#      and the sidenote tap target.
+#   3. Computed-style assertions (flake-free — no pixel diffing) — the
 #      AGENT_RULES.md checklist lines turned into executable tests.
 #
 # Kept as its own workflow file (not folded into deploy.yml) so it doesn't
@@ -44,8 +46,10 @@ jobs:
         run: npm ci
         working-directory: .
 
-      - name: Install Playwright's Chromium (+ OS deps)
-        run: npx playwright install --with-deps chromium
+      # Firefox and WebKit run only dropcap-fit.spec.ts (the float fallback
+      # and WebKit's own initial-letter, playwright.config.ts).
+      - name: Install Playwright's Chromium, Firefox and WebKit (+ OS deps)
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Build Astro site
         run: npm run build

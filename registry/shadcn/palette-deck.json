@@ -17,7 +17,7 @@
   ],
   "docs": "Docs: https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#palette-deck\n\nImport the stylesheet after remarque-tokens. The .usage.html file is a known-good markup sample to copy from, not a runtime file.",
   "meta": {
-    "version": "0.32.0",
+    "version": "0.33.0",
     "integrity": "sha256-WGgBZ2j0VnLPRAZlzv/4G1Wu9rKqTdXf1536dWWu8nU=",
     "docs": "https://github.com/williamzujkowski/remarque/blob/main/REMARQUE.md#palette-deck",
     "cssVars": []

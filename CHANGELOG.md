@@ -4,6 +4,37 @@ All notable changes to `remarque-tokens` are documented here. Token value
 changes always state the design rationale — downstream sites pin against
 these entries when syncing.
 
+## 0.33.0 — 2026-10-28
+
+The drop cap fits. Remarque's own cap hung between lines, and it could not be adopted without taking all of `prose.css`. This release fixes the first with measured values, ships the cap as its own subpath, and enlarges the sidenote marker's tap target. Minor: new subpaths, and visible value changes to the drop cap and the sidenote hit area; no token is removed or renamed. Ratified 7-0 in `vote-1793200470008-hiqgebl`.
+
+### Changed — the drop cap spans three lines (consumer-visible; ratified 7-0, `vote-1793200470008-hiqgebl`)
+
+- **`initial-letter: 3`, not `3.5`**, in `.remarque-prose--dropcap` (prose.css, now dropcap.css) and `.remarque-lead-lede` (broadsheet.css).
+  - **Why:** the 2026-10-28 study measured the cap against the text. At `3.5` the cap's top sat about 6px above the first line's cap-height and its foot about 14px below line 3's baseline (Chromium and WebKit, Newsreader), so it hung between lines. A fractional size cannot land on a body baseline; an integer is exact by construction. After: top +1.0 and foot +0.5px in Chromium, within 2px in WebKit and Firefox, for Newsreader and Fraunces.
+  - Three lines rather than the two a same-day design review suggested. Three keeps the large initial that 3.5 was reaching for (about 2.4 body lines of cap height, against about 1.4 at two) and now lands exactly. Two lines remains as `.remarque-dropcap--short`.
+  - **Visible change:** the lede on a broadsheet page (the `.remarque-lead-lede` cap) and any `.remarque-prose--dropcap` essay get a taller cap and a different wrap around it. The demo's broadsheet baselines are regenerated.
+- **Optical size is pinned (`font-optical-sizing: none`)** on the cap. At the automatic optical size a 100px Newsreader or Fraunces letter is drawn about 7% taller than the cap-height metric `initial-letter` sizes by (Newsreader measured 4px high at the top). The cap is a little sturdier than an optically sized one.
+- **Physical padding beside the logical padding** on `::first-letter`. Chromium ignores logical padding there, so the gap after the cap (0.08em) never applied, and the float fallback lost its top offset. Physical declarations come first and logical ones after; `:dir(rtl)` flips the side.
+- **The Firefox float fallback is re-derived to span three lines.** Firefox has no `initial-letter` (MDN browser-compat-data 8.1.7). The old fallback (3.5em, line-height 0.85) spanned about two lines; its foot sat about a line above where it should. It now uses `font-size-adjust: cap-height 0.7`, a size that runs the ink from line 1's cap-height to line 3's baseline, a short line-height and a top padding. Measured in Firefox: within 0.5px (prose, Newsreader), within 2.1px (the lede on Fraunces, the worst case).
+- **The sidenote marker's tap target is at least 24x24px** (WCAG 2.5.8). `.remarque-sidenote-ref` was about 8x18px because of `line-height: 0` and `vertical-align: super`. A transparent centered `::before` overlay enlarges the clickable area; the digit does not move and the paragraph's height does not change.
+  - **Why:** an 8x18px target is under the 24x24 minimum WCAG 2.5.8 sets, and the digit is the only way into a note on a narrow viewport. The essay page's own markers are the case.
+
+### Added — three subpaths, extracted from prose.css
+
+- **`remarque-tokens/dropcap`** (`dropcap.css`): the drop cap alone, for sites with their own prose system. Importing `prose.css` restyles the whole article body (the flagship measured 102px and 333px of reflow on two posts), so it had vendored a copy of the rule and pinned it with a test. Import this instead.
+- **`remarque-tokens/endmark`** (`endmark.css`): the closing fleuron, `.remarque-endmark`.
+- **`remarque-tokens/code-title`** (`code-title.css`): the `pre[data-title]` filename line.
+- **`prose.css` `@import`s all three**, so existing consumers need no change and the rules live in exactly one file each. The partials now load before prose.css's own rules, so the cascade was checked: one rule collided (`.remarque-prose > * + *` beat the end mark's `margin-top` once it no longer came last), and `endmark.css` guards it with a second selector. With that, computed styles, element rects and screenshots of a prose fixture are identical to 0.32.0 in Chromium, Firefox and WebKit, apart from the drop cap. The demo's visual baselines are byte-identical for every other page. Consumers who copy files rather than install must copy the three partials with `prose.css`.
+- **`.remarque-dropcap--short`** (a two-line cap, for a lead of about 100 to 190 characters) and **`.no-drop-cap`** / `.remarque-dropcap--none` (no cap; for a one-line lead or a lowercase opener such as "npm"). CSS cannot detect text length or case, so the consumer applies these; the flagship's rehype plugin will. Both work on `.remarque-lead-lede` as well. A three-line cap on a short lead hangs below the text.
+
+### Added — tests and CI
+
+- `site/tests/dropcap-fit.spec.ts` measures the cap's ink top against the first line's cap-height and its foot against line 3's baseline (line 2 for the short variant), for Newsreader and Fraunces, the prose cap and the lede, in Chromium, WebKit and Firefox; asserts 2px (2.5px for Firefox's float on a non-default face).
+- `site/tests/sidenote-target.spec.ts` hit-tests a 24x24 box on the marker and checks paragraph height and marker position are unchanged.
+- Visual baselines for the essay drop cap (`/writing/against-decoration/`), which had none.
+- `visual-regression.yml` installs Firefox and WebKit; `scripts/test-pack.mjs` asserts the three files are in the tarball, resolve through their exports, and that every file `prose.css` imports ships.
+
 ## 0.32.0 — 2026-10-25
 
 ### Changed — the palette picker is findable (consumer-visible)
