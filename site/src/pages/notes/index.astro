@@ -20,11 +20,71 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   <div class="mt-12 content-reading space-y-0">
     <article class="py-6 border-b border-[var(--color-border)]">
       <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-09-22">Sep 22, 2026</time>
+        <span class="ml-3">color</span>
+      </div>
+      <p class="text-[length:var(--text-body)] text-[var(--color-fg)]">
+        The <a href="https://git.apcacontrast.com/documentation/APCA_in_a_Nutshell.html" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">APCA documentation</a> describes its Accessible Perceptual Contrast Algorithm as “the candidate contrast method for the future WCAG 3.” Remarque treats it as advisory data, not a gate: WCAG 2.x ratios remain the pass/fail check, and the audit prints APCA Lc beside each ratio as report-only information (REMARQUE.md, “APCA: Considered, Not Adopted”).
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-08-11">Aug 11, 2026</time>
+        <span class="ml-3">typography</span>
+      </div>
+      <p class="text-[length:var(--text-body)] text-[var(--color-fg)]">
+        Butterick’s <a href="https://practicaltypography.com/line-length.html" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">line length</a> chapter recommends: “Aim for an average line length of 45–90 characters, including spaces.” Bringhurst’s narrower 45–75 is the stricter reading; Remarque’s 38rem column lands inside both.
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-07-07">Jul 7, 2026</time>
+        <span class="ml-3">accessibility</span>
+      </div>
+      <p class="text-[length:var(--text-body)] text-[var(--color-fg)]">
+        WCAG 2.2 <a href="https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">SC 1.4.12 Text Spacing</a> (Level AA) requires that nothing is lost when a reader overrides line height to at least 1.5 times the font size, paragraph spacing to 2 times, letter spacing to 0.12 times and word spacing to 0.16 times. Unitless line heights and relative units make that pass by default; Remarque’s reflow suite tests it.
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-06-09">Jun 9, 2026</time>
+        <span class="ml-3">accessibility</span>
+      </div>
+      <p class="text-[length:var(--text-body)] text-[var(--color-fg)]">
+        WCAG 2.2 <a href="https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">SC 2.5.8 Target Size (Minimum)</a> is Level AA and asks for pointer targets of at least 24 by 24 CSS pixels, with exceptions such as spacing, inline links and essential cases. Remarque sets 44px for interactive elements, which clears it with margin.
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-05-12">May 12, 2026</time>
+        <span class="ml-3">css</span>
+      </div>
+      <p class="text-[length:var(--text-body)] text-[var(--color-fg)]">
+        MDN’s <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">light-dark()</a> page: the function takes two colors and returns one based on the active color scheme, with no <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">prefers-color-scheme</code> media query. It only switches when <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">color-scheme</code> allows both schemes, usually <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">light dark</code> on <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">:root</code>. It has worked across current browsers since May 2024, and every Remarque color token is one <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">light-dark()</code> declaration.
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
+        <time datetime="2026-04-17">Apr 17, 2026</time>
+        <span class="ml-3">color</span>
+      </div>
+      <p class="text-[length:var(--text-body)] text-[var(--color-fg)]">
+        Björn Ottosson’s <a href="https://bottosson.github.io/posts/oklab/" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">A perceptual color space for image processing</a> is the original Oklab write-up, the space behind OKLCH. Its stated goal is that Oklab “should predict lightness, chroma and hue well.” The post dates from December 2020; CSS Color Level 4 later added <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">oklab()</code> and <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">oklch()</code>.
+      </p>
+    </article>
+
+    <article class="py-6 border-b border-[var(--color-border)]">
+      <div class="font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)] mb-2">
         <time datetime="2026-04-10">Apr 10, 2026</time>
         <span class="ml-3">typography</span>
       </div>
       <p class="text-[length:var(--text-body)] text-[var(--color-fg)]">
-        Matthew Butterick’s <a href="https://practicaltypography.com" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">Practical Typography</a> remains the best single resource for web typography. His argument that typography is the visual medium of language — not decoration applied to language — is the foundation Remarque builds on.
+        Matthew Butterick’s <a href="https://practicaltypography.com/what-is-typography.html" class="underline underline-offset-[0.2em] decoration-1 text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--motion-fast)] ease-remarque">Practical Typography</a> is a free online book on typography for people who create documents. It opens with a definition: “Typography is the visual component of the written word.” That framing, typography as part of the language rather than a layer applied to it, is the foundation Remarque builds on.
       </p>
     </article>
 
@@ -44,7 +104,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <span class="ml-3">css</span>
       </div>
       <p class="text-[length:var(--text-body)] text-[var(--color-fg)]">
-        OKLCH is quietly becoming the most important CSS color development in years. Perceptual uniformity means you can adjust lightness or chroma independently and get predictable results. No more manually eyeballing “does this blue look as bright as that green?”
+        OKLCH is a CSS color notation built on Oklab, which is designed so lightness, chroma and hue can be adjusted with far more predictable results than in HSL. Equal lightness across hues looks roughly equally light, so there is less manual eyeballing of “does this blue look as bright as that green?”
       </p>
     </article>
 
@@ -54,7 +114,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <span class="ml-3">reference</span>
       </div>
       <p class="text-[length:var(--text-body)] text-[var(--color-fg)]">
-        The optimal line length for reading is 45-75 characters per line. At 17px Inter, <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">38rem</code> sets about 71 characters — measured, not computed: the <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">ch</code> unit is the width of “0” and overstates how few characters fit.
+        Robert Bringhurst treats 45–75 characters per line as satisfactory for a single-column page; Butterick allows 45–90. At 17px Inter, <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">38rem</code> sets about 71 characters — measured, not computed: the <code class="font-mono text-[0.9em] bg-[var(--color-code-bg)] text-[var(--color-code-fg)] px-[0.35em] py-[0.15em] rounded-[var(--radius-sm)]">ch</code> unit is the width of “0” and overstates how few characters fit.
       </p>
     </article>
 

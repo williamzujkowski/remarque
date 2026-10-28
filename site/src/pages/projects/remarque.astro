@@ -24,7 +24,7 @@ const base = import.meta.env.BASE_URL;
       </nav>
       <h1 class="text-display font-display text-[var(--color-fg)]">Remarque</h1>
       <p class="mt-4 text-[length:var(--text-body-lg)] leading-[var(--leading-body)] text-[var(--color-fg)] max-w-reading">
-        A typography-first design system for editorial, technical, and personal web projects. Named for the small sketches printmakers draw in the margins of proof editions — the mark that says this was made by someone specific, with intention.
+        A typography-first design system for editorial, technical, and personal web projects. Named for the remarque, the small sketch a printmaker adds in the margin of a plate, visible on the early proofs — the mark that says this was made by someone specific, with intention.
       </p>
     </header>
 
@@ -48,13 +48,15 @@ const base = import.meta.env.BASE_URL;
       <h2>Architecture</h2>
 
       <p>
-        Remarque is built on three layers, each with a specific responsibility:
+        Remarque is built in layers, each with a specific responsibility:
       </p>
 
       <ul>
-        <li><strong>Design Tokens</strong> (<code>tokens.css</code>) — CSS custom properties as the single source of truth for all visual decisions. Colors use OKLCH for perceptual uniformity. Typography uses a fluid type scale.</li>
-        <li><strong>Tailwind Configuration</strong> (<code>tailwind.config.js</code>) — Maps tokens into Tailwind utility classes. Extends (does not replace) Tailwind defaults with Remarque-specific values.</li>
-        <li><strong>Prose Styling</strong> — The <code>.remarque-prose</code> class handles all long-form reading typography. Applied once, it handles headings, links, code blocks, blockquotes, and images.</li>
+        <li><strong>Core Tokens</strong> (<code>tokens-core.css</code>) — The immutable identity: type scale, spacing, content widths, radius, and motion, as CSS custom properties. Overriding these is forking Remarque.</li>
+        <li><strong>Palette Tokens</strong> (<code>tokens-palette.css</code>) — The sanctioned personalization surface: font slots, colors, accent, and the reading measure. Colors use OKLCH. <code>tokens.css</code> aggregates the two tiers.</li>
+        <li><strong>Prose Styling</strong> (<code>prose.css</code>) — The <code>.remarque-prose</code> class handles long-form reading typography: headings, links, code blocks, blockquotes, tables, and images.</li>
+        <li><strong>Tailwind Adapter</strong> (<code>theme.css</code> for Tailwind v4, <code>tailwind.config.js</code> for v3) — Maps tokens into utility classes without duplicating values.</li>
+        <li><strong>Optional Modules</strong> — <code>essay.css</code>, <code>broadsheet.css</code>, <code>forms.css</code>, <code>chrome.css</code>, <code>print.css</code>, and the Palette Deck (<code>remarque-tokens/deck</code>), each imported only when a page needs it.</li>
       </ul>
 
       <h2>Design Decisions</h2>
@@ -66,17 +68,17 @@ const base = import.meta.env.BASE_URL;
 
       <h3>17px Minimum Body Text</h3>
       <p>
-        Most systems default to 16px or smaller. The single-pixel increase to 17px measurably improves reading comfort on screens, especially for extended reading sessions.
+        Most systems default to 16px or smaller; USWDS, for one, asks for at least 16px. Remarque sets a floor one pixel higher, a deliberate choice for comfort in extended reading rather than a measured threshold.
       </p>
 
       <h3>38rem Reading Column</h3>
       <p>
-        Derived from the typographic standard of 45–75 characters per line. At 17px Inter, 38rem sets a median of about 71 characters per line — measured on rendered text, since <code>ch</code> arithmetic overstates the count (46rem, the earlier default, actually set 86).
+        Chosen to sit inside the 45–75 characters per line that Robert Bringhurst treats as satisfactory for a single-column page (Matthew Butterick allows 45–90). At 17px Inter, 38rem sets a median of about 71 characters per line — measured on rendered text, since <code>ch</code> arithmetic overstates the count (46rem, the earlier default, actually set 86).
       </p>
 
       <h3>OKLCH Color Space</h3>
       <p>
-        Colors are defined in OKLCH for perceptual uniformity. A lightness of 0.50 in OKLCH actually looks mid-brightness, unlike HSL where perceived brightness varies wildly by hue. This makes the palette internally consistent without manual tuning.
+        Colors are defined in OKLCH, whose lightness axis is built to track perceived lightness. Two colors with the same OKLCH lightness look about equally light across hues, unlike HSL, where a yellow and a blue at the same L differ greatly in perceived brightness. That makes it practical to tune contrast by adjusting lightness alone.
       </p>
 
       <h2>Changelog</h2>

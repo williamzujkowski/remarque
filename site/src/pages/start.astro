@@ -1,17 +1,17 @@
 ---
 /**
  * Getting Started + Archetype Starter Templates
- * Copy-paste HTML for each of the 4 page archetypes.
+ * Copy-paste HTML for the four core page archetypes (REMARQUE.md defines seven).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 const base = import.meta.env.BASE_URL;
 ---
 
-<BaseLayout title="Getting Started" description="Quick start guide and copy-paste HTML templates for every Remarque page archetype.">
+<BaseLayout title="Getting Started" description="Quick start guide and copy-paste HTML templates for the core Remarque page archetypes.">
   <div class="pt-[var(--space-9)] content-reading">
     <h1 class="text-display font-display text-[var(--color-fg)]">Getting Started</h1>
     <p class="mt-4 font-mono text-[length:var(--text-meta)] tracking-[var(--tracking-meta)] text-[var(--color-muted)]">
-      Three files. One import. Start building.
+      Install from npm. Two imports. Start building.
     </p>
   </div>
 
@@ -19,11 +19,17 @@ const base = import.meta.env.BASE_URL;
   <section class="mt-12 content-reading">
     <h2 class="text-section font-display text-[var(--color-fg)] mb-4">Install</h2>
     <div class="remarque-prose">
-      <p>Install from npm (or copy <code>fonts.css</code>, <code>tokens.css</code>, <code>tokens-core.css</code>, <code>tokens-palette.css</code>, and <code>fonts/</code> directly — Tailwind v3 users may also copy <code>tailwind.config.js</code>):</p>
+      <p>Install from npm (or copy <code>fonts.css</code>, <code>tokens.css</code>, <code>tokens-core.css</code>, <code>tokens-palette.css</code>, <code>prose.css</code>, and <code>fonts/</code> directly — <code>tokens.css</code> imports the other three stylesheets, so they travel together):</p>
 
       <pre><code>npm install remarque-tokens</code></pre>
 
-      <p>Then import fonts first, tokens second, before your other styles:</p>
+      <p>Then import fonts first, tokens second, before your other styles. With a bundler and the npm package:</p>
+
+      <h3>CSS (npm)</h3>
+      <pre><code>@import 'remarque-tokens/fonts.css';
+@import 'remarque-tokens';</code></pre>
+
+      <p>Copy the <code>.woff2</code> files from <code>node_modules/remarque-tokens/fonts/</code> into your static assets. Tailwind v4 projects also add <code>@import "remarque-tokens/theme.css";</code> after the tokens; Tailwind v3 projects use <code>remarque-tokens/tailwind</code> (<code>tailwind.config.js</code>) instead. With copied files:</p>
 
       <h3>Plain HTML</h3>
       <pre><code>&lt;link rel="stylesheet" href="fonts.css"&gt;
@@ -49,7 +55,7 @@ import './tokens.css';</code></pre>
     <div class="content-reading mb-8">
       <h2 class="text-section font-display text-[var(--color-fg)] mb-4">Page Archetypes</h2>
       <p class="text-[length:var(--text-body)] text-[var(--color-fg-muted)]">
-        Every page built with Remarque must conform to one of these four archetypes. Copy the HTML, adjust the content.
+        Every page built with Remarque must conform to one of seven archetypes: Essay, Project Dossier, Notebook, Landing, Reference/Docs, Changelog, and Gallery. The four core ones are below — copy the HTML, adjust the content. REMARQUE.md specifies the other three.
       </p>
     </div>
 
